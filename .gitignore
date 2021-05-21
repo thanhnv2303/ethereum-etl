@@ -47,3 +47,5 @@ coverage.xml
 .venv
 venv/
 ENV/
+data
+
