@@ -45,7 +45,7 @@ logging_basic_config()
               help='The URI of the web3 provider e.g. file://$HOME/Library/Ethereum/geth.ipc or http://localhost:8545/')
 @click.option('-t', '--tokens', default=None, show_default=True, type=str, multiple=True,
               help='The list of token addresses to filter by.')
-@click.option('-se', '--subscriber-events-file', required=True, type=str,
+@click.option('-se', '--subscriber-event-file', required=True, type=str,
               help='The path of json file subscribe events to export .ex: ./$HOME/project/example/subscribe_events.json')
 def export_events(start_block, end_block, batch_size, output, max_workers, provider_uri, tokens,
                   subscriber_event_file):

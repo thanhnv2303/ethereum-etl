@@ -34,6 +34,13 @@ Export ERC20 and ERC721 transfers ([Schema](docs/schema.md#token_transferscsv), 
 --provider-uri file://$HOME/Library/Ethereum/geth.ipc --output token_transfers.csv
 ```
 
+Export Event emit :
+
+```bash
+> ethereumetl export_events --start-block 0 --end-block 500000 \
+--provider-uri file://$HOME/Library/Ethereum/geth.ipc --output event_mint.csv --subscriber-event-file ./examples/mint_event.json
+```
+
 Export traces ([Schema](docs/schema.md#tracescsv), [Reference](docs/commands.md#export_traces)):
 
 ```bash
