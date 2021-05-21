@@ -34,7 +34,6 @@ logger = logging.getLogger(__name__)
 
 class EthTokenTransferExtractor(object):
     def extract_transfer_from_log(self, receipt_log):
-
         topics = receipt_log.topics
         if topics is None or len(topics) < 1:
             logger.warning("Topics are empty in log {} of transaction {}".format(receipt_log.log_index,
@@ -44,6 +43,7 @@ class EthTokenTransferExtractor(object):
         if topics[0] == TRANSFER_EVENT_TOPIC:
             # Handle unindexed event fields
             topics_with_data = topics + split_to_words(receipt_log.data)
+
             # if the number of topics and fields in data part != 4, then it's a weird event
             if len(topics_with_data) != 4:
                 logger.warning("The number of topics and data parts is not equal to 4 in log {} of transaction {}"

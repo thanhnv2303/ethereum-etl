@@ -24,6 +24,7 @@ import click
 from ethereumetl.cli.export_all import export_all
 from ethereumetl.cli.export_blocks_and_transactions import export_blocks_and_transactions
 from ethereumetl.cli.export_contracts import export_contracts
+from ethereumetl.cli.export_events import export_events
 from ethereumetl.cli.export_geth_traces import export_geth_traces
 from ethereumetl.cli.export_origin import export_origin
 from ethereumetl.cli.export_receipts_and_logs import export_receipts_and_logs
@@ -64,6 +65,7 @@ cli.add_command(export_geth_traces, "export_geth_traces")
 cli.add_command(extract_geth_traces, "extract_geth_traces")
 cli.add_command(extract_contracts, "extract_contracts")
 cli.add_command(extract_tokens, "extract_tokens")
+cli.add_command(export_events, "export_events")
 
 # streaming
 cli.add_command(stream, "stream")

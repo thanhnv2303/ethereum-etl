@@ -19,13 +19,16 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import logging
 
-from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from blockchainetl.jobs.base_job import BaseJob
-from ethereumetl.mappers.token_transfer_mapper import EthTokenTransferMapper
+from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
+from ethereumetl.mappers.token_transfer_mapper import EthTokenTransferMapper
 from ethereumetl.service.token_transfer_extractor import EthTokenTransferExtractor, TRANSFER_EVENT_TOPIC
 from ethereumetl.utils import validate_range
+
+logger = logging.getLogger(__name__)
 
 
 class ExportTokenTransfersJob(BaseJob):
