@@ -41,4 +41,5 @@ class InMemoryItemExporter:
         pass
 
     def get_items(self, item_type):
+
         return self.items[item_type]

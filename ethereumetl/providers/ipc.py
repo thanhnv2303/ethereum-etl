@@ -25,10 +25,10 @@ import json
 import socket
 
 from web3.providers.ipc import IPCProvider
-from web3.utils.threads import (
+from web3._utils.threads import (
     Timeout,
 )
-
+from web3 import Web3
 try:
     from json import JSONDecodeError
 except ImportError:
@@ -38,7 +38,7 @@ except ImportError:
 # Mostly copied from web3.py/providers/ipc.py. Supports batch requests.
 # Will be removed once batch feature is added to web3.py https://github.com/ethereum/web3.py/issues/832
 # Also see this optimization https://github.com/ethereum/web3.py/pull/849
-class BatchIPCProvider(IPCProvider):
+class BatchIPCProvider(Web3.IPCProvider):
     _socket = None
 
     def make_batch_request(self, text):

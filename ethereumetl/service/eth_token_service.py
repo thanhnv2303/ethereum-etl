@@ -54,6 +54,7 @@ class EthTokenService(object):
 
     def _get_first_result(self, *funcs):
         for func in funcs:
+
             result = self._call_contract_function(func)
             if result is not None:
                 return result
@@ -84,4 +85,5 @@ def call_contract_function(func, ignore_errors, default_value=None):
                              + 'This exception can be safely ignored.')
             return default_value
         else:
-            raise ex
+            logger.exception(ex)
+            return default_value

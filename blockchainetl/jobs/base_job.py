@@ -25,14 +25,12 @@ logger = logging.getLogger(__name__)
 
 class BaseJob(object):
     def run(self):
-        logger.info("run")
-        print("run")
         try:
             self._start()
             self._export()
         except Exception as e:
             logger.error(e)
-            print(e)
+
         finally:
             self._end()
 

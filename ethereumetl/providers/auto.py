@@ -24,7 +24,7 @@
 from urllib.parse import urlparse
 
 from web3 import IPCProvider, HTTPProvider
-
+from web3 import Web3
 from ethereumetl.providers.ipc import BatchIPCProvider
 from ethereumetl.providers.rpc import BatchHTTPProvider
 
@@ -37,13 +37,13 @@ def get_provider_from_uri(uri_string, timeout=DEFAULT_TIMEOUT, batch=False):
         if batch:
             return BatchIPCProvider(uri.path, timeout=timeout)
         else:
-            return IPCProvider(uri.path, timeout=timeout)
+            return Web3.IPCProvider(uri.path, timeout=timeout)
     elif uri.scheme == 'http' or uri.scheme == 'https':
         request_kwargs = {'timeout': timeout}
         if batch:
             return BatchHTTPProvider(uri_string, request_kwargs=request_kwargs)
         else:
-            return HTTPProvider(uri_string, request_kwargs=request_kwargs)
+            return Web3.HTTPProvider(uri_string, request_kwargs=request_kwargs)
     else:
         raise ValueError('Unknown uri scheme {}'.format(uri_string))
 

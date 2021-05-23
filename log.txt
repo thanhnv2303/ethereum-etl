@@ -1,0 +1,100 @@
+2021-05-21 18:39:01,456 - root [INFO] - Using https://bsc-dataseed.binance.org/
+2021-05-21 18:46:28,011 - root [INFO] - Using https://bsc-dataseed.binance.org/
+2021-05-21 18:47:11,147 - root [INFO] - Using https://bsc-dataseed.binance.org/
+2021-05-21 18:47:11,150 - root [ERROR] - An exception occurred while syncing block data.
+Traceback (most recent call last):
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 77, in _do_stream
+    synced_blocks = self._sync_cycle()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 89, in _sync_cycle
+    current_block = self.blockchain_streamer_adapter.get_current_block_number()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/ethereumetl/streaming/eth_streamer_adapter.py", line 44, in get_current_block_number
+    return int(Web3(self.batch_web3_provider).eth.getBlock("latest").number)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/eth.py", line 141, in getBlock
+    [block_identifier, full_transactions],
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 109, in request_blocking
+    response = self._make_request(method, params)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 89, in _make_request
+    request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+AttributeError: 'NoneType' object has no attribute 'request_func'
+2021-05-21 18:47:11,150 - root [INFO] - Nothing to sync. Sleeping for 10 seconds...
+2021-05-21 18:47:21,163 - root [ERROR] - An exception occurred while syncing block data.
+Traceback (most recent call last):
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 77, in _do_stream
+    synced_blocks = self._sync_cycle()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 89, in _sync_cycle
+    current_block = self.blockchain_streamer_adapter.get_current_block_number()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/ethereumetl/streaming/eth_streamer_adapter.py", line 44, in get_current_block_number
+    return int(Web3(self.batch_web3_provider).eth.getBlock("latest").number)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/eth.py", line 141, in getBlock
+    [block_identifier, full_transactions],
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 109, in request_blocking
+    response = self._make_request(method, params)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 89, in _make_request
+    request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+AttributeError: 'NoneType' object has no attribute 'request_func'
+2021-05-21 18:47:21,163 - root [INFO] - Nothing to sync. Sleeping for 10 seconds...
+2021-05-21 18:47:31,174 - root [ERROR] - An exception occurred while syncing block data.
+Traceback (most recent call last):
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 77, in _do_stream
+    synced_blocks = self._sync_cycle()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 89, in _sync_cycle
+    current_block = self.blockchain_streamer_adapter.get_current_block_number()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/ethereumetl/streaming/eth_streamer_adapter.py", line 44, in get_current_block_number
+    return int(Web3(self.batch_web3_provider).eth.getBlock("latest").number)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/eth.py", line 141, in getBlock
+    [block_identifier, full_transactions],
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 109, in request_blocking
+    response = self._make_request(method, params)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 89, in _make_request
+    request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+AttributeError: 'NoneType' object has no attribute 'request_func'
+2021-05-21 18:47:31,174 - root [INFO] - Nothing to sync. Sleeping for 10 seconds...
+2021-05-21 18:47:41,183 - root [ERROR] - An exception occurred while syncing block data.
+Traceback (most recent call last):
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 77, in _do_stream
+    synced_blocks = self._sync_cycle()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 89, in _sync_cycle
+    current_block = self.blockchain_streamer_adapter.get_current_block_number()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/ethereumetl/streaming/eth_streamer_adapter.py", line 44, in get_current_block_number
+    return int(Web3(self.batch_web3_provider).eth.getBlock("latest").number)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/eth.py", line 141, in getBlock
+    [block_identifier, full_transactions],
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 109, in request_blocking
+    response = self._make_request(method, params)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 89, in _make_request
+    request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+AttributeError: 'NoneType' object has no attribute 'request_func'
+2021-05-21 18:47:41,183 - root [INFO] - Nothing to sync. Sleeping for 10 seconds...
+2021-05-21 18:47:51,195 - root [ERROR] - An exception occurred while syncing block data.
+Traceback (most recent call last):
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 77, in _do_stream
+    synced_blocks = self._sync_cycle()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 89, in _sync_cycle
+    current_block = self.blockchain_streamer_adapter.get_current_block_number()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/ethereumetl/streaming/eth_streamer_adapter.py", line 44, in get_current_block_number
+    return int(Web3(self.batch_web3_provider).eth.getBlock("latest").number)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/eth.py", line 141, in getBlock
+    [block_identifier, full_transactions],
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 109, in request_blocking
+    response = self._make_request(method, params)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 89, in _make_request
+    request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+AttributeError: 'NoneType' object has no attribute 'request_func'
+2021-05-21 18:47:51,196 - root [INFO] - Nothing to sync. Sleeping for 10 seconds...
+2021-05-21 18:48:01,207 - root [ERROR] - An exception occurred while syncing block data.
+Traceback (most recent call last):
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 77, in _do_stream
+    synced_blocks = self._sync_cycle()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/blockchainetl/streaming/streamer.py", line 89, in _sync_cycle
+    current_block = self.blockchain_streamer_adapter.get_current_block_number()
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/ethereumetl/streaming/eth_streamer_adapter.py", line 44, in get_current_block_number
+    return int(Web3(self.batch_web3_provider).eth.getBlock("latest").number)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/eth.py", line 141, in getBlock
+    [block_identifier, full_transactions],
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 109, in request_blocking
+    response = self._make_request(method, params)
+  File "/home/thanhnv/bkc/blockchain-etl/ethereum-etl/venv/lib/python3.6/site-packages/web3/manager.py", line 89, in _make_request
+    request_func = provider.request_func(self.web3, tuple(self.middleware_stack))
+AttributeError: 'NoneType' object has no attribute 'request_func'
+2021-05-21 18:48:01,207 - root [INFO] - Nothing to sync. Sleeping for 10 seconds...
+2021-05-22 08:40:03,257 - root [INFO] - Using https://bsc-dataseed.binance.org/

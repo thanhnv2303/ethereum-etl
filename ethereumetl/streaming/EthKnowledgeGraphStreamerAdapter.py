@@ -1,12 +1,14 @@
-import logging
+import os
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
 from blockchainetl.jobs.exporters.in_memory_item_exporter import InMemoryItemExporter
+from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
 from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
+from ethereumetl.jobs.export_knowledge_graph_needed_common import export_knowledge_graph_needed_common
 from ethereumetl.jobs.export_receipts_job import ExportReceiptsJob
 from ethereumetl.jobs.export_token_transfers_job import ExportTokenTransfersJob
 from ethereumetl.jobs.export_tokens_job import ExportTokensJob
@@ -14,22 +16,22 @@ from ethereumetl.jobs.export_traces_job import ExportTracesJob
 from ethereumetl.jobs.extract_contracts_job import ExtractContractsJob
 from ethereumetl.jobs.extract_token_transfers_job import ExtractTokenTransfersJob
 from ethereumetl.jobs.extract_tokens_job import ExtractTokensJob
-from ethereumetl.streaming.enrich import enrich_transactions, enrich_logs, enrich_token_transfers, enrich_traces, \
-    enrich_contracts, enrich_tokens
 from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
 from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 
-class EthStreamerAdapter:
+class EthKnowledgeGraphStreamerAdapter:
     def __init__(
             self,
+            provider_uri,
             batch_web3_provider,
             item_exporter=ConsoleItemExporter(),
             batch_size=100,
             max_workers=5,
             entity_types=tuple(EntityType.ALL_FOR_STREAMING)):
         # self.batch_web3_provider = batch_web3_provider
+        self.provider_uri = provider_uri
         self.batch_web3_provider = batch_web3_provider
         self.w3 = Web3(batch_web3_provider)
         self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
@@ -48,69 +50,13 @@ class EthStreamerAdapter:
         return int(self.w3.eth.getBlock("latest").number)
 
     def export_all(self, start_block, end_block):
-        # Export blocks and transactions
-        blocks, transactions = [], []
-        if self._should_export(EntityType.BLOCK) or self._should_export(EntityType.TRANSACTION):
-            blocks, transactions = self._export_blocks_and_transactions(start_block, end_block)
-
-        # Export receipts and logs
-        receipts, logs = [], []
-        if self._should_export(EntityType.RECEIPT) or self._should_export(EntityType.LOG):
-            receipts, logs = self._export_receipts_and_logs(transactions)
-
-        # Extract token transfers
-        token_transfers = []
-        if self._should_export(EntityType.TOKEN_TRANSFER):
-            token_transfers = self._extract_token_transfers(logs)
-        else:
-            token_transfers = self._export_token_transfers(start_block, end_block)
-
-        # Export traces
-        traces = []
-        # if self._should_export(EntityType.TRACE):
-        #     traces = self._export_traces(start_block, end_block)
-
-        # Export contracts
-        contracts = []
-        if self._should_export(EntityType.CONTRACT):
-            contracts = self._export_contracts(traces)
-
-        # Export tokens
-        tokens = []
-        if self._should_export(EntityType.TOKEN):
-            tokens = self._extract_tokens(contracts)
-        # if self._should_export(EntityType.TOKEN):
-        #     tokens = self._extract_tokens_from_transfer(token_transfers)
-
-        enriched_blocks = blocks \
-            if EntityType.BLOCK in self.entity_types else []
-        enriched_transactions = enrich_transactions(transactions, receipts) \
-            if EntityType.TRANSACTION in self.entity_types else []
-        enriched_logs = enrich_logs(blocks, logs) \
-            if EntityType.LOG in self.entity_types else []
-        enriched_token_transfers = enrich_token_transfers(blocks, token_transfers) \
-            if EntityType.TOKEN_TRANSFER in self.entity_types else []
-        enriched_traces = enrich_traces(blocks, traces) \
-            if EntityType.TRACE in self.entity_types else []
-        enriched_contracts = enrich_contracts(blocks, contracts) \
-            if EntityType.CONTRACT in self.entity_types else []
-        enriched_tokens = enrich_tokens(blocks, tokens) \
-            if EntityType.TOKEN in self.entity_types else []
-
-        logging.info('Exporting with ' + type(self.item_exporter).__name__)
-
-        all_items = enriched_blocks + \
-                    enriched_transactions + \
-                    enriched_logs + \
-                    enriched_token_transfers + \
-                    enriched_traces + \
-                    enriched_contracts + \
-                    enriched_tokens
-
-        self.calculate_item_ids(all_items)
-        self.calculate_item_timestamps(all_items)
-
-        self.item_exporter.export_items(all_items)
+        partition_batch_size = 10000
+        dir_path = "../../data"
+        cur_path = os.path.dirname(os.path.realpath(__file__))
+        output_dir = cur_path + dir_path
+        partitions = get_partitions(str(start_block), str(end_block), partition_batch_size, self.provider_uri)
+        export_knowledge_graph_needed_common(partitions, output_dir, self.provider_uri, self.max_workers,
+                                             self.batch_size)
 
     def _export_blocks_and_transactions(self, start_block, end_block):
         blocks_and_transactions_item_exporter = InMemoryItemExporter(item_types=['block', 'transaction'])
@@ -205,6 +151,7 @@ class EthStreamerAdapter:
         )
         job.run()
         tokens = exporter.get_items("token")
+        print("tokens")
         return tokens
 
     def _extract_tokens_from_transfer(self, token_transfers):

@@ -26,6 +26,7 @@ from ethereumetl.cli.export_blocks_and_transactions import export_blocks_and_tra
 from ethereumetl.cli.export_contracts import export_contracts
 from ethereumetl.cli.export_events import export_events
 from ethereumetl.cli.export_geth_traces import export_geth_traces
+from ethereumetl.cli.export_knowledge_graph_needed import export_knowledge_graph_needed
 from ethereumetl.cli.export_origin import export_origin
 from ethereumetl.cli.export_receipts_and_logs import export_receipts_and_logs
 from ethereumetl.cli.export_token_transfers import export_token_transfers
@@ -42,6 +43,7 @@ from ethereumetl.cli.get_block_range_for_date import get_block_range_for_date
 from ethereumetl.cli.get_block_range_for_timestamps import get_block_range_for_timestamps
 from ethereumetl.cli.get_keccak_hash import get_keccak_hash
 from ethereumetl.cli.stream import stream
+from ethereumetl.cli.stream_knowledge_graph import stream_knowledge_graph
 
 
 @click.group()
@@ -53,6 +55,7 @@ def cli(ctx):
 
 # export
 cli.add_command(export_all, "export_all")
+cli.add_command(export_knowledge_graph_needed, "export_knowledge_graph_needed")
 cli.add_command(export_blocks_and_transactions, "export_blocks_and_transactions")
 cli.add_command(export_origin, "export_origin")
 cli.add_command(export_receipts_and_logs, "export_receipts_and_logs")
@@ -69,6 +72,7 @@ cli.add_command(export_events, "export_events")
 
 # streaming
 cli.add_command(stream, "stream")
+cli.add_command(stream_knowledge_graph, "stream_knowledge_graph")
 
 # utils
 cli.add_command(get_block_range_for_date, "get_block_range_for_date")
