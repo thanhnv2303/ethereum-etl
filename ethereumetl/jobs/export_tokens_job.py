@@ -21,8 +21,8 @@
 # SOFTWARE.
 
 
-from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from blockchainetl.jobs.base_job import BaseJob
+from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.mappers.token_mapper import EthTokenMapper
 from ethereumetl.service.eth_token_service import EthTokenService
 
@@ -35,6 +35,7 @@ class ExportTokensJob(BaseJob):
 
         self.token_service = EthTokenService(web3, clean_user_provided_content)
         self.token_mapper = EthTokenMapper()
+        self.tokens_cache = []
 
     def _start(self):
         self.item_exporter.open()
@@ -50,12 +51,18 @@ class ExportTokensJob(BaseJob):
         token = self.token_service.get_token(token_address)
         token.block_number = block_number
         token_dict = self.token_mapper.token_to_dict(token)
-
+        self.tokens_cache.append(token_dict)
         self.item_exporter.export_item(token_dict)
 
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
+
+    def get_cache(self):
+        return self.tokens_cache
+
+    def clean_cache(self):
+        self.tokens_cache = []
 
 
 ASCII_0 = 0

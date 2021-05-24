@@ -61,6 +61,8 @@ class ExportEventsJob(BaseJob):
         self.event_subscriber = None
         self._init_events_subscription()
 
+        self.eth_events_dict_cache = []
+
     def _init_events_subscription(self):
         event_abi = self.subscriber_event
         if event_abi.get("type") == "event":
@@ -82,6 +84,7 @@ class ExportEventsJob(BaseJob):
         )
 
     def _export_batch(self, block_number_batch):
+        # self.eth_events_dict_cache = []
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
         filter_params = {
@@ -98,10 +101,17 @@ class ExportEventsJob(BaseJob):
             log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
             eth_event = self.event_extractor.extract_event_from_log(log, self.event_subscriber)
             if eth_event is not None:
-                self.item_exporter.export_item(self.event_mapper.eth_event_to_dict(eth_event))
+                eth_event_dict = self.event_mapper.eth_event_to_dict(eth_event)
+                self.item_exporter.export_item(eth_event_dict)
 
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
+
+    def get_cache(self):
+        return self.eth_events_dict_cache
+
+    def clean_cache(self):
+        self.eth_events_dict_cache = []

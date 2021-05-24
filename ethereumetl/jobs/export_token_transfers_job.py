@@ -54,6 +54,7 @@ class ExportTokenTransfersJob(BaseJob):
         self.receipt_log_mapper = EthReceiptLogMapper()
         self.token_transfer_mapper = EthTokenTransferMapper()
         self.token_transfer_extractor = EthTokenTransferExtractor()
+        self.token_dict_cache = []
 
     def _start(self):
         self.item_exporter.open()
@@ -66,6 +67,7 @@ class ExportTokenTransfersJob(BaseJob):
         )
 
     def _export_batch(self, block_number_batch):
+        # self.token_dict_cache = []
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
         filter_params = {
@@ -83,10 +85,18 @@ class ExportTokenTransfersJob(BaseJob):
             log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
             token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
             if token_transfer is not None:
-                self.item_exporter.export_item(self.token_transfer_mapper.token_transfer_to_dict(token_transfer))
+                token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
+                self.token_dict_cache.append(token_transfer_dict)
+                self.item_exporter.export_item(token_transfer_dict)
 
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
+
+    def get_cache(self):
+        return self.token_dict_cache
+
+    def clean_cache(self):
+        self.token_dict_cache = []

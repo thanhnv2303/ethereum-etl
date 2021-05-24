@@ -4,7 +4,7 @@ from blockchainetl.streaming.streaming_utils import configure_logging, configure
 from ethereumetl.cli.stream import parse_entity_types, validate_entity_types, pick_random_provider_uri
 from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.providers.auto import get_provider_from_uri
-from ethereumetl.streaming.EthKnowledgeGraphStreamerAdapter import EthKnowledgeGraphStreamerAdapter
+from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 last_synced_block_file = "./data_test_stream/last_synced_block.txt"
@@ -17,7 +17,7 @@ batch_size = 100
 max_workers = 5
 
 start_block = 858560
-# start_block = None
+start_block = None
 period_seconds = 10
 pid_file = None
 block_batch_size = 10

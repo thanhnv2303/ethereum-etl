@@ -22,6 +22,7 @@
 
 
 import json
+import logging
 
 from blockchainetl.jobs.base_job import BaseJob
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
@@ -63,12 +64,18 @@ class ExportReceiptsJob(BaseJob):
         self.batch_work_executor.execute(self.transaction_hashes_iterable, self._export_receipts)
 
     def _export_receipts(self, transaction_hashes):
+        print("transaction_hashes--------------------")
+        print(transaction_hashes)
         receipts_rpc = list(generate_get_receipt_json_rpc(transaction_hashes))
         response = self.batch_web3_provider.make_batch_request(json.dumps(receipts_rpc))
-        results = rpc_response_batch_to_results(response)
-        receipts = [self.receipt_mapper.json_dict_to_receipt(result) for result in results]
-        for receipt in receipts:
-            self._export_receipt(receipt)
+        try:
+            results = rpc_response_batch_to_results(response)
+            receipts = [self.receipt_mapper.json_dict_to_receipt(result) for result in results]
+            for receipt in receipts:
+                self._export_receipt(receipt)
+        except Exception as e:
+            logging.getLogger("ExportReceiptsJob").error(e)
+            print(e)
 
     def _export_receipt(self, receipt):
         if self.export_receipts:

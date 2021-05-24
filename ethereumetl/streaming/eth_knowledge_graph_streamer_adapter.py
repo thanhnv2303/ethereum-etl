@@ -8,7 +8,8 @@ from blockchainetl.jobs.exporters.in_memory_item_exporter import InMemoryItemExp
 from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
 from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
-from ethereumetl.jobs.export_knowledge_graph_needed_common import export_knowledge_graph_needed_common
+from ethereumetl.jobs.export_knowledge_graph_needed_common import export_knowledge_graph_needed_with_item_exporter, \
+    export_knowledge_graph_needed_common
 from ethereumetl.jobs.export_receipts_job import ExportReceiptsJob
 from ethereumetl.jobs.export_token_transfers_job import ExportTokenTransfersJob
 from ethereumetl.jobs.export_tokens_job import ExportTokensJob
@@ -53,10 +54,15 @@ class EthKnowledgeGraphStreamerAdapter:
         partition_batch_size = 10000
         dir_path = "../../data"
         cur_path = os.path.dirname(os.path.realpath(__file__))
-        output_dir = cur_path + dir_path
+        output_dir = cur_path + "/" + dir_path
         partitions = get_partitions(str(start_block), str(end_block), partition_batch_size, self.provider_uri)
-        export_knowledge_graph_needed_common(partitions, output_dir, self.provider_uri, self.max_workers,
-                                             self.batch_size)
+        # export_knowledge_graph_needed_common(partitions, output_dir, self.provider_uri, self.max_workers,
+        #                                      self.batch_size)
+        item_types = EntityType.ALL_FOR_KNOWLEDGE_GRAPH
+        item_exporter = ConsoleItemExporter()
+        export_knowledge_graph_needed_with_item_exporter(partitions, self.provider_uri, self.max_workers,
+                                                         self.batch_size,
+                                                         item_exporter)
 
     def _export_blocks_and_transactions(self, start_block, end_block):
         blocks_and_transactions_item_exporter = InMemoryItemExporter(item_types=['block', 'transaction'])

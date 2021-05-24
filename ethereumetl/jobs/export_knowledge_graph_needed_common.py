@@ -65,6 +65,10 @@ def extract_csv_column_unique(input, output, column):
             output_file.write(row[column] + '\n')
 
 
+def extract_dict_key_to_list(dict_list, key):
+    return [a_dict[key] for a_dict in dict_list]
+
+
 def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, max_workers, batch_size):
     for batch_start_block, batch_end_block, partition_dir in partitions:
         # # # start # # #
@@ -196,7 +200,7 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
                         end_block=batch_end_block,
                         batch_size=batch_size,
                         web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
-                        item_exporter=event_item_exporter(event_name, event_file, add_fields_to_export),
+                        item_exporter=event_item_exporter(event_file, add_fields_to_export),
                         max_workers=max_workers,
                         subscriber_event=subscriber_event,
                     )
@@ -293,6 +297,124 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
 
         # # # finish # # #
         shutil.rmtree(os.path.dirname(cache_output_dir))
+        end_time = time()
+        time_diff = round(end_time - start_time, 5)
+        logger.info('Exporting blocks {block_range} took {time_diff} seconds'.format(
+            block_range=block_range,
+            time_diff=time_diff,
+        ))
+
+
+def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
+                                                     item_exporter):
+    for batch_start_block, batch_end_block, partition_dir in partitions:
+        # # # start # # #
+        padded_batch_start_block = str(batch_start_block).zfill(8)
+        padded_batch_end_block = str(batch_end_block).zfill(8)
+        block_range = '{padded_batch_start_block}-{padded_batch_end_block}'.format(
+            padded_batch_start_block=padded_batch_start_block,
+            padded_batch_end_block=padded_batch_end_block,
+        )
+        start_time = time()
+
+        # # # blocks_and_transactions # # #
+
+        job = ExportBlocksJob(
+            start_block=batch_start_block,
+            end_block=batch_end_block,
+            batch_size=batch_size,
+            batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
+            max_workers=max_workers,
+            item_exporter=item_exporter,
+        )
+        job.run()
+
+        list_transactions_dict = job.get_cache()
+        transaction_hashes = extract_dict_key_to_list(list_transactions_dict, "hash")
+        # print("transaction_hashes-------------------------------")
+        # print(transaction_hashes)
+        # # # token_transfers # # #
+
+        token_set = set()
+        if is_log_filter_supported(provider_uri):
+            job = ExportTokenTransfersJob(
+                start_block=batch_start_block,
+                end_block=batch_end_block,
+                batch_size=batch_size,
+                web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+                item_exporter=item_exporter,
+                max_workers=max_workers)
+            job.run()
+            token_transfers_dict = job.get_cache()
+            token_addresses = extract_dict_key_to_list(token_transfers_dict, "token_address")
+            token_set.update(token_addresses)
+
+        # print("token set in transfer")
+        # print(token_set)
+        # # # events in artifacts/event-abi # # #
+        dir_path = "../../artifacts/event-abi"
+        cur_path = os.path.dirname(os.path.realpath(__file__))
+        for root, dirs, files in os.walk(cur_path + "/" + dir_path):
+
+            for filename in files:
+                file_path = cur_path + "/" + dir_path + "/" + filename
+
+                with open(file_path) as json_file:
+                    subscriber_event = json.load(json_file)
+
+                event_name = subscriber_event.get("name")
+                save_name = subscriber_event.get("saveName")
+                if not save_name:
+                    save_name = event_name
+                inputs = subscriber_event.get("inputs")
+                if is_log_filter_supported(provider_uri):
+                    add_fields_to_export = []
+                    for input in inputs:
+                        if input:
+                            add_fields_to_export.append(input.get("name"))
+
+                    job = ExportEventsJob(
+                        start_block=batch_start_block,
+                        end_block=batch_end_block,
+                        batch_size=batch_size,
+                        web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+                        item_exporter=item_exporter,
+                        max_workers=max_workers,
+                        subscriber_event=subscriber_event,
+                    )
+                    job.run()
+                    event_dicts = job.get_cache()
+                    contract_address = extract_dict_key_to_list(event_dicts, "contract_address")
+                    token_set.update(contract_address)
+
+                    # # # receipts_and_logs # # #
+        # print("token set after get contact")
+        # print(token_set)
+
+        job = ExportReceiptsJob(
+            # transaction_hashes_iterable=(transaction_hash.strip() for transaction_hash in transaction_hashes),
+            transaction_hashes_iterable=transaction_hashes,
+            batch_size=batch_size,
+            batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
+            max_workers=max_workers,
+            item_exporter=item_exporter, )
+        job.run()
+
+        # # # # tokens # # #
+
+        job = ExportTokensJob(
+            token_addresses_iterable=token_set,
+            web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+            item_exporter=item_exporter,
+            max_workers=max_workers)
+        job.run()
+
+        # print("token exported")
+        # print(job.get_cache())
+        job.clean_cache()
+
+        # # # finish # # #
+        # shutil.rmtree(os.path.dirname(cache_output_dir))
         end_time = time()
         time_diff = round(end_time - start_time, 5)
         logger.info('Exporting blocks {block_range} took {time_diff} seconds'.format(

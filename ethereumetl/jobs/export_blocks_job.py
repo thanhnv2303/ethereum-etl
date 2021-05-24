@@ -23,8 +23,8 @@
 
 import json
 
-from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from blockchainetl.jobs.base_job import BaseJob
+from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.json_rpc_requests import generate_get_block_by_number_json_rpc
 from ethereumetl.mappers.block_mapper import EthBlockMapper
 from ethereumetl.mappers.transaction_mapper import EthTransactionMapper
@@ -59,6 +59,8 @@ class ExportBlocksJob(BaseJob):
 
         self.block_mapper = EthBlockMapper()
         self.transaction_mapper = EthTransactionMapper()
+        self.blocks_cache = []
+        self.transactions_cache = []
 
     def _start(self):
         self.item_exporter.open()
@@ -81,11 +83,28 @@ class ExportBlocksJob(BaseJob):
 
     def _export_block(self, block):
         if self.export_blocks:
-            self.item_exporter.export_item(self.block_mapper.block_to_dict(block))
+            block_dict = self.block_mapper.block_to_dict(block)
+            self.blocks_cache.append(block_dict)
+            self.item_exporter.export_item(block_dict)
         if self.export_transactions:
             for tx in block.transactions:
-                self.item_exporter.export_item(self.transaction_mapper.transaction_to_dict(tx))
+                transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
+                self.transactions_cache.append(transaction_dict)
+                self.item_exporter.export_item(transaction_dict)
 
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
+
+    def get_cache(self):
+        return self.blocks_cache + self.transactions_cache
+
+    def get_transactions_cache(self):
+        return self.transactions_cache
+
+    def get_blocks_cache(self):
+        return self.blocks_cache
+
+    def clean_cache(self):
+        self.blocks_cache = []
+        self.transactions_cache = []

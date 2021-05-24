@@ -9,13 +9,13 @@ FIELDS_TO_EXPORT = [
 ]
 
 
-def event_item_exporter(event_name, event_output, add_fields_to_export):
+def event_item_exporter( event_output, add_fields_to_export):
     FIELDS_TO_EXPORT_ADDED = FIELDS_TO_EXPORT + add_fields_to_export
     return CompositeItemExporter(
         filename_mapping={
-            event_name: event_output
+            "event": event_output
         },
         field_mapping={
-            event_name: FIELDS_TO_EXPORT_ADDED
+            "event": FIELDS_TO_EXPORT_ADDED
         }
     )

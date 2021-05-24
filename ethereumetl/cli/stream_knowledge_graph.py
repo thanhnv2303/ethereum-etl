@@ -27,7 +27,7 @@ import click
 from blockchainetl.streaming.streaming_utils import configure_signals, configure_logging
 from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.providers.auto import get_provider_from_uri
-from ethereumetl.streaming.EthKnowledgeGraphStreamerAdapter import EthKnowledgeGraphStreamerAdapter
+from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 
