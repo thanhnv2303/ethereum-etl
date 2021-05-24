@@ -52,6 +52,19 @@ class EthTokenService(object):
 
         return token
 
+    def get_balance(self, token_address, address, block_identify="latest"):
+        checksum_token_address = self._web3.toChecksumAddress(token_address)
+        checksum_address = self._web3.toChecksumAddress(address)
+        contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
+
+        try:
+            balance = contract.functions.balanceOf(checksum_address).call(block_identifier=block_identify)
+            return balance
+        except Exception as e:
+            logger.error(e)
+            print(e)
+            return None
+
     def _get_first_result(self, *funcs):
         for func in funcs:
 

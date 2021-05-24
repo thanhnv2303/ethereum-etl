@@ -1,0 +1,38 @@
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": false,
+      "internalType": "address",
+      "name": "liquidator",
+      "type": "address"
+    },
+    {
+      "indexed": false,
+      "internalType": "address",
+      "name": "borrower",
+      "type": "address"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "repayAmount",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "address",
+      "name": "vTokenCollateral",
+      "type": "address"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "seizeTokens",
+      "type": "uint256"
+    }
+  ],
+  "name": "LiquidateBorrow",
+  "type": "event",
+  "saveName": "VToken_LiquidateBorrow"
+}

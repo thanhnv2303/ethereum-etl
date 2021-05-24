@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
+import logging
 from datetime import datetime, timezone
 
 from ethereumetl.service.graph_operations import GraphOperations, OutOfBoundsError, Point
@@ -30,6 +29,7 @@ class EthService(object):
     def __init__(self, web3):
         graph = BlockTimestampGraph(web3)
         self._graph_operations = GraphOperations(graph)
+        self.web3 = web3
 
     def get_block_range_for_date(self, date):
         start_datetime = datetime.combine(date, datetime.min.time().replace(tzinfo=timezone.utc))
@@ -63,6 +63,15 @@ class EthService(object):
             start_block = 0
 
         return start_block, end_block
+
+    def get_balance(self, address, block_identify="latest"):
+        try:
+            balance = self.web3.eth.getBalance(address, block_identify=block_identify)
+            return balance
+        except Exception as e:
+            logging.getLogger("EthService").error(e)
+            print(e)
+            return None
 
 
 class BlockTimestampGraph(object):
