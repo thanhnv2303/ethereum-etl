@@ -64,9 +64,10 @@ class EthService(object):
 
         return start_block, end_block
 
-    def get_balance(self, address, block_identify="latest"):
+    def get_balance(self, address, block_identifier="latest"):
         try:
-            balance = self.web3.eth.getBalance(address, block_identify=block_identify)
+            checksum_address = self.web3.toChecksumAddress(address)
+            balance = self.web3.eth.getBalance(checksum_address, block_identifier=block_identifier)
             return balance
         except Exception as e:
             logging.getLogger("EthService").error(e)

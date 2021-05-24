@@ -23,8 +23,11 @@ import logging
 
 from blockchainetl.jobs.base_job import BaseJob
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
+from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
 from ethereumetl.mappers.token_transfer_mapper import EthTokenTransferMapper
+from ethereumetl.mappers.wallet_mapper import get_wallet_dict
+from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.token_transfer_extractor import EthTokenTransferExtractor, TRANSFER_EVENT_TOPIC
 from ethereumetl.utils import validate_range
 
@@ -55,6 +58,7 @@ class ExportTokenTransfersJob(BaseJob):
         self.token_transfer_mapper = EthTokenTransferMapper()
         self.token_transfer_extractor = EthTokenTransferExtractor()
         self.token_dict_cache = []
+        self.ethTokenService = EthTokenService(web3, clean_user_provided_content)
 
     def _start(self):
         self.item_exporter.open()
@@ -86,6 +90,7 @@ class ExportTokenTransfersJob(BaseJob):
             token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
             if token_transfer is not None:
                 token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
+                self._update_balance(token_transfer_dict)
                 self.token_dict_cache.append(token_transfer_dict)
                 self.item_exporter.export_item(token_transfer_dict)
 
@@ -94,6 +99,25 @@ class ExportTokenTransfersJob(BaseJob):
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
+
+    def _update_balance(self, token_transfer_dict):
+        block_number = token_transfer_dict.get("block_number")
+        token_address = token_transfer_dict.get("token_address")
+        from_address = token_transfer_dict.get("from_address")
+        to_address = token_transfer_dict.get("to_address")
+        wallets = []
+        from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number)
+        if from_balance:
+            wallet = get_wallet_dict(from_address, from_balance, block_number, token_address)
+            wallets.append(wallet)
+
+        to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number)
+        if to_balance:
+            wallet = get_wallet_dict(to_address, to_balance, block_number, token_address)
+            wallets.append(wallet)
+        token_transfer_dict["wallets"] = wallets
+
+        return token_transfer_dict
 
     def get_cache(self):
         return self.token_dict_cache

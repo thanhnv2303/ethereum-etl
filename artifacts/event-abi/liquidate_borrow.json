@@ -34,5 +34,6 @@
   ],
   "name": "LiquidateBorrow",
   "type": "event",
-  "saveName": "VToken_LiquidateBorrow"
+  "saveName": "VToken_LiquidateBorrow",
+  "hasGetBalance": true
 }

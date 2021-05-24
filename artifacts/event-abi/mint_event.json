@@ -22,5 +22,6 @@
   ],
   "name": "Mint",
   "type": "event",
-  "saveName": "VToken_Deposit"
+  "saveName": "VToken_Deposit",
+  "hasGetBalance": true
 }

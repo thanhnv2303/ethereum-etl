@@ -34,5 +34,6 @@
   ],
   "name": "RepayBorrow",
   "type": "event",
-  "saveName": "VToken_Repay"
+  "saveName": "VToken_Repay",
+  "hasGetBalance": true
 }

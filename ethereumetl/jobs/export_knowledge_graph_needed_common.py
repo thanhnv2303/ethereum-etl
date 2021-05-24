@@ -364,6 +364,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
 
                 event_name = subscriber_event.get("name")
                 save_name = subscriber_event.get("saveName")
+                has_get_balance = subscriber_event.get("hasGetBalance")
                 if not save_name:
                     save_name = event_name
                 inputs = subscriber_event.get("inputs")
@@ -381,6 +382,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                         item_exporter=item_exporter,
                         max_workers=max_workers,
                         subscriber_event=subscriber_event,
+                        has_get_balance=has_get_balance,
                     )
                     job.run()
                     event_dicts = job.get_cache()
@@ -391,14 +393,14 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         # print("token set after get contact")
         # print(token_set)
 
-        job = ExportReceiptsJob(
-            # transaction_hashes_iterable=(transaction_hash.strip() for transaction_hash in transaction_hashes),
-            transaction_hashes_iterable=transaction_hashes,
-            batch_size=batch_size,
-            batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
-            max_workers=max_workers,
-            item_exporter=item_exporter, )
-        job.run()
+        # job = ExportReceiptsJob(
+        #     # transaction_hashes_iterable=(transaction_hash.strip() for transaction_hash in transaction_hashes),
+        #     transaction_hashes_iterable=transaction_hashes,
+        #     batch_size=batch_size,
+        #     batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
+        #     max_workers=max_workers,
+        #     item_exporter=item_exporter, )
+        # job.run()
 
         # # # # tokens # # #
 

@@ -23,9 +23,13 @@ import logging
 
 from blockchainetl.jobs.base_job import BaseJob
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
+from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
-from ethereumetl.service.eth_event_service import get_topic_filter, get_list_params_in_order, EventSubscriber
+from ethereumetl.mappers.wallet_mapper import get_wallet_dict
+from ethereumetl.service.eth_event_service import get_topic_filter, get_list_params_in_order, EventSubscriber, \
+    get_all_address_name_field
+from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.event_extractor import EthEventExtractor
 from ethereumetl.utils import validate_range
 
@@ -42,11 +46,13 @@ class ExportEventsJob(BaseJob):
             item_exporter,
             max_workers,
             subscriber_event,
+            has_get_balance=False,
             tokens=None):
         validate_range(start_block, end_block)
         self.start_block = start_block
         self.end_block = end_block
 
+        self._has_get_balance = has_get_balance
         self.web3 = web3
         self.tokens = tokens
         self.item_exporter = item_exporter
@@ -59,9 +65,11 @@ class ExportEventsJob(BaseJob):
         self.subscriber_event = subscriber_event
         self.topic = ""
         self.event_subscriber = None
+        self.address_name_field = []
         self._init_events_subscription()
 
         self.eth_events_dict_cache = []
+        self.ethTokenService = EthTokenService(web3, clean_user_provided_content)
 
     def _init_events_subscription(self):
         event_abi = self.subscriber_event
@@ -72,6 +80,10 @@ class ExportEventsJob(BaseJob):
             event_subscriber = EventSubscriber(method_signature_hash, event_name, list_params_in_order)
             self.event_subscriber = event_subscriber
             self.topic = method_signature_hash
+            self.address_name_field = get_all_address_name_field(event_abi)
+            print(
+                "address_name_field----------------------------------------------------------------------------------")
+            print(self.address_name_field)
 
     def _start(self):
         self.item_exporter.open()
@@ -102,6 +114,7 @@ class ExportEventsJob(BaseJob):
             eth_event = self.event_extractor.extract_event_from_log(log, self.event_subscriber)
             if eth_event is not None:
                 eth_event_dict = self.event_mapper.eth_event_to_dict(eth_event)
+                self._update_wallet(eth_event_dict)
                 self.item_exporter.export_item(eth_event_dict)
 
         self.web3.eth.uninstallFilter(event_filter.filter_id)
@@ -109,6 +122,20 @@ class ExportEventsJob(BaseJob):
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
+
+    def _update_wallet(self, eth_event_dict):
+        if self._has_get_balance:
+            wallets = []
+            contract_address = eth_event_dict.get("contract_address")
+            block_num = eth_event_dict.get("block_number")
+            for address_field in self.address_name_field:
+                address = eth_event_dict.get(address_field)
+                balance = self.ethTokenService.get_balance(contract_address, address, block_num)
+                if balance:
+                    wallet = get_wallet_dict(address, balance, block_num, contract_address)
+                    wallets.append(wallet)
+            eth_event_dict["wallets"] = wallets
+        return eth_event_dict
 
     def get_cache(self):
         return self.eth_events_dict_cache

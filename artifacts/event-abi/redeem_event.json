@@ -22,5 +22,6 @@
   ],
   "name": "Redeem",
   "type": "event",
-  "saveName": "VToken_Withdraw"
+  "saveName": "VToken_Withdraw",
+  "hasGetBalance": true
 }

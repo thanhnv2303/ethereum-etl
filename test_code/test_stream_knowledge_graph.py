@@ -13,14 +13,15 @@ log_file = "./data_test_stream/logs.txt"
 entity_types = ','.join(EntityType.ALL_TOKEN)
 output = None
 provider_uri = "https://bsc-dataseed.binance.org/"
-batch_size = 100
-max_workers = 5
+provider_uri = "http://25.19.185.225:8545"
+batch_size = 128
+max_workers = 8
 
-start_block = 858560
+start_block = 4678378
 start_block = None
 period_seconds = 10
 pid_file = None
-block_batch_size = 10
+block_batch_size = 16
 
 configure_logging(log_file)
 configure_signals()

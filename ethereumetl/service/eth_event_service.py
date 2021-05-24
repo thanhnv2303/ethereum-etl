@@ -21,6 +21,14 @@ def get_list_params_in_order(event_abi):
     return indexed + non_indexed
 
 
+def get_all_address_name_field(event_abi):
+    address_name_field = []
+    for input in event_abi.get("inputs"):
+        if input.get("type") == "address":
+            address_name_field.append(input.get("name"))
+    return address_name_field
+
+
 class EventSubscriber:
     def __init__(self, topic_hash, name, list_params_in_order):
         self.topic_hash = topic_hash

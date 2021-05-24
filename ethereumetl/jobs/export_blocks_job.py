@@ -23,11 +23,15 @@
 
 import json
 
+from web3 import Web3
+
 from blockchainetl.jobs.base_job import BaseJob
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.json_rpc_requests import generate_get_block_by_number_json_rpc
 from ethereumetl.mappers.block_mapper import EthBlockMapper
 from ethereumetl.mappers.transaction_mapper import EthTransactionMapper
+from ethereumetl.mappers.wallet_mapper import get_wallet_dict
+from ethereumetl.service.eth_service import EthService
 from ethereumetl.utils import rpc_response_batch_to_results, validate_range
 
 
@@ -61,6 +65,8 @@ class ExportBlocksJob(BaseJob):
         self.transaction_mapper = EthTransactionMapper()
         self.blocks_cache = []
         self.transactions_cache = []
+        self.ethService = EthService(Web3(batch_web3_provider))
+        # self.ethService = EthService(batch_web3_provider)
 
     def _start(self):
         self.item_exporter.open()
@@ -89,12 +95,34 @@ class ExportBlocksJob(BaseJob):
         if self.export_transactions:
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
+                self._update_balance(transaction_dict)
                 self.transactions_cache.append(transaction_dict)
                 self.item_exporter.export_item(transaction_dict)
 
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
+
+    def _update_balance(self, transaction_dict):
+        if transaction_dict.get("input") == "0x":
+            block_number = transaction_dict.get("block_number")
+            from_address = transaction_dict.get("from_address")
+            to_address = transaction_dict.get("to_address")
+
+            from_balance = self.ethService.get_balance(from_address, block_number)
+            to_balance = self.ethService.get_balance(to_address, block_number)
+
+            wallets = []
+            if to_balance:
+                wallet = get_wallet_dict(to_address, to_balance, block_number)
+                wallets.append(wallet)
+            if from_balance:
+                wallet = get_wallet_dict(from_address, from_balance, block_number)
+                wallets.append(wallet)
+
+            transaction_dict["wallets"] = wallets
+
+        return transaction_dict
 
     def get_cache(self):
         return self.blocks_cache + self.transactions_cache
