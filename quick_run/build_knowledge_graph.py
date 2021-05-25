@@ -27,6 +27,8 @@ if __name__ == '__main__':
         provider_uri = "http://25.19.185.225:8545"
     else:
         provider_uri = "file:///" + geth_ipc_file
+
+    print("provider_uri :", provider_uri)
     batch_size = 128
     max_workers = 8
 
