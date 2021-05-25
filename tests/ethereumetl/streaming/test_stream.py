@@ -89,8 +89,7 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
     streamer.stream()
 
     if 'block' in entity_types:
-        print('=====================')
-        print(read_file(blocks_output_file))
+
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_blocks.json'), read_file(blocks_output_file)
         )

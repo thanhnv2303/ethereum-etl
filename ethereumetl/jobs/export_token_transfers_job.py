@@ -107,13 +107,16 @@ class ExportTokenTransfersJob(BaseJob):
         to_address = token_transfer_dict.get("to_address")
         wallets = []
         from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number)
+        pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number-1)
+
         if from_balance:
-            wallet = get_wallet_dict(from_address, from_balance, block_number, token_address)
+            wallet = get_wallet_dict(from_address, from_balance, pre_from_balance, block_number, token_address)
             wallets.append(wallet)
 
         to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number)
+        pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number-1)
         if to_balance:
-            wallet = get_wallet_dict(to_address, to_balance, block_number, token_address)
+            wallet = get_wallet_dict(to_address, to_balance, pre_to_balance, block_number, token_address)
             wallets.append(wallet)
         token_transfer_dict["wallets"] = wallets
 

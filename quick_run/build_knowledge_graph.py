@@ -1,19 +1,18 @@
 import logging
 
 from artifacts.filter_tokens import VENUS_TOKEN
-from blockchainetl.streaming.streaming_utils import configure_logging, configure_signals
+from blockchainetl.streaming.streaming_utils import configure_signals
 from ethereumetl.cli.stream import parse_entity_types, validate_entity_types, pick_random_provider_uri
 from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
-last_synced_block_file = "./data_test_stream/last_synced_block.txt"
+last_synced_block_file = "./data_stream/last_synced_block.txt"
 lag = 0
-log_file = "./data_test_stream/logs.txt"
+# log_file = "./data_stream/logs.txt"
 entity_types = ','.join(EntityType.ALL_TOKEN)
-output = None
-provider_uri = "https://bsc-dataseed.binance.org/"
+output = "knowledge_graph"
 provider_uri = "http://25.19.185.225:8545"
 batch_size = 128
 max_workers = 8
@@ -24,7 +23,7 @@ period_seconds = 10
 pid_file = None
 block_batch_size = 16
 
-configure_logging(log_file)
+# configure_logging(log_file)
 configure_signals()
 entity_types = parse_entity_types(entity_types)
 validate_entity_types(entity_types, output)

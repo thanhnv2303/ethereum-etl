@@ -306,7 +306,7 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
 
 
 def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
-                                                     item_exporter):
+                                                     item_exporter, tokens=None):
     for batch_start_block, batch_end_block, partition_dir in partitions:
         # # # start # # #
         padded_batch_start_block = str(batch_start_block).zfill(8)
@@ -343,7 +343,8 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                 batch_size=batch_size,
                 web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
                 item_exporter=item_exporter,
-                max_workers=max_workers)
+                max_workers=max_workers,
+                tokens=tokens)
             job.run()
             token_transfers_dict = job.get_cache()
             token_addresses = extract_dict_key_to_list(token_transfers_dict, "token_address")
@@ -383,13 +384,14 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                         max_workers=max_workers,
                         subscriber_event=subscriber_event,
                         has_get_balance=has_get_balance,
+                        tokens=tokens
                     )
                     job.run()
                     event_dicts = job.get_cache()
                     contract_address = extract_dict_key_to_list(event_dicts, "contract_address")
                     token_set.update(contract_address)
 
-                    # # # receipts_and_logs # # #
+        # # # receipts_and_logs # # #
         # print("token set after get contact")
         # print(token_set)
 

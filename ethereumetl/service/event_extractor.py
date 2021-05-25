@@ -38,7 +38,7 @@ class EthEventExtractor(object):
                 name = param_i.get("name")
                 type = param_i.get("type")
                 data = topics_with_data[i]
-                event.params[name] = decode_data_by_type(data, type)
+                event.params[name] = str(decode_data_by_type(data, type))
             return event
 
         return None

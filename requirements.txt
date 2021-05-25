@@ -6,3 +6,4 @@ sqlalchemy
 python-dateutil==2.7.0
 eth-utils
 web3==5.19.0
+pymongo

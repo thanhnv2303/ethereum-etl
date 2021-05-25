@@ -81,9 +81,6 @@ class ExportEventsJob(BaseJob):
             self.event_subscriber = event_subscriber
             self.topic = method_signature_hash
             self.address_name_field = get_all_address_name_field(event_abi)
-            print(
-                "address_name_field----------------------------------------------------------------------------------")
-            print(self.address_name_field)
 
     def _start(self):
         self.item_exporter.open()
@@ -131,8 +128,10 @@ class ExportEventsJob(BaseJob):
             for address_field in self.address_name_field:
                 address = eth_event_dict.get(address_field)
                 balance = self.ethTokenService.get_balance(contract_address, address, block_num)
+                pre_balance = self.ethTokenService.get_balance(contract_address, address, block_num - 1)
+
                 if balance:
-                    wallet = get_wallet_dict(address, balance, block_num, contract_address)
+                    wallet = get_wallet_dict(address, balance, pre_balance, block_num, contract_address)
                     wallets.append(wallet)
             eth_event_dict["wallets"] = wallets
         return eth_event_dict

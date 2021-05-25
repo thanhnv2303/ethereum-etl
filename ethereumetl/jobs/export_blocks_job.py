@@ -110,14 +110,16 @@ class ExportBlocksJob(BaseJob):
             to_address = transaction_dict.get("to_address")
 
             from_balance = self.ethService.get_balance(from_address, block_number)
+            pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
             to_balance = self.ethService.get_balance(to_address, block_number)
+            pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
 
             wallets = []
             if to_balance:
-                wallet = get_wallet_dict(to_address, to_balance, block_number)
+                wallet = get_wallet_dict(to_address, to_balance, pre_to_balance, block_number)
                 wallets.append(wallet)
             if from_balance:
-                wallet = get_wallet_dict(from_address, from_balance, block_number)
+                wallet = get_wallet_dict(from_address, from_balance, pre_from_balance, block_number)
                 wallets.append(wallet)
 
             transaction_dict["wallets"] = wallets

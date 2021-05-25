@@ -23,6 +23,7 @@ import logging
 import random
 
 import click
+from web3 import Web3
 
 from blockchainetl.streaming.streaming_utils import configure_signals, configure_logging
 from ethereumetl.enumeration.entity_type import EntityType
@@ -37,7 +38,7 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
 @click.option('-p', '--provider-uri', default='https://mainnet.infura.io', show_default=True, type=str,
               help='The URI of the web3 provider e.g. '
                    'file://$HOME/Library/Ethereum/geth.ipc or https://mainnet.infura.io')
-@click.option('-o', '--output', type=str,
+@click.option('-o', '--output', type=str,default=0, show_default=True,
               help='Either Google PubSub topic path e.g. projects/your-project/topics/crypto_ethereum; '
                    'or Postgres connection url e.g. postgresql+pg8000://postgres:admin@127.0.0.1:5432/ethereum. '
                    'If not specified will print to console')
@@ -46,16 +47,17 @@ from ethereumetl.thread_local_proxy import ThreadLocalProxy
               help='The list of entity types to export.')
 @click.option('--period-seconds', default=10, show_default=True, type=int,
               help='How many seconds to sleep between syncs')
-@click.option('-b', '--batch-size', default=10, show_default=True, type=int,
+@click.option('-b', '--batch-size', default=16, show_default=True, type=int,
               help='How many blocks to batch in single request')
-@click.option('-B', '--block-batch-size', default=1, show_default=True, type=int,
+@click.option('-B', '--block-batch-size', default=16, show_default=True, type=int,
               help='How many blocks to batch in single sync round')
-@click.option('-w', '--max-workers', default=5, show_default=True, type=int, help='The number of workers')
+@click.option('-w', '--max-workers', default=8, show_default=True, type=int, help='The number of workers')
 @click.option('--log-file', default=None, show_default=True, type=str, help='Log file')
 @click.option('--pid-file', default=None, show_default=True, type=str, help='pid file')
+@click.option('--token-filter', default=None, show_default=True, type=str, help='just get token in file filter')
 def stream_knowledge_graph(last_synced_block_file, lag, provider_uri, output, start_block, entity_types,
                            period_seconds=10, batch_size=2, block_batch_size=10, max_workers=5, log_file=None,
-                           pid_file=None):
+                           pid_file=None, token_filter=None, ):
     """Streams all data types to console or Google Pub/Sub."""
     configure_logging(log_file)
     configure_signals()
@@ -65,6 +67,10 @@ def stream_knowledge_graph(last_synced_block_file, lag, provider_uri, output, st
     from ethereumetl.streaming.item_exporter_creator import create_item_exporter
     from blockchainetl.streaming.streamer import Streamer
 
+    with open(token_filter) as file_tokens:
+        tokens = file_tokens.readlines()
+    tokens = [Web3.toChecksumAddress(x.strip()) for x in tokens]
+
     # TODO: Implement fallback mechanism for provider uris instead of picking randomly
     provider_uri = pick_random_provider_uri(provider_uri)
     logging.info('Using ' + provider_uri)
@@ -73,6 +79,7 @@ def stream_knowledge_graph(last_synced_block_file, lag, provider_uri, output, st
         provider_uri=provider_uri,
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
         item_exporter=create_item_exporter(output),
+        token_filter=tokens,
         batch_size=batch_size,
         max_workers=max_workers,
         entity_types=entity_types

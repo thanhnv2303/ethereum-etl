@@ -21,6 +21,7 @@
 #  SOFTWARE.
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
+from blockchainetl.jobs.exporters.knowledge_graph_exporter import KnowledgeGraphExporter
 
 
 def create_item_exporter(output):
@@ -56,6 +57,8 @@ def create_item_exporter(output):
                         ListFieldItemConverter('topics', 'topic', fill=4)])
     elif item_exporter_type == ItemExporterType.CONSOLE:
         item_exporter = ConsoleItemExporter()
+    elif item_exporter_type == ItemExporterType.KNOWLEDGE_GRAPH:
+        item_exporter = KnowledgeGraphExporter()
     else:
         raise ValueError('Unable to determine item exporter type for output ' + output)
 
@@ -67,6 +70,8 @@ def determine_item_exporter_type(output):
         return ItemExporterType.PUBSUB
     elif output is not None and output.startswith('postgresql'):
         return ItemExporterType.POSTGRES
+    elif output is not None and output.startswith('knowledge_graph'):
+        return ItemExporterType.KNOWLEDGE_GRAPH
     elif output is None or output == 'console':
         return ItemExporterType.CONSOLE
     else:
@@ -77,4 +82,5 @@ class ItemExporterType:
     PUBSUB = 'pubsub'
     POSTGRES = 'postgres'
     CONSOLE = 'console'
+    KNOWLEDGE_GRAPH = 'knowledge_graph'
     UNKNOWN = 'unknown'

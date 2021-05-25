@@ -1,0 +1,6 @@
+2021-05-25 14:57:55,134 - root [INFO] - Using http://25.19.185.225:8545
+2021-05-25 14:57:55,207 - root [INFO] - target_block
+2021-05-25 14:57:55,207 - root [INFO] - 4678393
+2021-05-25 14:57:55,207 - root [INFO] - Current block 4803305, target block 4678393, last synced block 4678377, blocks to sync 16
+2021-05-25 14:57:55,211 - ProgressLogger [INFO] - Started work. Items to process: 16.
+2021-05-25 14:58:25,427 - ProgressLogger [INFO] - 16 items processed. Progress is 100%.

@@ -7,7 +7,9 @@
 
 Ethereum ETL lets you convert blockchain data into convenient formats like CSVs and relational databases.
 
-*Do you just want to query Ethereum data right away? Use the [public dataset in BigQuery](https://console.cloud.google.com/marketplace/details/ethereum/crypto-ethereum-blockchain).*
+*Do you just want to query Ethereum data right away? Use
+the [public dataset in BigQuery](https://console.cloud.google.com/marketplace/details/ethereum/crypto-ethereum-blockchain)
+.*
 
 [Full documentation available here](http://ethereum-etl.readthedocs.io/).
 
@@ -19,7 +21,8 @@ Install Ethereum ETL:
 pip3 install ethereum-etl
 ```
 
-Export blocks and transactions ([Schema](docs/schema.md#blockscsv), [Reference](docs/commands.md#export_blocks_and_transactions)):
+Export blocks and transactions ([Schema](docs/schema.md#blockscsv)
+, [Reference](docs/commands.md#export_blocks_and_transactions)):
 
 ```bash
 > ethereumetl export_blocks_and_transactions --start-block 0 --end-block 500000 \
@@ -27,7 +30,8 @@ Export blocks and transactions ([Schema](docs/schema.md#blockscsv), [Reference](
 --provider-uri https://mainnet.infura.io/v3/7aef3f0cd1f64408b163814b22cc643c
 ```
 
-Export ERC20 and ERC721 transfers ([Schema](docs/schema.md#token_transferscsv), [Reference](docs/commands.md##export_token_transfers)):
+Export ERC20 and ERC721 transfers ([Schema](docs/schema.md#token_transferscsv)
+, [Reference](docs/commands.md##export_token_transfers)):
 
 ```bash
 > ethereumetl export_token_transfers --start-block 0 --end-block 500000 \
@@ -58,9 +62,18 @@ Stream blocks, transactions, logs, token_transfers continually to console ([Refe
 --provider-uri https://mainnet.infura.io/v3/7aef3f0cd1f64408b163814b22cc643c
 ```
 
+Stream blocks, transactions, token_transfers, mint, borrow, repayBorrow, redeemUnderlying for knowledgeGraph:
+
+```bash
+
+> ethereumetl stream_knowledge_graph --start-block 2472670 -e block,transaction,log,token_transfer --log-file log.txt \
+--provider-uri ~/data/node/geth.ipc --token-filter ./artifacts/token_filter
+```
+
 Find other commands [here](https://ethereum-etl.readthedocs.io/en/latest/commands/).
 
-For the latest version, check out the repo and call 
+For the latest version, check out the repo and call
+
 ```bash
 > pip3 install -e . 
 > python3 ethereumetl.py
@@ -99,10 +112,10 @@ For the latest version, check out the repo and call
 1. Install Docker https://docs.docker.com/install/
 
 2. Build a docker image
-        
+
         > docker build -t ethereum-etl:latest .
         > docker image ls
-        
+
 3. Run a container out of the image
 
         > docker run -v $HOME/output:/ethereum-etl/output ethereum-etl:latest export_all -s 0 -e 5499999 -b 100000 -p https://mainnet.infura.io
@@ -117,5 +130,6 @@ For the latest version, check out the repo and call
         > docker run -v /path_to_credentials_file/:/ethereum-etl/ --env GOOGLE_APPLICATION_CREDENTIALS=/ethereum-etl/credentials_file.json ethereum-etl:latest stream --start-block 500000 --output projects/<your-project>/topics/crypto_ethereum
 
 ## Projects using Ethereum ETL
+
 * [Google](https://goo.gl/oY5BCQ) - Public BigQuery Ethereum datasets
 * [Nansen](https://www.nansen.ai/?ref=ethereumetl) - Analytics platform for Ethereum
