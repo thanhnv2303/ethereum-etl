@@ -2,7 +2,7 @@ import os
 import sys
 
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.insert(0, os.path.join(TOP_DIR, '../'))
+sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
 import logging
 from os import path
