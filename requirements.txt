@@ -1,9 +1,9 @@
 pyetherchain
-eth-abi
+eth-abi=2.1.1
 mythril==0.20.5
 ethereum-etl
 sqlalchemy
 python-dateutil==2.7.0
-eth-utils
+eth-utils==1.9.5
 web3==5.19.0
 pymongo

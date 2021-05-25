@@ -14,7 +14,11 @@ lag = 0
 # log_file = "./data_stream/logs.txt"
 entity_types = ','.join(EntityType.ALL_TOKEN)
 output = "knowledge_graph"
-provider_uri = "http://25.19.185.225:8545"
+geth_ipc_file = "~/bsc-full-sync/node/geth.ipc"
+if not path.exists(geth_ipc_file):
+    provider_uri = "http://25.19.185.225:8545"
+else:
+    provider_uri = "file:///" + geth_ipc_file
 batch_size = 128
 max_workers = 8
 
