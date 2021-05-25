@@ -1,4 +1,5 @@
 import logging
+from os import path
 
 from artifacts.filter_tokens import VENUS_TOKEN
 from blockchainetl.streaming.streaming_utils import configure_signals
@@ -18,7 +19,10 @@ batch_size = 128
 max_workers = 8
 
 # start_block = 4678378
-start_block = 3472670
+if path.exists(last_synced_block_file):
+    start_block = None
+else:
+    start_block = 3472670
 period_seconds = 10
 pid_file = None
 block_batch_size = 16
