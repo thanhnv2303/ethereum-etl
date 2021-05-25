@@ -1,7 +1,7 @@
 version: '3'
 services:
   mongo-export:
-    image: mongo
+    image: mongo:4.1.13
     container_name: mongo-export
     restart: always
     expose:
@@ -11,3 +11,5 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: just_for_dev
       MONGO_INITDB_ROOT_PASSWORD: password_for_dev
+    volumes:
+      - ./data/mongodb/data/:/data/db/

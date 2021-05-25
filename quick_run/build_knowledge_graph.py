@@ -8,7 +8,7 @@ from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
-last_synced_block_file = "./data_stream/last_synced_block.txt"
+last_synced_block_file = "./data/last_synced_block.txt"
 lag = 0
 # log_file = "./data_stream/logs.txt"
 entity_types = ','.join(EntityType.ALL_TOKEN)
@@ -17,8 +17,8 @@ provider_uri = "http://25.19.185.225:8545"
 batch_size = 128
 max_workers = 8
 
-start_block = 4678378
-start_block = None
+# start_block = 4678378
+start_block = 3472670
 period_seconds = 10
 pid_file = None
 block_batch_size = 16

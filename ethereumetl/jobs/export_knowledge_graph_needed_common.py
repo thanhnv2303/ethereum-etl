@@ -329,8 +329,8 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         )
         job.run()
 
-        list_transactions_dict = job.get_cache()
-        transaction_hashes = extract_dict_key_to_list(list_transactions_dict, "hash")
+        # list_transactions_dict = job.get_cache()
+        # transaction_hashes = extract_dict_key_to_list(list_transactions_dict, "hash")
         # print("transaction_hashes-------------------------------")
         # print(transaction_hashes)
         # # # token_transfers # # #
