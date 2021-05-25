@@ -22,7 +22,7 @@ max_workers = 8
 if path.exists(last_synced_block_file):
     start_block = None
 else:
-    start_block = 3472670
+    start_block = 2472670
 period_seconds = 10
 pid_file = None
 block_batch_size = 16

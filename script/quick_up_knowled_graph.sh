@@ -1,5 +1,5 @@
 #run from root of project
-
+mkdir "data"
 docker-compose up &
 echo sleep 5s
 sleep 5
