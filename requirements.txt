@@ -1,5 +1,5 @@
 pyetherchain
-eth-abi=2.1.1
+eth-abi==2.1.1
 mythril==0.20.5
 ethereum-etl
 sqlalchemy
