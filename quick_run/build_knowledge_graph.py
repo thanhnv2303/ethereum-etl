@@ -22,13 +22,16 @@ if __name__ == '__main__':
     # log_file = "./data_stream/logs.txt"
     entity_types = ','.join(EntityType.ALL_TOKEN)
     output = "knowledge_graph"
-    geth_ipc_file = "~/bsc-full-sync/node/geth.ipc"
-    if not path.exists(geth_ipc_file):
+    from os.path import expanduser
+
+    home = expanduser("~")
+    geth_ipc_file = home + "/bsc-full-sync/node/geth.ipc"
+
+    if not os.path.exists(geth_ipc_file):
         provider_uri = "http://25.19.185.225:8545"
     else:
         provider_uri = "file:///" + geth_ipc_file
 
-    print("provider_uri :", provider_uri)
     batch_size = 128
     max_workers = 8
 
