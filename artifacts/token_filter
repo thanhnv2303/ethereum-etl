@@ -28,6 +28,3 @@
 0x939bD8d64c0A9583A7Dcea9933f7b21697ab6396
 0x406f48f47D25E9caa29f17e7Cfbd1dc6878F078f
 0x516c18DC440f107f12619a6d2cc320622807d0eE
-
-{event_type:"LiquidateBorrow"}
-{event_type:"redeemTokens"}
