@@ -39,7 +39,7 @@ if __name__ == '__main__':
     if path.exists(last_synced_block_file):
         start_block = None
     else:
-        start_block = 2472670
+        start_block = 4472670
     period_seconds = 10
     pid_file = None
     block_batch_size = 16

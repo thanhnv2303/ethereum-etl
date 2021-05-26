@@ -22,7 +22,9 @@ class Database(object):
         self._create_index()
 
     def _create_index(self):
-        self.mongo_transactions.create_index([("txId", "hashed")])
+        self.mongo_transactions.create_index([("hash", "hashed")])
+        self.mongo_transactions_transfer.create_index([("hash", "hashed")])
+        self.mongo_transactions_transfer.create_index([("block_num", -1)])
         self.mongo_wallet.create_index([("address", "hashed")])
         # self.mongo_pool.create_index([("address", "hashed")])
 
@@ -54,7 +56,8 @@ class Database(object):
     def insert_to_token_collection(self, token_address, event):
         if not self.mongo_token_collection_dict.get(token_address):
             self.mongo_token_collection_dict[token_address] = self.mongo_db[token_address]
-            self.mongo_wallet.create_index([("transaction_hash", "hashed")])
+            self.mongo_token_collection_dict[token_address].create_index([("transaction_hash", "hashed")])
+            self.mongo_token_collection_dict[token_address].create_index([("block_num", -1)])
 
         self.mongo_token_collection_dict[token_address].insert_one(event)
 
