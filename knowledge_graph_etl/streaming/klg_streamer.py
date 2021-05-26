@@ -29,7 +29,7 @@ from blockchainetl.streaming.streamer_adapter_stub import StreamerAdapterStub
 from blockchainetl.file_utils import smart_open
 
 
-class Streamer:
+class Klg_Streamer:
     def __init__(
             self,
             blockchain_streamer_adapter=StreamerAdapterStub(),

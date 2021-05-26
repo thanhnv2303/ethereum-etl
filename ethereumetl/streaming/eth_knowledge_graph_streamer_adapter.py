@@ -27,7 +27,8 @@ class EthKnowledgeGraphStreamerAdapter:
             provider_uri,
             batch_web3_provider,
             item_exporter=ConsoleItemExporter(),
-            token_filter=None,
+            tokens_filter_file="../../artifacts/token_filter",
+            tokens=None,
             batch_size=100,
             max_workers=5,
             entity_types=tuple(EntityType.ALL_FOR_STREAMING)):
@@ -42,7 +43,10 @@ class EthKnowledgeGraphStreamerAdapter:
         self.entity_types = entity_types
         self.item_id_calculator = EthItemIdCalculator()
         self.item_timestamp_calculator = EthItemTimestampCalculator()
-        self.tokens = token_filter
+
+        cur_path = os.path.dirname(os.path.realpath(__file__))
+        self.tokens_filter_file = cur_path + "/" + tokens_filter_file
+        self.tokens = tokens
 
     def open(self):
         self.item_exporter.open()
@@ -55,9 +59,15 @@ class EthKnowledgeGraphStreamerAdapter:
         partition_batch_size = 10000
         partitions = get_partitions(str(start_block), str(end_block), partition_batch_size, self.provider_uri)
         item_exporter = self.item_exporter
-        export_knowledge_graph_needed_with_item_exporter(partitions, self.provider_uri, self.max_workers,
-                                                         self.batch_size,
-                                                         item_exporter, tokens=self.tokens)
+        with open(self.tokens_filter_file, "r") as file:
+            tokens_list = file.read().splitlines()
+            tokens = []
+            for token in tokens_list:
+                tokens.append(Web3.toChecksumAddress(token))
+
+            export_knowledge_graph_needed_with_item_exporter(partitions, self.provider_uri, self.max_workers,
+                                                             self.batch_size,
+                                                             item_exporter, tokens=tokens)
 
     def _export_blocks_and_transactions(self, start_block, end_block):
         blocks_and_transactions_item_exporter = InMemoryItemExporter(item_types=['block', 'transaction'])

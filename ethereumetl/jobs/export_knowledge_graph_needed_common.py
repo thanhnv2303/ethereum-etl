@@ -353,6 +353,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         # print("token set in transfer")
         # print(token_set)
         # # # events in artifacts/event-abi # # #
+
         dir_path = "../../artifacts/event-abi"
         cur_path = os.path.dirname(os.path.realpath(__file__))
         for root, dirs, files in os.walk(cur_path + "/" + dir_path):
