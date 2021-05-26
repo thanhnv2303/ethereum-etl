@@ -66,8 +66,7 @@ class KnowledgeGraphExporter:
 
     def _token_transfer_handler(self, item):
         item["value"] = str(item.get("value"))
-        token_address = item.get("token_address")
-        item["contract_address"] = item.pop("token_address")
+        token_address = item.get("contract_address")
         item["type"] = "Transfer"
         self._update_wallet_and_item(item, token_address)
         self.data_base.insert_to_token_collection(token_address, item)

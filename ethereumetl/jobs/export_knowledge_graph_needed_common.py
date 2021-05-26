@@ -347,7 +347,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                 tokens=tokens)
             job.run()
             token_transfers_dict = job.get_cache()
-            token_addresses = extract_dict_key_to_list(token_transfers_dict, "token_address")
+            token_addresses = extract_dict_key_to_list(token_transfers_dict, "contract_address")
             token_set.update(token_addresses)
 
         # print("token set in transfer")

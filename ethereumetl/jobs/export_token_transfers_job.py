@@ -102,7 +102,7 @@ class ExportTokenTransfersJob(BaseJob):
 
     def _update_balance(self, token_transfer_dict):
         block_number = token_transfer_dict.get("block_number")
-        token_address = token_transfer_dict.get("token_address")
+        token_address = token_transfer_dict.get("contract_address")
         from_address = token_transfer_dict.get("from_address")
         to_address = token_transfer_dict.get("to_address")
         wallets = []

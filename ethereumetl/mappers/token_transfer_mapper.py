@@ -25,7 +25,7 @@ class EthTokenTransferMapper(object):
     def token_transfer_to_dict(self, token_transfer):
         return {
             'type': 'token_transfer',
-            'token_address': token_transfer.token_address,
+            'contract_address': token_transfer.token_address,
             'from_address': token_transfer.from_address,
             'to_address': token_transfer.to_address,
             'value': token_transfer.value,
