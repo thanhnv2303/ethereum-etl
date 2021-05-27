@@ -1,6 +1,7 @@
+from py2neo import Graph
 from pymongo import MongoClient
 
-from config.config import MongoDBConfig
+from config.config import MongoDBConfig, Neo4jConfig
 
 
 class Database(object):
@@ -18,6 +19,8 @@ class Database(object):
         self.mongo_tokens = self.mongo_db[MongoDBConfig.TOKENS]
         self.mongo_blocks = self.mongo_db[MongoDBConfig.BLOCKS]
         self.mongo_token_collection_dict = {}
+
+        self._graph = Graph(Neo4jConfig.bolt, auth=(Neo4jConfig.username, Neo4jConfig.password))
 
         self._create_index()
 
@@ -66,3 +69,120 @@ class Database(object):
         data = {"$set": token}
 
         res = self.mongo_tokens.update_one(key, data, upsert=True)
+
+    def get_token(self, address):
+        key = {'address': address}
+
+        return self.mongo_tokens.find_one(key)
+
+    def get_event_at_block_num(self, contract_address, block_num):
+        key = {'block_number': block_num}
+
+        return self.mongo_db[contract_address].find(key)
+
+    def neo4j_update_wallet_token(self, wallet, token):
+        print("update walllllllllllleeeeeeeeeeeeddddiiiiiiiiiiiingggggggggggg")
+        print(wallet)
+        match = self._graph.run("match (p:WALLET {address:$address}) return p ", address=wallet.get("address")).data()
+        if not match:
+            create = self._graph.run("merge (p:WALLET { address:$address }) "
+                                     "set p.balance" + token + "=$balance,"
+                                                               "p.credit_score=$credit_score,"
+                                                               "p.block_number = $block_number,"
+                                                               "p.borrow" + token + "=$borrow,"
+                                                                                    "p.supply" + token + "=$supply "
+                                                                                                         "return p",
+                                     address=wallet.get("address"),
+                                     balance=wallet.get("balance"),
+                                     credit_score=wallet.get("credit_score"),
+                                     borrow=wallet.get("borrow"),
+                                     block_number=wallet.get("block_number"),
+                                     supply=wallet.get("supply")).data()
+        else:
+            create = self._graph.run("match (p:WALLET { address:$address }) "
+                                     "set "
+                                     "p.balance" + token + "=$balance,"
+                                                           "p.credit_score=$credit_score,"
+                                                           "p.block_number = $block_number,"
+                                                           "p.borrow" + token + "=$borrow,"
+                                                                                "p.supply" + token + "=$supply "
+                                                                                                     "return p",
+                                     address=wallet.get("address"),
+                                     balance=wallet.get("balance" + token),
+                                     credit_score=wallet.get("credit_score"),
+                                     borrow=wallet.get("borrow" + token),
+                                     block_number=wallet.get("block_number"),
+                                     supply=wallet.get("supply" + token)).data()
+        return create[0]["p"]
+
+    def neo4j_update_lending_token(self, lending_pool, token):
+        print("update lendddddddddddddiiiiiiiiiiiingggggggggggg")
+        print(lending_pool)
+        match = self._graph.run("match (p:LENDING {address:$address}) return p ",
+                                address=lending_pool.get("address")).data()
+        if not match:
+            create = self._graph.run("merge (p:LENDING { address:$address }) "
+                                     "set p.block_number = $block_number,"
+                                     "p.name =\'" + lending_pool.get("name") + "\',"
+                                                                               "p.borrow" + token + "=$borrow,"
+                                                                                                    "p.supply" + token + "=$supply "
+                                                                                                                         "return p",
+                                     address=lending_pool.get("address"),
+                                     borrow=lending_pool.get("borrow"),
+                                     block_number=lending_pool.get("block_number"),
+                                     supply=lending_pool.get("supply")).data()
+        else:
+            create = self._graph.run("match (p:LENDING { address:$address }) "
+                                     "set  p.block_number = $block_number,p.borrow" + token + "=$borrow,"
+                                                                                              "p.supply" + token + "=$supply "
+                                                                                                                   "return p",
+                                     address=lending_pool.get("address"),
+                                     borrow=lending_pool.get("borrow"),
+                                     block_number=lending_pool.get("block_number"),
+                                     supply=lending_pool.get("supply")).data()
+        return create[0]["p"]
+
+    def neo4j_update_link(self, tx):
+        print("update linkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
+        print(tx)
+        merge = self._graph.run("match (p {address: $from_address }),(e {address:$to_address})"
+                                " MERGE (p)-[r:"
+                                + tx.get("label") +
+                                " { tx_id:$tx_id, amount:$amount, token:$token }]->(e) return p,r,e",
+                                from_address=tx.get("from_address"),
+                                to_address=tx.get("to_address"),
+                                tx_id=tx.get("tx_id"),
+                                amount=tx.get("amount"),
+                                token=tx.get("token")).data()
+        print(merge)
+        return merge
+
+    def generate_lending_pool_dict_for_klg(self, address, name, borrow, supply, block_number):
+        return {
+            "address": address,
+            "name": name,
+            "borrow": borrow,
+            "supply": supply,
+            "block_number": block_number
+        }
+
+    def generate_wallet_dict_for_klg(self, address, balance, borrow=None, supply=None, credit_score=None,
+                                     block_number=None):
+        return {
+            "address": address,
+            "balance": balance,
+            "supply": supply,
+            "borrow": borrow,
+            "credit_score": credit_score,
+            "block_number": block_number
+        }
+
+    def generate_link_dict_for_klg(self, from_address, to_address, tx_id, amount, token, label):
+        return {
+            "from_address": from_address,
+            "to_address": to_address,
+            "tx_id": tx_id,
+            "amount": amount,
+            "token": token,
+            "label": label
+        }

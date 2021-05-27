@@ -37,7 +37,7 @@ class Klg_Streamer:
             lag=0,
             start_block=None,
             end_block=None,
-            period_seconds=10,
+            period_seconds=30,
             block_batch_size=10,
             retry_errors=True,
             pid_file=None):

@@ -10,11 +10,12 @@ from knowledge_graph_etl.streaming.klg_streamer_adapter import KLGStreamerAdapte
 
 last_synced_block_file = "./last_synced_block.txt"
 lag = 0
-log_file = "./logs.txt"
+# log_file = "./logs.txt"
+log_file = None
 entity_types = ','.join(EntityType.ALL_TOKEN)
 output = None
-provider_uri = "https://bsc-dataseed.binance.org/"
 provider_uri = "http://25.19.185.225:8545"
+# provider_uri = "https://bsc-dataseed.binance.org/"
 batch_size = 128
 max_workers = 8
 
@@ -23,9 +24,10 @@ from os import path
 if path.exists(last_synced_block_file):
     start_block = None
 else:
-    start_block = 4678378
+    start_block = 2472670
+    # start_block = 4378466
 # start_block = None
-period_seconds = 10
+period_seconds = 30
 pid_file = None
 block_batch_size = 16
 

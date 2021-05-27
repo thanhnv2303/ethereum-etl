@@ -18,8 +18,8 @@ provider_uri = "http://25.19.185.225:8545"
 batch_size = 128
 max_workers = 8
 
-start_block = 4678378
-start_block = None
+start_block = 4378378
+# start_block = None
 period_seconds = 10
 pid_file = None
 block_batch_size = 16
@@ -40,7 +40,6 @@ streamer_adapter = EthKnowledgeGraphStreamerAdapter(
     provider_uri=provider_uri,
     batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
     item_exporter=create_item_exporter(output),
-    token_filter=VENUS_TOKEN,
     batch_size=batch_size,
     max_workers=max_workers,
     entity_types=entity_types

@@ -6,4 +6,4 @@ python-dateutil==2.7.0
 eth-utils==1.9.5
 web3==5.19.0
 pymongo
-ethereum-etl
+py2neo

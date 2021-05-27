@@ -26,3 +26,9 @@ class MongoDBConfig:
     POOL = "POOL"
     BLOCKS = "BLOCKS"
     TOKENS = "TOKENS"
+
+
+class Neo4jConfig:
+    bolt = "bolt://0.0.0.0:7687"
+    username = "neo4j"
+    password = "klg_pass"
