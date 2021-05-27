@@ -81,8 +81,6 @@ class Database(object):
         return self.mongo_db[contract_address].find(key)
 
     def neo4j_update_wallet_token(self, wallet, token):
-        print("update walllllllllllleeeeeeeeeeeeddddiiiiiiiiiiiingggggggggggg")
-        print(wallet)
         match = self._graph.run("match (p:WALLET {address:$address}) return p ", address=wallet.get("address")).data()
         if not match:
             create = self._graph.run("merge (p:WALLET { address:$address }) "
@@ -116,8 +114,7 @@ class Database(object):
         return create[0]["p"]
 
     def neo4j_update_lending_token(self, lending_pool, token):
-        print("update lendddddddddddddiiiiiiiiiiiingggggggggggg")
-        print(lending_pool)
+
         match = self._graph.run("match (p:LENDING {address:$address}) return p ",
                                 address=lending_pool.get("address")).data()
         if not match:
@@ -143,8 +140,7 @@ class Database(object):
         return create[0]["p"]
 
     def neo4j_update_link(self, tx):
-        print("update linkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk")
-        print(tx)
+
         merge = self._graph.run("match (p {address: $from_address }),(e {address:$to_address})"
                                 " MERGE (p)-[r:"
                                 + tx.get("label") +
@@ -154,7 +150,6 @@ class Database(object):
                                 tx_id=tx.get("tx_id"),
                                 amount=tx.get("amount"),
                                 token=tx.get("token")).data()
-        print(merge)
         return merge
 
     def generate_lending_pool_dict_for_klg(self, address, name, borrow, supply, block_number):

@@ -1,0 +1,1 @@
+python3 ./quick_run/extract_to_knowledge_graph_neo4j.py
