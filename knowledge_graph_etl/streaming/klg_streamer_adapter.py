@@ -8,6 +8,7 @@ from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
 from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
 from knowledge_graph_etl.exporter.database.database import Database
+from knowledge_graph_etl.services.credit_score_service import CreditScoreService
 from knowledge_graph_etl.services.eth_token_type_service import EthTokenTypeService, clean_user_provided_content
 
 
@@ -45,6 +46,7 @@ class KLGStreamerAdapter:
             "LiquidateBorrow": self._liquidate_handler,
             "Transfer": self._transfer_handler
         }
+        self.credit_score_service = CreditScoreService()
         self.token_service = EthTokenTypeService(self.w3, clean_user_provided_content)
 
     def open(self):
@@ -302,7 +304,7 @@ class KLGStreamerAdapter:
         supply = None
         borrow = None
         block_number = wallet.get("at_block_number")
-        credit_score = 50
+        credit_score = self.credit_score_service.get_credit_score(account_address)
         balances = wallet.get("balances")
         if balances:
             balance = balances.get(self.token.get("address"))
