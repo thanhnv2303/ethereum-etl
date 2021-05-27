@@ -1,3 +1,4 @@
+import logging
 import os
 from time import time
 
@@ -11,6 +12,8 @@ from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestamp
 from knowledge_graph_etl.exporter.database.database import Database
 from knowledge_graph_etl.services.credit_score_service import CreditScoreService
 from knowledge_graph_etl.services.eth_token_type_service import EthTokenTypeService, clean_user_provided_content
+
+logger = logging.getLogger('export_lending_graph')
 
 
 class KLGStreamerAdapter:
@@ -100,7 +103,7 @@ class KLGStreamerAdapter:
         end_time = time()
         time_diff = round(end_time - start_time, 5)
         logger.info('Exporting blocks {block_range} took {time_diff} seconds'.format(
-            block_range=block_range,
+            block_range=(end_block - start_block),
             time_diff=time_diff,
         ))
 
