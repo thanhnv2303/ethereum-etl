@@ -295,8 +295,6 @@ class KLGStreamerAdapter:
                 accumulate_history[contract_address] = [accumulate_current]
 
     def _update_wallet_neo4j(self, wallet):
-        print("wallet-------------------")
-        print(wallet)
         account_address = wallet.get("address")
         lending_info = wallet.get("lending_info")
         token = self.token
