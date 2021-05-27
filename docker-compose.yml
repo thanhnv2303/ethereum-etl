@@ -19,7 +19,7 @@ services:
     hostname: neo4j
     container_name: neo4j-klg
     ports:
-      - "7474:7474"
+        - "7474:7474"
       - "7687:7687"
     volumes:
       - ./neo4j/plugins:/plugins

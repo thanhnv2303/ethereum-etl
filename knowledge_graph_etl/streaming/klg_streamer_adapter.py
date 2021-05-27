@@ -1,4 +1,5 @@
 import os
+from time import time
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
@@ -58,6 +59,7 @@ class KLGStreamerAdapter:
 
     def export_all(self, start_block, end_block):
         VTOKEN = []
+        start_time = time()
         with open(self.v_tokens_filter_file, "r") as file:
             v_tokens = file.read().splitlines()
             for token in v_tokens:
@@ -94,6 +96,13 @@ class KLGStreamerAdapter:
                             handler(contract_collection, event, block)
         # print(tokens)
         # self.item_exporter.export_items(tokens)
+
+        end_time = time()
+        time_diff = round(end_time - start_time, 5)
+        logger.info('Exporting blocks {block_range} took {time_diff} seconds'.format(
+            block_range=block_range,
+            time_diff=time_diff,
+        ))
 
     def close(self):
         self.item_exporter.close()
