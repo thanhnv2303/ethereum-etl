@@ -18,6 +18,7 @@ class MongoDBConfig:
     NAME = "just_for_dev"
     PASSWORD = "password_for_dev"
     HOST = "localhost"
+    # HOST = "25.19.185.225"
     PORT = "27027"
     DATABASE = "EXTRACT_DATA_KNOWLEDGE_GRAPH"
     TRANSACTIONS = "TRANSACTIONS"
