@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 from time import time
@@ -61,42 +62,49 @@ class KLGStreamerAdapter:
         return latest_block.get("number") - 16
 
     def export_all(self, start_block, end_block):
-        VTOKEN = []
         start_time = time()
+        # tokens = VENUS_TOKEN
+        # vtokens = VTOKEN
+        tokens = []
+        vtokens = []
+        with open(self.tokens_filter_file, "r") as file:
+            tokens = file.read().splitlines()
         with open(self.v_tokens_filter_file, "r") as file:
             v_tokens = file.read().splitlines()
             for token in v_tokens:
-                VTOKEN.append(token.lower())
+                vtokens.append(token.lower())
 
-        with open(self.tokens_filter_file, "r") as file:
-            tokens = file.read().splitlines()
+        for block in range(start_block, end_block + 1):
+            for token in tokens:
+                contract_collection = token.lower()
+                token = self.database.get_token(contract_collection)
+                self.token = token
+                ### update tokens
 
-            for block in range(start_block, end_block + 1):
-                for token in tokens:
-                    contract_collection = token.lower()
-                    token = self.database.get_token(contract_collection)
-                    self.token = token
-                    ### update tokens
-                    if contract_collection in VTOKEN:
-                        token_info = self.token_service.get_token(contract_collection, self.token_service.VTOKEN)
-                        if token:
-                            token["supply"] = str(token_info.get("total_supply"))
-                            token["borrow"] = str(token_info.get("total_borrow"))
+                ### add config just update token at 3 a.m
+                now = datetime.datetime.now()
+                # if contract_collection in vtokens:
+                if (now.hour != 3) and (contract_collection in vtokens):
 
-                            self.database.update_token(token)
+                    token_info = self.token_service.get_token(contract_collection, self.token_service.VTOKEN)
+                    if token:
+                        token["supply"] = str(token_info.get("total_supply"))
+                        token["borrow"] = str(token_info.get("total_borrow"))
 
-                            lending_pool = self.database.generate_lending_pool_dict_for_klg(token.get("address"),
-                                                                                            token.get("name"),
-                                                                                            token.get("borrow"),
-                                                                                            token.get("supply"), block)
-                            self.database.neo4j_update_lending_token(lending_pool, token.get("symbol"))
+                        self.database.update_token(token)
 
-                    ### update wallet and transaction
-                    events = self.database.get_event_at_block_num(contract_collection, block)
-                    for event in events:
-                        handler = self.event_handler_map[event.get("type")]
-                        if handler:
-                            handler(contract_collection, event, block)
+                        lending_pool = self.database.generate_lending_pool_dict_for_klg(token.get("address"),
+                                                                                        token.get("name"),
+                                                                                        token.get("borrow"),
+                                                                                        token.get("supply"), block)
+                        self.database.neo4j_update_lending_token(lending_pool, token.get("symbol"))
+
+                ### update wallet and transaction
+                events = self.database.get_event_at_block_num(contract_collection, block)
+                for event in events:
+                    handler = self.event_handler_map[event.get("type")]
+                    if handler:
+                        handler(contract_collection, event, block)
         # print(tokens)
         # self.item_exporter.export_items(tokens)
 
@@ -199,6 +207,7 @@ class KLGStreamerAdapter:
         else:
             symbol = "???"
         ###update wallet from and to address
+
         from_wallet = self.database.get_wallet(from_address)
         self._update_wallet_neo4j(from_wallet)
         to_wallet = self.database.get_wallet(to_address)
@@ -213,7 +222,6 @@ class KLGStreamerAdapter:
         print("update accumulate for" + wallet_address + "with type:" + typ)
         wallet = self.database.get_wallet(wallet_address)
         accumulate_history = wallet.get("accumulate_history")
-        accumulate = wallet.get("accumulate")
         if not accumulate_history:
             accumulate_history = {}
             accumulate = {}
