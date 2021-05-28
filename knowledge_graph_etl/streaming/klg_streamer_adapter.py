@@ -84,7 +84,7 @@ class KLGStreamerAdapter:
                 ### add config just update token at 3 a.m
                 now = datetime.datetime.now()
                 # if contract_collection in vtokens:
-                if (now.hour != 3) and (contract_collection in vtokens):
+                if (now.hour == 3) and (contract_collection in vtokens):
 
                     token_info = self.token_service.get_token(contract_collection, self.token_service.VTOKEN)
                     if token:
@@ -111,7 +111,7 @@ class KLGStreamerAdapter:
         end_time = time()
         time_diff = round(end_time - start_time, 5)
         logger.info('Exporting blocks {block_range} took {time_diff} seconds'.format(
-            block_range=(end_block - start_block),
+            block_range=(end_block - start_block + 1),
             time_diff=time_diff,
         ))
 
