@@ -261,9 +261,9 @@ class KLGStreamerAdapter:
                 lending_infos_token.insert(0, account_info)
             wallet["lending_infos"] = lending_infos
 
-            if not wallet.get("lending_info"):
-                wallet["lending_info"] = {contract_address: lending_infos[contract_address][-1]}
-            else:
+        if not wallet.get("lending_info"):
+            wallet["lending_info"] = {contract_address: lending_infos[contract_address][-1]}
+        else:
                 wallet["lending_info"][contract_address] = lending_infos[contract_address][-1]
 
         self.database.update_wallet(wallet)
