@@ -208,10 +208,10 @@ class KLGStreamerAdapter:
             symbol = "???"
         ###update wallet from and to address
 
-        from_wallet = self.database.get_wallet(from_address)
-        self._update_wallet_neo4j(from_wallet)
-        to_wallet = self.database.get_wallet(to_address)
-        self._update_wallet_neo4j(to_wallet)
+        # from_wallet = self.database.get_wallet(from_address)
+        # self._update_wallet_neo4j(from_wallet)
+        # to_wallet = self.database.get_wallet(to_address)
+        # self._update_wallet_neo4j(to_wallet)
 
         link_dict = self.database.generate_link_dict_for_klg(from_address, to_address, tx_id, amount, symbol,
                                                              typ)
