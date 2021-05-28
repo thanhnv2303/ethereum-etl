@@ -2,6 +2,8 @@ import os
 import sys
 from os import path
 
+from knowledge_graph_etl.exporter.database.memory_storage import MemoryStorage
+
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
 import logging
@@ -58,6 +60,7 @@ if __name__ == '__main__':
     provider_uri = pick_random_provider_uri(provider_uri)
     logging.info('Using ' + provider_uri)
 
+    memory_storage = MemoryStorage()
     streamer_adapter = KLGStreamerAdapter(
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
         item_exporter=create_item_exporter(output),

@@ -1,0 +1,135 @@
+{
+  "0x47bead2563dcbf3bf2c9407fea4dc236faba485a": {
+    "symbol": "SXP",
+    "price": "2.12",
+    "credit_score": 616.0,
+    "market_cap": 184824997.0,
+    "decimals": 18
+  },
+  "0x4bd17003473389a42daf6a0a729f6fdb328bbbd7": {
+    "symbol": "VAI",
+    "price": "0.92",
+    "credit_score": 726.0,
+    "market_cap": 104814424.0,
+    "decimals": 18
+  },
+  "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d": {
+    "symbol": "USDC",
+    "price": "1.00",
+    "credit_score": 936.0,
+    "market_cap": 21933990099.0,
+    "decimals": 18
+  },
+  "0x55d398326f99059ff775485246999027b3197955": {
+    "symbol": "USDT",
+    "price": "1.00",
+    "credit_score": 901.0,
+    "market_cap": 61176894613.0,
+    "decimals": 18
+  },
+  "0xe9e7cea3dedca5984780bafc599bd69add087d56": {
+    "symbol": "BUSD",
+    "price": "1.00",
+    "credit_score": 936.0,
+    "market_cap": 8706785998.0,
+    "decimals": 18
+  },
+  "0xcf6bb5389c92bdda8a3747ddb454cb7a64626c63": {
+    "symbol": "XVS",
+    "price": "34.02",
+    "credit_score": 605.0,
+    "market_cap": 338804907.0,
+    "decimals": 18
+  },
+  "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c": {
+    "symbol": "BTCB",
+    "price": "36749.00",
+    "credit_score": 826.0,
+    "market_cap": 691552764007.0,
+    "decimals": 18
+  },
+  "0x2170ed0880ac9a755fd29b2688956bd959f933f8": {
+    "symbol": "ETH",
+    "price": "2570.08",
+    "credit_score": 835.0,
+    "market_cap": 297749685239.0,
+    "decimals": 18
+  },
+  "0x4338665cbb7b2485a8855a139b75d5e34ab0db94": {
+    "symbol": "LTC",
+    "price": "180.04",
+    "credit_score": 767.0,
+    "market_cap": 12030080273.0,
+    "decimals": 18
+  },
+  "0x1d2f0da169ceb9fc7b3144628db156f3f6c60dbe": {
+    "symbol": "XRP",
+    "price": "0.90",
+    "credit_score": 703.0,
+    "market_cap": 41617132386.0,
+    "decimals": 18
+  },
+  "0xeca88125a5adbe82614ffc12d0db554e2e2867c8": {
+    "symbol": "vUSDC",
+    "price": "0.02",
+    "credit_score": 380.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0xfd5840cd36d94d7229439859c0112a4185bc0255": {
+    "symbol": "vUSDT",
+    "price": "0.02",
+    "credit_score": 369.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0x2ff3d0f6990a40261c66e1ff2017acbc282eb6d0": {
+    "symbol": "vSXP",
+    "price": "0.04",
+    "credit_score": 144.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0x151b1e2635a717bcdc836ecd6fbb62b674fe3e1d": {
+    "symbol": "vXVS",
+    "price": "0.67",
+    "credit_score": 91.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0x882c173bc7ff3b7786ca16dfed3dfffb9ee7847b": {
+    "symbol": "vBTC",
+    "price": "739.60",
+    "credit_score": 228.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0xf508fcd89b8bd15579dc79a6827cb4686a3592c8": {
+    "symbol": "vETH",
+    "price": "51.24",
+    "credit_score": 235.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0x57a5297f2cb2c0aac9d554660acd6d385ab50c6b": {
+    "symbol": "vLTC",
+    "price": "3.59",
+    "credit_score": 174.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0xb248a295732e0225acd3337607cc01068e3b9c10": {
+    "symbol": "vXRP",
+    "price": "0.02",
+    "credit_score": 184.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  },
+  "0x95c78222b3d6e262426483d42cfa53685a67ab9d": {
+    "symbol": "vBUSD",
+    "price": "0.0206",
+    "credit_score": 0.0,
+    "market_cap": 0.0,
+    "decimals": 8
+  }
+}

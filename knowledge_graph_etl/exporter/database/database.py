@@ -139,6 +139,22 @@ class Database(object):
                                      supply=lending_pool.get("supply")).data()
         return create[0]["p"]
 
+    def neo4j_update_token(self, token):
+
+        create = self._graph.run("match (p { address:$address }) "
+                                 "set p.price=$price,"
+                                 "p.credit_score=$credit_score,"
+                                 "p.market_rank=$market_rank,"
+                                 "p.market_cap=$market_cap "
+                                 "return p",
+                                 address=token.get("address"),
+                                 price=token.get("price"),
+                                 credit_score=token.get("credit_score"),
+                                 market_rank=token.get("market_rank"),
+                                 market_cap=token.get("market_cap")
+                                 ).data()
+        return create
+
     def neo4j_update_link(self, tx):
 
         merge = self._graph.run("match (p {address: $from_address }),(e {address:$to_address})"

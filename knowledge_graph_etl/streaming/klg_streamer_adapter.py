@@ -51,7 +51,7 @@ class KLGStreamerAdapter:
             "LiquidateBorrow": self._liquidate_handler,
             "Transfer": self._transfer_handler
         }
-        self.credit_score_service = CreditScoreService()
+        self.credit_score_service = CreditScoreService(database)
         self.token_service = EthTokenTypeService(self.w3, clean_user_provided_content)
 
     def open(self):
@@ -63,6 +63,7 @@ class KLGStreamerAdapter:
 
     def export_all(self, start_block, end_block):
         start_time = time()
+        now = datetime.datetime.now()
         # tokens = VENUS_TOKEN
         # vtokens = VTOKEN
         tokens = []
@@ -74,6 +75,10 @@ class KLGStreamerAdapter:
             for token in v_tokens:
                 vtokens.append(token.lower())
 
+        ## update token market info at 3h - 3h5m
+        if now.hour == 3 and now.minute < 5:
+            self.credit_score_service.update_token_market_info()
+
         for block in range(start_block, end_block + 1):
             for token in tokens:
                 contract_collection = token.lower()
@@ -82,7 +87,7 @@ class KLGStreamerAdapter:
                 ### update tokens
 
                 ### add config just update token at 3 a.m
-                now = datetime.datetime.now()
+
                 # if contract_collection in vtokens:
                 if (now.hour == 3) and (contract_collection in vtokens):
 
@@ -98,7 +103,6 @@ class KLGStreamerAdapter:
                                                                                         token.get("borrow"),
                                                                                         token.get("supply"), block)
                         self.database.neo4j_update_lending_token(lending_pool, token.get("symbol"))
-
                 ### update wallet and transaction
                 events = self.database.get_event_at_block_num(contract_collection, block)
                 for event in events:
@@ -267,6 +271,11 @@ class KLGStreamerAdapter:
         else:
             wallet["lending_info"][contract_address] = lending_infos[contract_address][-1]
 
+
+        credit_score = self.credit_score_service.get_credit_score(wallet_address)
+        print("wallet at " + wallet_address + "update credit score :"+ str(credit_score))
+        wallet["credit_score"] = credit_score
+
         self.database.update_wallet(wallet)
         return wallet
 
@@ -323,7 +332,7 @@ class KLGStreamerAdapter:
         supply = None
         borrow = None
         block_number = wallet.get("at_block_number")
-        credit_score = self.credit_score_service.get_credit_score(account_address)
+        credit_score = wallet.get("credit_score")
         balances = wallet.get("balances")
         if balances:
             balance = balances.get(self.token.get("address"))
@@ -339,7 +348,6 @@ class KLGStreamerAdapter:
                 supply = lending_info_at_pool.get("supply")
                 borrow = lending_info_at_pool.get("borrow")
                 block_number = lending_info_at_pool.get("block_number")
-
         wallet_dict = self.database.generate_wallet_dict_for_klg(address=account_address, balance=balance,
                                                                  supply=supply, borrow=borrow,
                                                                  credit_score=credit_score, block_number=block_number)
