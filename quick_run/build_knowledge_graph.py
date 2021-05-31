@@ -33,7 +33,7 @@ if __name__ == '__main__':
         provider_uri = "file:///" + geth_ipc_file
 
     batch_size = 128
-    max_workers = 4
+    max_workers = 8
 
     # start_block = 4678378
     if path.exists(last_synced_block_file):
