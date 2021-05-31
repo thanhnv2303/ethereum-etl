@@ -1,49 +1,60 @@
+# MIT License
+#
+# Copyright (c) 2018 Evgeny Medvedev, evge.medvedev@gmail.com
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 import datetime
 import logging
-import os
-from time import time
 
-from web3 import Web3
-from web3.middleware import geth_poa_middleware
+from blockchainetl.jobs.base_job import BaseJob
+from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
+from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
+from ethereumetl.mappers.token_transfer_mapper import EthTokenTransferMapper
+from ethereumetl.service.token_transfer_extractor import EthTokenTransferExtractor
 
-from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
-from ethereumetl.enumeration.entity_type import EntityType
-from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
-from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
-from knowledge_graph_etl.exporter.database.database import Database
-from knowledge_graph_etl.jobs.extract_lending_knowledge_graph_job import ExtractLendingKnowledgeGraphJob
-from knowledge_graph_etl.services.credit_score_service import CreditScoreService
-from knowledge_graph_etl.services.eth_token_type_service import EthTokenTypeService, clean_user_provided_content
-
-logger = logging.getLogger('export_lending_graph')
+logger = logging.getLogger('export_lending_graph_job')
 
 
-class KLGStreamerAdapter:
+class ExtractLendingKnowledgeGraphJob(BaseJob):
     def __init__(
             self,
-            batch_web3_provider,
-            item_exporter=ConsoleItemExporter(),
-            database=Database(),
-            batch_size=100,
-            max_workers=5,
-            entity_types=tuple(EntityType.ALL_FOR_STREAMING),
-            tokens_filter_file="../../artifacts/token_filter",
-            v_tokens_filter_file="../../artifacts/vToken_filter",
-    ):
-        # self.batch_web3_provider = batch_web3_provider
-        self.batch_web3_provider = batch_web3_provider
-        self.w3 = Web3(batch_web3_provider)
-        self.w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+            token_list,
+            batch_size,
+            max_workers,
+            item_exporter,
+            at_block,
+            vtokens,
+            credit_score_service,
+            token_service,
+            database):
+        self.token_list = token_list
+
+        self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
         self.item_exporter = item_exporter
-        self.batch_size = batch_size
-        self.max_workers = max_workers
-        self.entity_types = entity_types
-        self.item_id_calculator = EthItemIdCalculator()
-        self.item_timestamp_calculator = EthItemTimestampCalculator()
+
+        self.receipt_log_mapper = EthReceiptLogMapper()
+        self.token_transfer_mapper = EthTokenTransferMapper()
+        self.token_transfer_extractor = EthTokenTransferExtractor()
+
         self.database = database
-        cur_path = os.path.dirname(os.path.realpath(__file__))
-        self.tokens_filter_file = cur_path + "/" + tokens_filter_file
-        self.v_tokens_filter_file = cur_path + "/" + v_tokens_filter_file
+        self.vtokens = vtokens
+        self.at_block = at_block
         self.event_handler_map = {
             "Mint": self._mint_handler,
             "Borrow": self._borrow_handler,
@@ -52,89 +63,54 @@ class KLGStreamerAdapter:
             "LiquidateBorrow": self._liquidate_handler,
             "Transfer": self._transfer_handler
         }
-        self.credit_score_service = CreditScoreService(database)
-        self.token_service = EthTokenTypeService(self.w3, clean_user_provided_content)
+        self.credit_score_service = credit_score_service
+        self.token_service = token_service
 
-    def open(self):
+    def _start(self):
         self.item_exporter.open()
 
-    def get_current_block_number(self):
-        latest_block = self.database.mongo_blocks.find_one(sort=[("number", -1)])  # for MAX
-        return latest_block.get("number") - 16
+    def _export(self):
+        self.batch_work_executor.execute(self.token_list, self._extract_landing_events)
 
-    def export_all(self, start_block, end_block):
-        start_time = time()
+    def _extract_landing_events(self, token_list):
+        for token_address in token_list:
+            self._extract_landing_event(token_address)
+
+    def _extract_landing_event(self, contract_address):
         now = datetime.datetime.now()
-        # tokens = VENUS_TOKEN
-        # vtokens = VTOKEN
-        tokens = []
-        vtokens = []
-        with open(self.tokens_filter_file, "r") as file:
-            tokens = file.read().splitlines()
-        with open(self.v_tokens_filter_file, "r") as file:
-            v_tokens = file.read().splitlines()
-            for token in v_tokens:
-                vtokens.append(token.lower())
-        self.vtokens = vtokens
-        ## update token market info at 3h - 3h5m
-        if now.hour == 3 and now.minute < 5:
-            self.credit_score_service.update_token_market_info()
+        contract_address = contract_address.lower()
+        token = self.database.get_token(contract_address)
+        self.token = token
+        ### update tokens
 
-        for block in range(start_block, end_block + 1):
-            self.extract_lending_knowledge_graph(tokens, block)
-            # for token in tokens:
-            #     contract_collection = token.lower()
-            #     token = self.database.get_token(contract_collection)
-            #     self.token = token
-            #     ### update tokens
-            #
-            #     ### add config just update token at 3 a.m
-            #
-            #     # if contract_collection in vtokens:
-            #     if (now.hour == 3) and (contract_collection in vtokens):
-            #
-            #         token_info = self.token_service.get_token(contract_collection, self.token_service.VTOKEN)
-            #         if token:
-            #             token["supply"] = str(token_info.get("total_supply"))
-            #             token["borrow"] = str(token_info.get("total_borrow"))
-            #
-            #             self.database.update_token(token)
-            #
-            #             lending_pool = self.database.generate_lending_pool_dict_for_klg(token.get("address"),
-            #                                                                             token.get("name"),
-            #                                                                             token.get("borrow"),
-            #                                                                             token.get("supply"), block)
-            #             self.database.neo4j_update_lending_token(lending_pool, token.get("symbol"))
-            #     ### update wallet and transaction
-            #     events = self.database.get_event_at_block_num(contract_collection, block)
-            #     for event in events:
-            #         handler = self.event_handler_map[event.get("type")]
-            #         if handler:
-            #             handler(contract_collection, event, block)
-        # print(tokens)
-        # self.item_exporter.export_items(tokens)
+        ### add config just update token at 3 a.m
 
-        end_time = time()
-        time_diff = round(end_time - start_time, 5)
-        logger.info('Exporting blocks {block_range} took {time_diff} seconds'.format(
-            block_range=(end_block - start_block + 1),
-            time_diff=time_diff,
-        ))
+        # if contract_collection in vtokens:
+        if (now.hour == 3 and now.minute < 5) and (contract_address in self.vtokens):
 
-    def close(self):
+            token_info = self.token_service.get_token(contract_address, self.token_service.VTOKEN)
+            if token:
+                token["supply"] = str(token_info.get("total_supply"))
+                token["borrow"] = str(token_info.get("total_borrow"))
+
+                self.database.update_token(token)
+
+                lending_pool = self.database.generate_lending_pool_dict_for_klg(token.get("address"),
+                                                                                token.get("name"),
+                                                                                token.get("borrow"),
+                                                                                token.get("supply"), self.at_block)
+                self.database.neo4j_update_lending_token(lending_pool, token.get("symbol"))
+
+        ### update wallet and transaction
+        events = self.database.get_event_at_block_num(contract_address, self.at_block)
+        for event in events:
+            handler = self.event_handler_map[event.get("type")]
+            if handler:
+                handler(contract_address, event, self.at_block)
+
+    def _end(self):
+        self.batch_work_executor.shutdown()
         self.item_exporter.close()
-
-    def extract_lending_knowledge_graph(self, contract_addresses, at_block):
-        job_extract = ExtractLendingKnowledgeGraphJob(token_list=contract_addresses,
-                                                      batch_size=self.batch_size,
-                                                      max_workers=self.max_workers,
-                                                      item_exporter=self.item_exporter,
-                                                      at_block=at_block,
-                                                      vtokens=self.vtokens,
-                                                      credit_score_service=self.credit_score_service,
-                                                      token_service=self.token_service,
-                                                      database=self.database)
-        job_extract.run()
 
     def _mint_handler(self, contract_address, event, at_block):
         tx_id = event.get("transaction_hash")
@@ -237,7 +213,9 @@ class KLGStreamerAdapter:
 
     def _update_wallet_accumulate(self, wallet_address, typ, accumulate_amount, contract_address, at_block, tx_id,
                                   event_id=None):
-        print("update accumulate for" + wallet_address + "with type:" + typ)
+        print("update accumulate for" + wallet_address + "with type:" + typ + " at block " + str(at_block))
+
+        logger.info("update accumulate for" + wallet_address + "with type:" + typ)
         wallet = self.database.get_wallet(wallet_address)
         accumulate_history = wallet.get("accumulate_history")
         if not accumulate_history:
@@ -381,19 +359,3 @@ class KLGStreamerAdapter:
         link_dict = self.database.generate_link_dict_for_klg(from_address, to_address, tx_id, accumulate_amount, symbol,
                                                              typ)
         self.database.neo4j_update_link(link_dict)
-
-
-def get_nearest_less_key(dict_, search_key):
-    try:
-        result = max(key for key in map(int, dict_.keys()) if key <= search_key)
-        return result
-    except:
-        return
-
-
-def get_nearest_key(dict_, search_key):
-    try:
-        result = min(dict_.keys(), key=lambda key: abs(key - search_key))
-        return result
-    except:
-        return

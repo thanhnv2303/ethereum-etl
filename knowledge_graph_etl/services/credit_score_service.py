@@ -133,7 +133,7 @@ class CreditScoreService:
                 continue
 
             token_score = self.tokens_market.get(token_address).get("credit_score")
-            print(token_score)
+            # print(token_score)
             token_score_wallet = max(token_score_wallet, token_score)
 
         return token_score_wallet
