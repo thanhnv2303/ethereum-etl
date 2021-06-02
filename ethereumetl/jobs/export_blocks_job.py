@@ -22,7 +22,6 @@
 
 
 import json
-from time import time
 
 from web3 import Web3
 
@@ -95,6 +94,7 @@ class ExportBlocksJob(BaseJob):
             self.item_exporter.export_item(block_dict)
 
         if self.export_transactions:
+            # print("num transactions at block "+str(block.number)+ " : "+ str(len(block.transactions)))
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
                 self._update_balance(transaction_dict)
@@ -106,15 +106,24 @@ class ExportBlocksJob(BaseJob):
         self.item_exporter.close()
 
     def _update_balance(self, transaction_dict):
+        # return transaction_dict
         if transaction_dict.get("input") == "0x":
             block_number = transaction_dict.get("block_number")
             from_address = transaction_dict.get("from_address")
             to_address = transaction_dict.get("to_address")
-
-            from_balance = self.ethService.get_balance(from_address, block_number)
+            value = transaction_dict.get("value")
+            if value:
+                value = int(value)
+            else:
+                value = 0
             pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
-            to_balance = self.ethService.get_balance(to_address, block_number)
+            if not pre_from_balance:
+                pre_from_balance = 0
+            from_balance = str(int(pre_from_balance) - value)
             pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
+            if not pre_to_balance:
+                pre_to_balance = 0
+            to_balance = str(int(pre_to_balance) + transaction_dict.get("value"))
 
             wallets = []
             if to_balance:
@@ -125,8 +134,6 @@ class ExportBlocksJob(BaseJob):
                 wallets.append(wallet)
 
             transaction_dict["wallets"] = wallets
-
-        return transaction_dict
 
     def get_cache(self):
         return self.blocks_cache + self.transactions_cache

@@ -86,7 +86,6 @@ class ExportTokenTransfersJob(BaseJob):
 
         if self.tokens is not None and len(self.tokens) > 0:
             filter_params['address'] = self.tokens
-        start_time1 = time()
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
         for event in events:
@@ -95,15 +94,14 @@ class ExportTokenTransfersJob(BaseJob):
             token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
             if token_transfer is not None:
                 token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
-
+                start_time = time()
                 self._update_balance(token_transfer_dict)
-
+                end_time = time()
+                print("run time to update balance:" + str(end_time - start_time))
                 self.token_dict_cache.append(token_transfer_dict)
                 self.item_exporter.export_item(token_transfer_dict)
 
-
         self.web3.eth.uninstallFilter(event_filter.filter_id)
-
 
     def _end(self):
         self.batch_work_executor.shutdown()
@@ -124,7 +122,9 @@ class ExportTokenTransfersJob(BaseJob):
                 from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
             else:
                 pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
-                from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number)
+                if not pre_from_balance:
+                    pre_from_balance = 0
+                from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
 
             if from_balance:
                 wallet = get_wallet_dict(from_address, from_balance, pre_from_balance, block_number, token_address)
@@ -139,8 +139,10 @@ class ExportTokenTransfersJob(BaseJob):
                 pre_to_balance = str(balances.get(token_address.lower()))
                 to_balance = str(int(pre_to_balance) - int(token_transfer_dict.get("value")))
             else:
-                to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number)
                 pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1)
+                if not pre_to_balance:
+                    pre_to_balance = 0
+                to_balance = str(int(pre_to_balance) + int(token_transfer_dict.get("value")))
             if to_balance:
                 wallet = get_wallet_dict(to_address, to_balance, pre_to_balance, block_number, token_address)
                 wallets.append(wallet)

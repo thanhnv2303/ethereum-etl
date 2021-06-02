@@ -88,7 +88,8 @@ class KnowledgeGraphExporter:
         self.data_base.update_token(item)
 
     def _update_wallet_and_item(self, item, balance_address):
-
+        if not item.get("wallets"):
+            return
         for wallet in item.get("wallets"):
             address = wallet.get("address")
             wallet_in_db = self.data_base.get_wallet(address)
