@@ -237,7 +237,7 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
 
         ### get balance, supply, borrow
         account_info = self.token_service.get_account_info(wallet.get("address"), contract_address,
-                                                           self.token_service.VTOKEN)
+                                                           self.token_service.VTOKEN,block_identifier=at_block)
         lending_infos = wallet.get("lending_infos")
         if not lending_infos:
             lending_infos = {contract_address: [account_info]}
@@ -264,7 +264,7 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
             wallet["lending_info"][contract_address] = lending_infos[contract_address][-1]
 
         credit_score = self.credit_score_service.get_credit_score(wallet_address)
-        print("wallet at " + wallet_address + "update credit score :" + str(credit_score))
+        print("wallet at " + wallet_address + " update credit score :" + str(credit_score))
         wallet["credit_score"] = credit_score
 
         self.database.update_wallet(wallet)

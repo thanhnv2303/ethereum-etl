@@ -71,20 +71,21 @@ class EthTokenTypeService(object):
 
         return
 
-    def get_account_info(self, account_address, smart_contract_address, token_type):
+    def get_account_info(self, account_address, smart_contract_address, token_type, block_identifier="latest"):
         checksum_address = self._web3.toChecksumAddress(smart_contract_address)
         checksum_account_address = self._web3.toChecksumAddress(account_address)
         contract = self._web3.eth.contract(address=checksum_address, abi=self.abi_map[token_type])
 
-        balance = self._get_first_result(contract.functions.balanceOf(checksum_account_address))
-        supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_account_address))
-        borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_account_address))
-        block_num = self._web3.eth.blockNumber
+        balance = self._get_first_result(contract.functions.balanceOf(checksum_account_address), block_identifier=block_identifier)
+        supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_account_address), block_identifier=block_identifier)
+        borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_account_address), block_identifier=block_identifier)
+        if block_identifier == "latest":
+            block_identifier = self._web3.eth.blockNumber
         account_info = {
             "balance": str(balance),
             "supply": str(supply),
             "borrow": str(borrow),
-            "block_number": block_num
+            "block_number": block_identifier
         }
 
         return account_info
@@ -104,22 +105,23 @@ class EthTokenTypeService(object):
             print(e)
             return None
 
-    def _get_first_result(self, *funcs):
+    def _get_first_result(self, *funcs, block_identifier="latest"):
         for func in funcs:
 
-            result = self._call_contract_function(func)
+            result = self._call_contract_function(func, block_identifier)
             if result is not None:
                 return result
         return None
 
-    def _call_contract_function(self, func):
+    def _call_contract_function(self, func, block_identifier="latest"):
         # BadFunctionCallOutput exception happens if the token doesn't implement a particular function
         # or was self-destructed
         # OverflowError exception happens if the return type of the function doesn't match the expected type
         result = call_contract_function(
             func=func,
             ignore_errors=(BadFunctionCallOutput, OverflowError, ValueError),
-            default_value=None)
+            default_value=None,
+            block_identifier=block_identifier)
 
         if self._function_call_result_transformer is not None:
             return self._function_call_result_transformer(result)
@@ -127,9 +129,9 @@ class EthTokenTypeService(object):
             return result
 
 
-def call_contract_function(func, ignore_errors, default_value=None):
+def call_contract_function(func, ignore_errors, default_value=None, block_identifier="latest"):
     try:
-        result = func.call()
+        result = func.call(block_identifier=block_identifier)
         return result
     except Exception as ex:
         if type(ex) in ignore_errors:
