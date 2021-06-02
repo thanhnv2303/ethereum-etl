@@ -114,7 +114,7 @@ class ExportTokenTransfersJob(BaseJob):
             self._update_balance(token_transfer_dict)
             # end_time = time()
             # print("run time to update balance:" + str(end_time - start_time))
-            print(token_transfer_dict)
+            # print(token_transfer_dict)
             self.token_dict_cache.append(token_transfer_dict)
             self.item_exporter.export_item(token_transfer_dict)
 

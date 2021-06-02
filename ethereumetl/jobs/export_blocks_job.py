@@ -110,7 +110,7 @@ class ExportBlocksJob(BaseJob):
 
     def _handler_transaction(self, transaction_dict):
         self._update_balance(transaction_dict)
-        print(transaction_dict)
+        # print(transaction_dict)
         self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
 
