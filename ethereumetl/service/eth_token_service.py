@@ -63,7 +63,7 @@ class EthTokenService(object):
 
         try:
 
-            balance = contract.functions.balanceOf(checksum_address).call(block_identifier=block_identifier)
+            balance = self._get_first_result(contract.functions.balanceOf(checksum_address),block_identifier=block_identifier)
 
             end_time = time()
             print("time to call get balance of " + address + " at contract " + token_address + " is" + str(
@@ -75,22 +75,24 @@ class EthTokenService(object):
             print(e)
             return None
 
-    def _get_first_result(self, *funcs):
+    def _get_first_result(self, *funcs,block_identifier="latest"):
         for func in funcs:
 
-            result = self._call_contract_function(func)
+            result = self._call_contract_function(func,block_identifier=block_identifier)
             if result is not None:
                 return result
         return None
 
-    def _call_contract_function(self, func):
+    def _call_contract_function(self, func,block_identifier="latest"):
         # BadFunctionCallOutput exception happens if the token doesn't implement a particular function
         # or was self-destructed
         # OverflowError exception happens if the return type of the function doesn't match the expected type
         result = call_contract_function(
             func=func,
             ignore_errors=(BadFunctionCallOutput, OverflowError, ValueError),
-            default_value=None)
+            default_value=None,
+            block_identifier=block_identifier
+        )
 
         if self._function_call_result_transformer is not None:
             return self._function_call_result_transformer(result)
@@ -98,9 +100,9 @@ class EthTokenService(object):
             return result
 
 
-def call_contract_function(func, ignore_errors, default_value=None):
+def call_contract_function(func, ignore_errors, default_value=None,block_identifier="latest"):
     try:
-        result = func.call()
+        result = func.call(block_identifier=block_identifier)
         return result
     except Exception as ex:
         if type(ex) in ignore_errors:
