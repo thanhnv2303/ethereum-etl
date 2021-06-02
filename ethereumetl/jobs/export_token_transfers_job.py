@@ -19,9 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import asyncio
+# import asyncio
 import logging
-from time import time
 
 from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
@@ -90,16 +89,16 @@ class ExportTokenTransfersJob(BaseJob):
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
         # start = time()
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
         tasks = []
         for event in events:
-            tasks.append(loop.create_task(self._handler_event(event)))
+            # tasks.append(loop.create_task(self._handler_event(event)))
             # tasks.append(self._handler_event(event))
-            # self._handler_event(event)
-        loop.run_until_complete(asyncio.wait(tasks))
+            self._handler_event(event)
+        # loop.run_until_complete(asyncio.wait(tasks))
         # loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
-        loop.close()
+        # loop.close()
         # end = time()
         # print(f'Time to run all transfer: {end - start:.2f} sec')
 
