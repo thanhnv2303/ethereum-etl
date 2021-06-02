@@ -19,7 +19,7 @@ class Database(object):
         self.mongo_blocks = self.mongo_db[MongoDBConfig.BLOCKS]
         self.mongo_token_collection_dict = {}
 
-        self._create_index()
+        # self._create_index()
 
     def _create_index(self):
         self.mongo_transactions.create_index([("hash", "hashed")])

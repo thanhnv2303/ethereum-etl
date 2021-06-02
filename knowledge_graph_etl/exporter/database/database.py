@@ -22,7 +22,7 @@ class Database(object):
 
         self._graph = Graph(Neo4jConfig.bolt, auth=(Neo4jConfig.username, Neo4jConfig.password))
 
-        self._create_index()
+        # self._create_index()
 
     def _create_index(self):
         self.mongo_transactions.create_index([("hash", "hashed")])
