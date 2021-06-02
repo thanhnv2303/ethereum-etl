@@ -94,21 +94,23 @@ class ExportBlocksJob(BaseJob):
             self.item_exporter.export_item(block_dict)
 
         if self.export_transactions:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            tasks = []
+            # loop = asyncio.new_event_loop()
+            # asyncio.set_event_loop(loop)
+            # tasks = []
             # print("num transactions at block "+str(block.number)+ " : "+ str(len(block.transactions)))
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
-                tasks.append(loop.create_task(self._handler_transaction(transaction_dict)))
+                self._handler_transaction(transaction_dict)
+                # tasks.append(loop.create_task(self._handler_transaction(transaction_dict)))
                 # tasks.append(self._handler_transaction(transaction_dict))
 
             # loop.run_until_complete(asyncio.wait(tasks))
-            loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
-            loop.close()
+            # loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+            # loop.close()
 
     def _handler_transaction(self, transaction_dict):
         self._update_balance(transaction_dict)
+        print(transaction_dict)
         self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
 
