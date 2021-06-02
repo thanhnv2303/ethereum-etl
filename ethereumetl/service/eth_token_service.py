@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
+from time import time
 
 from web3.exceptions import BadFunctionCallOutput
 
@@ -53,6 +54,7 @@ class EthTokenService(object):
         return token
 
     def get_balance(self, token_address, address, block_identifier="latest"):
+        start_time = time()
         if address == "0x0000000000000000000000000000000000000000":
             return
         checksum_token_address = self._web3.toChecksumAddress(token_address)
@@ -62,6 +64,10 @@ class EthTokenService(object):
         try:
 
             balance = contract.functions.balanceOf(checksum_address).call(block_identifier=block_identifier)
+
+            end_time = time()
+            print("time to call get balance of " + address + " at contract " + token_address + " is" + str(
+                end_time - start_time))
             return balance
             return 0
         except Exception as e:

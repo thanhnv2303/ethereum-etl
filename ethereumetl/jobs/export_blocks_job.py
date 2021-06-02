@@ -22,6 +22,7 @@
 
 
 import json
+from time import time
 
 from web3 import Web3
 
@@ -116,7 +117,11 @@ class ExportBlocksJob(BaseJob):
                 value = int(value)
             else:
                 value = 0
+            start_time = time()
             pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
+            end_time = time()
+            print("time to call get balance native token of " + from_address + " at contract " + " is" + str(
+                end_time - start_time))
             if not pre_from_balance:
                 pre_from_balance = 0
             from_balance = str(int(pre_from_balance) - value)
