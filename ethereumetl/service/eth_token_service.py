@@ -53,7 +53,7 @@ class EthTokenService(object):
 
         return token
 
-    async def get_balance(self, token_address, address, block_identifier="latest", data_balance=None):
+    def get_balance(self, token_address, address, block_identifier="latest", data_balance={}):
         # start_time = time()
 
         if address == "0x0000000000000000000000000000000000000000":
@@ -76,7 +76,7 @@ class EthTokenService(object):
         except Exception as e:
             logger.error(e)
             print(e)
-            data_balance["data"] = 0
+            data_balance["data"] = None
             return None
 
     def _get_first_result(self, *funcs, block_identifier="latest"):

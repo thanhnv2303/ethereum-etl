@@ -101,19 +101,22 @@ class ExportBlocksJob(BaseJob):
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
                 tasks.append(loop.create_task(self._handler_transaction(transaction_dict)))
+                # tasks.append(self._handler_transaction(transaction_dict))
 
-            loop.run_until_complete(asyncio.wait(tasks))
+            # loop.run_until_complete(asyncio.wait(tasks))
+            loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
             loop.close()
 
-    async def _handler_transaction(self,transaction_dict):
-        await self._update_balance(transaction_dict)
+    def _handler_transaction(self, transaction_dict):
+        self._update_balance(transaction_dict)
         self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
+
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
 
-    async def _update_balance(self, transaction_dict):
+    def _update_balance(self, transaction_dict):
         # return transaction_dict
         if transaction_dict.get("input") == "0x":
             block_number = transaction_dict.get("block_number")
@@ -124,24 +127,29 @@ class ExportBlocksJob(BaseJob):
                 value = int(value)
             else:
                 value = 0
-            start_time = time()
+            # start_time = time()
             pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
-            end_time = time()
-            print("time to call get balance native token of " + from_address + " at contract " + " is" + str(
-                end_time - start_time))
-            if not pre_from_balance:
+            # end_time = time()
+            # print("time to call get balance native token of " + from_address + " at contract " + " is" + str(
+            #     end_time - start_time))
+            if pre_from_balance == None:
                 pre_from_balance = 0
-            from_balance = str(int(pre_from_balance) - value)
+                from_balance = 0
+            else:
+                from_balance = str(int(pre_from_balance) - value)
+
             pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
-            if not pre_to_balance:
+            if pre_to_balance == None:
                 pre_to_balance = 0
-            to_balance = str(int(pre_to_balance) + transaction_dict.get("value"))
+                to_balance = 0
+            else:
+                to_balance = str(int(pre_to_balance) + transaction_dict.get("value"))
 
             wallets = []
-            if to_balance:
+            if int(to_balance) >= 0:
                 wallet = get_wallet_dict(to_address, to_balance, pre_to_balance, block_number)
                 wallets.append(wallet)
-            if from_balance:
+            if int(from_balance) >= 0:
                 wallet = get_wallet_dict(from_address, from_balance, pre_from_balance, block_number)
                 wallets.append(wallet)
 

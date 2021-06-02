@@ -103,6 +103,7 @@ class KnowledgeGraphExporter:
             wallet_in_db["balances"] = balances
             wallet["balances"] = balances
 
+            # print("in  balance_address",balance_address)
             txs = wallet_in_db.get("transactions")
             if not txs:
                 txs = []
