@@ -19,8 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
+import asyncio
 import json
 from time import time
 
@@ -95,18 +94,26 @@ class ExportBlocksJob(BaseJob):
             self.item_exporter.export_item(block_dict)
 
         if self.export_transactions:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            tasks = []
             # print("num transactions at block "+str(block.number)+ " : "+ str(len(block.transactions)))
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
-                self._update_balance(transaction_dict)
-                self.transactions_cache.append(transaction_dict)
-                self.item_exporter.export_item(transaction_dict)
+                tasks.append(loop.create_task(self._handler_transaction(transaction_dict)))
 
+            loop.run_until_complete(asyncio.wait(tasks))
+            loop.close()
+
+    async def _handler_transaction(self,transaction_dict):
+        await self._update_balance(transaction_dict)
+        self.transactions_cache.append(transaction_dict)
+        self.item_exporter.export_item(transaction_dict)
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
 
-    def _update_balance(self, transaction_dict):
+    async def _update_balance(self, transaction_dict):
         # return transaction_dict
         if transaction_dict.get("input") == "0x":
             block_number = transaction_dict.get("block_number")

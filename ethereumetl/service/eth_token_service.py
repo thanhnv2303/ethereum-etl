@@ -53,8 +53,9 @@ class EthTokenService(object):
 
         return token
 
-    def get_balance(self, token_address, address, block_identifier="latest"):
-        start_time = time()
+    async def get_balance(self, token_address, address, block_identifier="latest", data_balance=None):
+        # start_time = time()
+
         if address == "0x0000000000000000000000000000000000000000":
             return
         checksum_token_address = self._web3.toChecksumAddress(token_address)
@@ -63,27 +64,30 @@ class EthTokenService(object):
 
         try:
 
-            balance = self._get_first_result(contract.functions.balanceOf(checksum_address),block_identifier=block_identifier)
-
-            end_time = time()
-            print("time to call get balance of " + address + " at contract " + token_address + " is" + str(
-                end_time - start_time))
+            balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
+                                             block_identifier=block_identifier)
+            # print("balance ",balance)
+            data_balance["data"] = balance
+            # end_time = time()
+            # print("time to call get balance of " + address + " at contract " + token_address + " is " + str(
+            #     end_time - start_time))
             return balance
-            return 0
+
         except Exception as e:
             logger.error(e)
             print(e)
+            data_balance["data"] = 0
             return None
 
-    def _get_first_result(self, *funcs,block_identifier="latest"):
+    def _get_first_result(self, *funcs, block_identifier="latest"):
         for func in funcs:
 
-            result = self._call_contract_function(func,block_identifier=block_identifier)
+            result = self._call_contract_function(func, block_identifier=block_identifier)
             if result is not None:
                 return result
         return None
 
-    def _call_contract_function(self, func,block_identifier="latest"):
+    def _call_contract_function(self, func, block_identifier="latest"):
         # BadFunctionCallOutput exception happens if the token doesn't implement a particular function
         # or was self-destructed
         # OverflowError exception happens if the return type of the function doesn't match the expected type
@@ -100,8 +104,9 @@ class EthTokenService(object):
             return result
 
 
-def call_contract_function(func, ignore_errors, default_value=None,block_identifier="latest"):
+def call_contract_function(func, ignore_errors, default_value=None, block_identifier="latest"):
     try:
+
         result = func.call(block_identifier=block_identifier)
         return result
     except Exception as ex:

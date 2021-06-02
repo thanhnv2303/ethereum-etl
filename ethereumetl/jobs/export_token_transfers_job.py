@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import asyncio
 import logging
 from time import time
 
@@ -88,26 +89,36 @@ class ExportTokenTransfersJob(BaseJob):
             filter_params['address'] = self.tokens
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
+        start = time()
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        tasks = []
         for event in events:
-
-            log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
-            token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
-            if token_transfer is not None:
-                token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
-                start_time = time()
-                self._update_balance(token_transfer_dict)
-                end_time = time()
-                print("run time to update balance:" + str(end_time - start_time))
-                self.token_dict_cache.append(token_transfer_dict)
-                self.item_exporter.export_item(token_transfer_dict)
-
+            tasks.append(loop.create_task(self._handler_event(event)))
+            # self._handler_event(event)
+        loop.run_until_complete(asyncio.wait(tasks))
+        loop.close()
+        end = time()
+        # print(f'Time to run all transfer: {end - start:.2f} sec')
         self.web3.eth.uninstallFilter(event_filter.filter_id)
+
+    async def _handler_event(self, event):
+        log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
+        token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
+        if token_transfer is not None:
+            token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
+            start_time = time()
+            await self._update_balance(token_transfer_dict)
+            end_time = time()
+            print("run time to update balance:" + str(end_time - start_time))
+            self.token_dict_cache.append(token_transfer_dict)
+            self.item_exporter.export_item(token_transfer_dict)
 
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
 
-    def _update_balance(self, token_transfer_dict):
+    async def _update_balance(self, token_transfer_dict):
         block_number = token_transfer_dict.get("block_number")
         token_address = token_transfer_dict.get("contract_address")
         from_address = token_transfer_dict.get("from_address")
@@ -121,7 +132,10 @@ class ExportTokenTransfersJob(BaseJob):
                 pre_from_balance = str(balances.get(token_address.lower()))
                 from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
             else:
-                pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
+                # pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
+                data = {"data": 0}
+                await self.ethTokenService.get_balance(token_address, from_address, block_number - 1, data)
+                pre_from_balance = data.get("data")
                 if not pre_from_balance:
                     pre_from_balance = 0
                 from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
@@ -131,6 +145,7 @@ class ExportTokenTransfersJob(BaseJob):
                 wallets.append(wallet)
         except Exception as e:
             print(e)
+
         try:
             to_wallet = self.database.get_wallet(to_address)
             balances = to_wallet.get("balances")
@@ -139,7 +154,11 @@ class ExportTokenTransfersJob(BaseJob):
                 pre_to_balance = str(balances.get(token_address.lower()))
                 to_balance = str(int(pre_to_balance) - int(token_transfer_dict.get("value")))
             else:
-                pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1)
+                # pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1
+                data={"data":0}
+                await self.ethTokenService.get_balance(token_address, to_address, block_number - 1, data)
+                pre_to_balance = data.get("data")
+                # print("pre_to_balance ", pre_to_balance)
                 if not pre_to_balance:
                     pre_to_balance = 0
                 to_balance = str(int(pre_to_balance) + int(token_transfer_dict.get("value")))
