@@ -202,10 +202,12 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
             symbol = "???"
         ###update wallet from and to address
 
-        # from_wallet = self.database.get_wallet(from_address)
-        # self._update_wallet_neo4j(from_wallet)
-        # to_wallet = self.database.get_wallet(to_address)
-        # self._update_wallet_neo4j(to_wallet)
+        from_wallet = self.database.get_wallet(from_address)
+        self._update_lending_info(from_wallet, contract_address, at_block)
+        self.database.update_wallet(from_wallet)
+        to_wallet = self.database.get_wallet(to_address)
+        self._update_lending_info(to_wallet, contract_address, at_block)
+        self.database.update_wallet(to_wallet)
 
         link_dict = self.database.generate_link_dict_for_klg(from_address, to_address, tx_id, amount, symbol,
                                                              typ)
@@ -235,33 +237,8 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
 
         wallet["accumulate"][typ][contract_address] = event_accumulate_history[contract_address][-1]
 
-        ### get balance, supply, borrow
-        account_info = self.token_service.get_account_info(wallet.get("address"), contract_address,
-                                                           self.token_service.VTOKEN,block_identifier=at_block)
-        lending_infos = wallet.get("lending_infos")
-        if not lending_infos:
-            lending_infos = {contract_address: [account_info]}
-        lending_infos_token = lending_infos.get(contract_address)
-        if not lending_infos_token:
-            lending_infos[contract_address] = [account_info]
-        else:
-            i = len(lending_infos_token) - 1
-            while i >= 0:
-                if lending_infos_token[i].get("block_number") < account_info.get("block_number"):
-                    lending_infos_token.insert(i + 1, account_info)
-                    break
-                elif lending_infos_token[i].get("block_number") == account_info.get("block_number"):
-                    break
-                i = i - 1
-            if i < 0:
-                lending_infos_token.insert(0, account_info)
-            wallet["lending_infos"] = lending_infos
-
-        if not wallet.get("lending_info"):
-            wallet["lending_info"] = {}
-            wallet["lending_info"][contract_address] = lending_infos[contract_address][-1]
-        else:
-            wallet["lending_info"][contract_address] = lending_infos[contract_address][-1]
+        # add lending info to wallet
+        self._update_lending_info(wallet, contract_address, at_block)
 
         credit_score = self.credit_score_service.get_credit_score(wallet_address)
         print("wallet at " + wallet_address + " update credit score :" + str(credit_score))
@@ -314,6 +291,35 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
                 i = i - 1
             if i < 0:
                 accumulate_history[contract_address] = [accumulate_current]
+
+    def _update_lending_info(self, wallet, contract_address, at_block):
+        ### get balance, supply, borrow
+        account_info = self.token_service.get_account_info(wallet.get("address"), contract_address,
+                                                           self.token_service.VTOKEN, block_identifier=at_block)
+        lending_infos = wallet.get("lending_infos")
+        if not lending_infos:
+            lending_infos = {contract_address: [account_info]}
+        lending_infos_token = lending_infos.get(contract_address)
+        if not lending_infos_token:
+            lending_infos[contract_address] = [account_info]
+        else:
+            i = len(lending_infos_token) - 1
+            while i >= 0:
+                if lending_infos_token[i].get("block_number") < account_info.get("block_number"):
+                    lending_infos_token.insert(i + 1, account_info)
+                    break
+                elif lending_infos_token[i].get("block_number") == account_info.get("block_number"):
+                    break
+                i = i - 1
+            if i < 0:
+                lending_infos_token.insert(0, account_info)
+            wallet["lending_infos"] = lending_infos
+
+        if not wallet.get("lending_info"):
+            wallet["lending_info"] = {}
+            wallet["lending_info"][contract_address] = lending_infos[contract_address][-1]
+        else:
+            wallet["lending_info"][contract_address] = lending_infos[contract_address][-1]
 
     def _update_wallet_neo4j(self, wallet):
         account_address = wallet.get("address")

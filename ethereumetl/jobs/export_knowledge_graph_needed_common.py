@@ -329,6 +329,11 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         )
         job.run()
 
+        time_diff = round(time() - start_time, 5)
+        logger.info('Exporting blocks job {block_range} took {time_diff} seconds'.format(
+            block_range=block_range,
+            time_diff=time_diff,
+        ))
         # list_transactions_dict = job.get_cache()
         # transaction_hashes = extract_dict_key_to_list(list_transactions_dict, "hash")
         # print("transaction_hashes-------------------------------")
@@ -350,6 +355,11 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
             token_addresses = extract_dict_key_to_list(token_transfers_dict, "contract_address")
             token_set.update(token_addresses)
 
+        time_diff = round(time() - start_time, 5)
+        logger.info('Exporting token transfer job {block_range} took {time_diff} seconds'.format(
+            block_range=block_range,
+            time_diff=time_diff,
+        ))
         # print("token set in transfer")
         # print(token_set)
         # # # events in artifacts/event-abi # # #
@@ -392,6 +402,11 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                     contract_address = extract_dict_key_to_list(event_dicts, "contract_address")
                     token_set.update(contract_address)
 
+        time_diff = round(time() - start_time, 5)
+        logger.info('Exporting export event job {block_range} took {time_diff} seconds'.format(
+            block_range=block_range,
+            time_diff=time_diff,
+        ))
         # # # receipts_and_logs # # #
         # print("token set after get contact")
         # print(token_set)
@@ -414,6 +429,11 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
             max_workers=max_workers)
         job.run()
 
+        time_diff = round(time() - start_time, 5)
+        logger.info('Exporting token job {block_range} took {time_diff} seconds'.format(
+            block_range=block_range,
+            time_diff=time_diff,
+        ))
         # print("token exported")
         # print(job.get_cache())
         job.clean_cache()

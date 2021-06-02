@@ -75,19 +75,24 @@ class EthTokenTypeService(object):
         checksum_address = self._web3.toChecksumAddress(smart_contract_address)
         checksum_account_address = self._web3.toChecksumAddress(account_address)
         contract = self._web3.eth.contract(address=checksum_address, abi=self.abi_map[token_type])
-
-        balance = self._get_first_result(contract.functions.balanceOf(checksum_account_address), block_identifier=block_identifier)
-        supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_account_address), block_identifier=block_identifier)
-        borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_account_address), block_identifier=block_identifier)
+        balance = self._get_first_result(contract.functions.balanceOf(checksum_account_address),
+                                         block_identifier=block_identifier)
+        supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_account_address),
+                                        block_identifier=block_identifier)
+        borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_account_address),
+                                        block_identifier=block_identifier)
         if block_identifier == "latest":
             block_identifier = self._web3.eth.blockNumber
+        if not supply:
+            supply = 0
+        if not borrow:
+            borrow = 0
         account_info = {
             "balance": str(balance),
             "supply": str(supply),
             "borrow": str(borrow),
             "block_number": block_identifier
         }
-
         return account_info
 
     def get_balance(self, token_address, address, block_identifier="latest"):
@@ -135,11 +140,11 @@ def call_contract_function(func, ignore_errors, default_value=None, block_identi
         return result
     except Exception as ex:
         if type(ex) in ignore_errors:
-            logger.exception('An exception occurred in function {} of contract {}. '.format(func.fn_name, func.address)
-                             + 'This exception can be safely ignored.')
+            # logger.exception('An exception occurred in function {} of contract {}. '.format(func.fn_name, func.address)
+            #                  + 'This exception can be safely ignored.')
             return default_value
         else:
-            logger.exception(ex)
+            # logger.exception(ex)
             return default_value
 
 
