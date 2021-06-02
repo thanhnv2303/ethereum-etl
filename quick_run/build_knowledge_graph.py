@@ -28,11 +28,11 @@ if __name__ == '__main__':
 
     if not os.path.exists(geth_ipc_file):
         provider_uri = "http://25.19.185.225:8545"
-        # provider_uri =  "https://bsc-dataseed.binance.org/"
+        provider_uri =  "https://bsc-dataseed.binance.org/"
     else:
         provider_uri = "file:///" + geth_ipc_file
 
-    batch_size = 128
+    batch_size = 16
     max_workers = 8
 
     # start_block = 4678378
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         # start_block = 7771629
     period_seconds = 10
     pid_file = None
-    block_batch_size = 16
+    block_batch_size = 32
 
     # configure_logging(log_file)
     configure_signals()

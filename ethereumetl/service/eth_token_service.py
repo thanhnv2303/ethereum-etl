@@ -60,8 +60,10 @@ class EthTokenService(object):
         contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
 
         try:
+
             balance = contract.functions.balanceOf(checksum_address).call(block_identifier=block_identifier)
             return balance
+            return 0
         except Exception as e:
             logger.error(e)
             print(e)

@@ -19,6 +19,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from time import time
+
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 
 
@@ -49,10 +51,10 @@ class KnowledgeGraphExporter:
         pass
 
     def _block_handler(self, item):
-
         item["gas_limit"] = str(item.get("gas_limit"))
         item["gas_used"] = str(item.get("gas_used"))
         self.data_base.update_block(item)
+
 
     def _transaction_handler(self, item):
         item["gas"] = str(item.get("gas"))
@@ -64,12 +66,15 @@ class KnowledgeGraphExporter:
             self.data_base.update_transaction_transfer(item)
         self.data_base.update_transaction(item)
 
+
     def _token_transfer_handler(self, item):
         item["value"] = str(item.get("value"))
         token_address = item.get("contract_address")
         item["type"] = "Transfer"
         self._update_wallet_and_item(item, token_address)
+
         self.data_base.insert_to_token_collection(token_address, item)
+
 
     def _event_handler(self, item):
         item["value"] = str(item.get("value"))

@@ -22,6 +22,7 @@
 
 
 import json
+from time import time
 
 from web3 import Web3
 
@@ -92,6 +93,7 @@ class ExportBlocksJob(BaseJob):
             block_dict = self.block_mapper.block_to_dict(block)
             self.blocks_cache.append(block_dict)
             self.item_exporter.export_item(block_dict)
+
         if self.export_transactions:
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)

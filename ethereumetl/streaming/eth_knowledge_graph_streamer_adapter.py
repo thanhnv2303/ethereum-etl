@@ -64,7 +64,6 @@ class EthKnowledgeGraphStreamerAdapter:
             tokens = []
             for token in tokens_list:
                 tokens.append(Web3.toChecksumAddress(token))
-
             export_knowledge_graph_needed_with_item_exporter(partitions, self.provider_uri, self.max_workers,
                                                              self.batch_size,
                                                              item_exporter, tokens=tokens)
@@ -162,7 +161,6 @@ class EthKnowledgeGraphStreamerAdapter:
         )
         job.run()
         tokens = exporter.get_items("token")
-        print("tokens")
         return tokens
 
     def _extract_tokens_from_transfer(self, token_transfers):

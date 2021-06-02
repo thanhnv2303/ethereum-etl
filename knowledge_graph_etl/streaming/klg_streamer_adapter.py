@@ -237,7 +237,6 @@ class KLGStreamerAdapter:
 
     def _update_wallet_accumulate(self, wallet_address, typ, accumulate_amount, contract_address, at_block, tx_id,
                                   event_id=None):
-        print("update accumulate for" + wallet_address + "with type:" + typ)
         wallet = self.database.get_wallet(wallet_address)
         accumulate_history = wallet.get("accumulate_history")
         if not accumulate_history:
