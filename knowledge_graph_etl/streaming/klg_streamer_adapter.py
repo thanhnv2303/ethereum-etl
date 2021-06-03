@@ -55,6 +55,8 @@ class KLGStreamerAdapter:
         self.credit_score_service = CreditScoreService(database)
         self.token_service = EthTokenTypeService(self.w3, clean_user_provided_content)
 
+        self.latest_block = self.w3.eth.blockNumber
+
     def open(self):
         self.item_exporter.open()
 
@@ -125,6 +127,7 @@ class KLGStreamerAdapter:
         self.item_exporter.close()
 
     def extract_lending_knowledge_graph(self, contract_addresses, at_block):
+
         job_extract = ExtractLendingKnowledgeGraphJob(token_list=contract_addresses,
                                                       batch_size=self.batch_size,
                                                       max_workers=self.max_workers,
@@ -133,7 +136,9 @@ class KLGStreamerAdapter:
                                                       vtokens=self.vtokens,
                                                       credit_score_service=self.credit_score_service,
                                                       token_service=self.token_service,
-                                                      database=self.database)
+                                                      database=self.database,
+                                                      latest_block=self.latest_block
+                                                      )
         job_extract.run()
 
     def _mint_handler(self, contract_address, event, at_block):
