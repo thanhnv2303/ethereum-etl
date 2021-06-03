@@ -42,7 +42,9 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
             vtokens,
             credit_score_service,
             token_service,
-            database):
+            database,
+            latest_block=None
+    ):
         self.token_list = token_list
 
         self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
@@ -65,6 +67,10 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
         }
         self.credit_score_service = credit_score_service
         self.token_service = token_service
+
+        self.latest_block = latest_block
+        if latest_block:
+            self.block_thread_hole = int(latest_block * 0.9)
 
     def _start(self):
         self.item_exporter.open()
@@ -232,6 +238,8 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
     def _update_wallet_accumulate(self, wallet_address, typ, accumulate_amount, contract_address, at_block, tx_id,
                                   event_id=None):
         # logger.info("update accumulate for" + wallet_address + "with type:" + typ)
+        if (typ == "TransferFrom" or typ == "TransferTo") and int(at_block) < self.block_thread_hole:
+            return
         wallet = self.database.get_wallet(wallet_address)
         accumulate_history = wallet.get("accumulate_history")
         if not accumulate_history:
