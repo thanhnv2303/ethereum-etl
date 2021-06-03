@@ -194,6 +194,7 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
         to_address = event.get("to_address")
         typ = "Transfer"
         tx_id = event.get("transaction_hash")
+        event_id = event.get("_id")
         token = self.database.get_token(contract_address)
         amount = event.get("value")
         if token:
@@ -202,12 +203,27 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
             symbol = "???"
         ###update wallet from and to address
 
-        from_wallet = self.database.get_wallet(from_address)
-        self._update_lending_info(from_wallet, contract_address, at_block)
-        self.database.update_wallet(from_wallet)
-        to_wallet = self.database.get_wallet(to_address)
-        self._update_lending_info(to_wallet, contract_address, at_block)
-        self.database.update_wallet(to_wallet)
+        # from_wallet = self.database.get_wallet(from_address)
+        # self._update_lending_info(from_wallet, contract_address, at_block)
+        # self.database.update_wallet(from_wallet)
+        # to_wallet = self.database.get_wallet(to_address)
+        # self._update_lending_info(to_wallet, contract_address, at_block)
+        # self.database.update_wallet(to_wallet)
+
+        ### add accumulate with transfer
+        if amount:
+            ### type accumulate is TransferFrom
+
+            wallet = self._update_wallet_accumulate(from_address, typ + "From", amount, contract_address, at_block,
+                                                    tx_id,
+                                                    event_id)
+
+            self._update_wallet_neo4j(wallet)
+            wallet = self._update_wallet_accumulate(to_address, typ + "To", amount, contract_address, at_block,
+                                                    tx_id,
+                                                    event_id)
+
+            self._update_wallet_neo4j(wallet)
 
         link_dict = self.database.generate_link_dict_for_klg(from_address, to_address, tx_id, amount, symbol,
                                                              typ)
