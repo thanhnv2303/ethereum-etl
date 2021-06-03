@@ -253,10 +253,11 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
 
         # add lending info to wallet
         self._update_lending_info(wallet, contract_address, at_block)
-
-        credit_score = self.credit_score_service.get_credit_score(wallet_address)
-        print("wallet at " + wallet_address + " update credit score :" + str(credit_score))
-        wallet["credit_score"] = credit_score
+        now = datetime.datetime.now()
+        if (typ != "TransferFrom" or typ != "TransferTo") and (now.hour == 3 and now.minute < 5):
+            credit_score = self.credit_score_service.get_credit_score(wallet_address)
+            print("wallet at " + wallet_address + " update credit score :" + str(credit_score))
+            wallet["credit_score"] = credit_score
 
         self.database.update_wallet(wallet)
         return wallet
