@@ -225,13 +225,13 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
             wallet = self._update_wallet_accumulate(from_address, typ + "From", amount, contract_address, at_block,
                                                     tx_id,
                                                     event_id)
-
-            self._update_wallet_neo4j(wallet)
+            if wallet:
+                self._update_wallet_neo4j(wallet)
             wallet = self._update_wallet_accumulate(to_address, typ + "To", amount, contract_address, at_block,
                                                     tx_id,
                                                     event_id)
-
-            self._update_wallet_neo4j(wallet)
+            if wallet:
+                self._update_wallet_neo4j(wallet)
 
         link_dict = self.database.generate_link_dict_for_klg(from_address, to_address, tx_id, amount, symbol,
                                                              typ)
@@ -240,7 +240,8 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
     def _update_wallet_accumulate(self, wallet_address, typ, accumulate_amount, contract_address, at_block, tx_id,
                                   event_id=None):
         # logger.info("update accumulate for" + wallet_address + "with type:" + typ)
-        if (typ == "TransferFrom" or typ == "TransferTo") and self.block_thread_hole and int(at_block) < self.block_thread_hole:
+        if (typ == "TransferFrom" or typ == "TransferTo") and self.block_thread_hole and int(
+                at_block) < self.block_thread_hole:
             return
         wallet = self.database.get_wallet(wallet_address)
         accumulate_history = wallet.get("accumulate_history")
