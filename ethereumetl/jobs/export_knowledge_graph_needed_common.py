@@ -307,6 +307,10 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
 
 def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
                                                      item_exporter, tokens=None):
+    w3 = Web3(get_provider_from_uri(provider_uri))
+    latest_block_num = w3.eth.blockNumber
+    thread_local_proxy = ThreadLocalProxy(lambda: w3)
+
     for batch_start_block, batch_end_block, partition_dir in partitions:
         # # # start # # #
         start_time = time()
@@ -326,6 +330,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
             batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
             max_workers=max_workers,
             item_exporter=item_exporter,
+            latest_block=latest_block_num
         )
         job.run()
 
@@ -340,10 +345,12 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                 start_block=batch_start_block,
                 end_block=batch_end_block,
                 batch_size=batch_size,
-                web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+                web3=thread_local_proxy,
                 item_exporter=item_exporter,
                 max_workers=max_workers,
-                tokens=tokens)
+                tokens=tokens,
+                latest_block=latest_block_num
+            )
             job.run()
             token_transfers_dict = job.get_cache()
             token_addresses = extract_dict_key_to_list(token_transfers_dict, "contract_address")
@@ -379,7 +386,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                         start_block=batch_start_block,
                         end_block=batch_end_block,
                         batch_size=batch_size,
-                        web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+                        web3=thread_local_proxy,
                         item_exporter=item_exporter,
                         max_workers=max_workers,
                         subscriber_event=subscriber_event,
@@ -408,7 +415,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
 
         job = ExportTokensJob(
             token_addresses_iterable=token_set,
-            web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+            web3=thread_local_proxy,
             item_exporter=item_exporter,
             max_workers=max_workers)
         job.run()

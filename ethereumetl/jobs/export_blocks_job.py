@@ -21,7 +21,6 @@
 # SOFTWARE.
 # import asyncio
 import json
-from time import time
 
 from web3 import Web3
 
@@ -46,7 +45,9 @@ class ExportBlocksJob(BaseJob):
             max_workers,
             item_exporter,
             export_blocks=True,
-            export_transactions=True):
+            export_transactions=True,
+            latest_block=None
+    ):
         validate_range(start_block, end_block)
         self.start_block = start_block
         self.end_block = end_block
@@ -58,6 +59,11 @@ class ExportBlocksJob(BaseJob):
 
         self.export_blocks = export_blocks
         self.export_transactions = export_transactions
+
+        self.latest_block = latest_block
+        if latest_block:
+            self.block_thread_hole = int(latest_block*0.9)
+
         if not self.export_blocks and not self.export_transactions:
             raise ValueError('At least one of export_blocks or export_transactions must be True')
 
@@ -109,7 +115,9 @@ class ExportBlocksJob(BaseJob):
             # loop.close()
 
     def _handler_transaction(self, transaction_dict):
-        self._update_balance(transaction_dict)
+        block_number = int(transaction_dict.get("block_number"))
+        if not self.latest_block or block_number > self.block_thread_hole:
+            self._update_balance(transaction_dict)
         # print(transaction_dict)
         self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)

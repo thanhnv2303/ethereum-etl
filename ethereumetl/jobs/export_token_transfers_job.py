@@ -46,7 +46,9 @@ class ExportTokenTransfersJob(BaseJob):
             item_exporter,
             max_workers,
             database=Database(),
-            tokens=None):
+            tokens=None,
+            latest_block=None
+    ):
         validate_range(start_block, end_block)
         self.start_block = start_block
         self.end_block = end_block
@@ -63,6 +65,9 @@ class ExportTokenTransfersJob(BaseJob):
         self.token_dict_cache = []
         self.ethTokenService = EthTokenService(web3, clean_user_provided_content)
         self.database = database
+        self.latest_block = latest_block
+        if latest_block:
+            self.block_thread_hole = int(latest_block * 0.9)
 
     def _start(self):
         self.item_exporter.open()
@@ -110,7 +115,9 @@ class ExportTokenTransfersJob(BaseJob):
         if token_transfer is not None:
             token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
             # start_time = time()
-            self._update_balance(token_transfer_dict)
+            block_number = int(token_transfer_dict.get("block_number"))
+            if not self.latest_block or block_number > self.block_thread_hole:
+                self._update_balance(token_transfer_dict)
             # end_time = time()
             # print("run time to update balance:" + str(end_time - start_time))
             # print(token_transfer_dict)
