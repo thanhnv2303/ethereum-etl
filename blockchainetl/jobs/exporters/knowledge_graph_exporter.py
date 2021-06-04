@@ -134,7 +134,7 @@ class KnowledgeGraphExporter:
             else:
                 wallet_in_db["lending_info"][contract_address] = lending_infos[contract_address][-1]
 
-            print("wallet_in_db ------------------------",wallet_in_db)
+            # print("wallet_in_db ------------------------",wallet_in_db)
             txs = wallet_in_db.get("transactions")
             if not txs:
                 txs = []
