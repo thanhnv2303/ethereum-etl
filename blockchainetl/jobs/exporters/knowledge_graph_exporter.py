@@ -19,7 +19,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from time import time
 
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 
@@ -55,7 +54,6 @@ class KnowledgeGraphExporter:
         item["gas_used"] = str(item.get("gas_used"))
         self.data_base.update_block(item)
 
-
     def _transaction_handler(self, item):
         item["gas"] = str(item.get("gas"))
         item["gas_price"] = str(item.get("gas_price"))
@@ -66,7 +64,6 @@ class KnowledgeGraphExporter:
             self.data_base.update_transaction_transfer(item)
         self.data_base.update_transaction(item)
 
-
     def _token_transfer_handler(self, item):
         item["value"] = str(item.get("value"))
         token_address = item.get("contract_address")
@@ -74,7 +71,6 @@ class KnowledgeGraphExporter:
         self._update_wallet_and_item(item, token_address)
 
         self.data_base.insert_to_token_collection(token_address, item)
-
 
     def _event_handler(self, item):
         item["value"] = str(item.get("value"))
@@ -102,8 +98,43 @@ class KnowledgeGraphExporter:
             balances[balance_address] = wallet.get("balance")
             wallet_in_db["balances"] = balances
             wallet["balances"] = balances
-
             # print("in  balance_address",balance_address)
+
+            ## add transfer native token to lending info
+            account_info = {
+                "balance": str(wallet["balance"]),
+                "supply": "0",
+                "borrow": "0",
+                "block_number": item.get("block_number")
+            }
+            contract_address = "0x"
+
+            lending_infos = wallet_in_db.get("lending_infos")
+            if not lending_infos:
+                lending_infos = {contract_address: [account_info]}
+            lending_infos_token = lending_infos.get(contract_address)
+            if not lending_infos_token:
+                lending_infos[contract_address] = [account_info]
+            else:
+                i = len(lending_infos_token) - 1
+                while i >= 0:
+                    if lending_infos_token[i].get("block_number") < account_info.get("block_number"):
+                        lending_infos_token.insert(i + 1, account_info)
+                        break
+                    elif lending_infos_token[i].get("block_number") == account_info.get("block_number"):
+                        break
+                    i = i - 1
+                if i < 0:
+                    lending_infos_token.insert(0, account_info)
+                wallet_in_db["lending_infos"] = lending_infos
+
+            if not wallet_in_db.get("lending_info"):
+                wallet_in_db["lending_info"] = {}
+                wallet_in_db["lending_info"][contract_address] = lending_infos[contract_address][-1]
+            else:
+                wallet_in_db["lending_info"][contract_address] = lending_infos[contract_address][-1]
+
+            print("wallet_in_db ------------------------",wallet_in_db)
             txs = wallet_in_db.get("transactions")
             if not txs:
                 txs = []
