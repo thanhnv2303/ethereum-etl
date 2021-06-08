@@ -8,3 +8,4 @@ web3==5.19.0
 pymongo
 py2neo
 pycoingecko
+ethereum-dasm
