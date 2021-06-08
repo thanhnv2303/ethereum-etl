@@ -306,7 +306,15 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
 
 
 def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
-                                                     item_exporter, tokens=None):
+                                                     item_exporter, tokens=None, provider_uris=None):
+    # provider_uris = [uri.strip() for uri in provider_uri.split(',')]
+    # thread_local_proxys =[]
+    # for provider in provider_uris:
+    #     w3 = Web3(get_provider_from_uri(provider_uri))
+    #     latest_block_num = w3.eth.blockNumber
+    #     thread_local_proxy = ThreadLocalProxy(lambda: w3)
+    #     thread_local_proxys.append(thread_local_proxy)
+
     w3 = Web3(get_provider_from_uri(provider_uri))
     latest_block_num = w3.eth.blockNumber
     thread_local_proxy = ThreadLocalProxy(lambda: w3)
@@ -330,7 +338,8 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
             batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
             max_workers=max_workers,
             item_exporter=item_exporter,
-            latest_block=latest_block_num
+            latest_block=latest_block_num,
+            provider_uris=provider_uris
         )
         job.run()
 
@@ -349,7 +358,8 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                 item_exporter=item_exporter,
                 max_workers=max_workers,
                 tokens=tokens,
-                latest_block=latest_block_num
+                latest_block=latest_block_num,
+                provider_uris=provider_uris
             )
             job.run()
             token_transfers_dict = job.get_cache()

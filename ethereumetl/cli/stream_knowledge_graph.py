@@ -79,7 +79,7 @@ def stream_knowledge_graph(last_synced_block_file, lag, provider_uri, output, st
         provider_uri=provider_uri,
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
         item_exporter=create_item_exporter(output),
-        token_filter=tokens,
+        tokens=tokens,
         batch_size=batch_size,
         max_workers=max_workers,
         entity_types=entity_types

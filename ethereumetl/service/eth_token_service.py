@@ -20,19 +20,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
-from time import time
+import random
 
+from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
 from ethereumetl.domain.token import EthToken
 from ethereumetl.erc20_abi import ERC20_ABI
+from ethereumetl.providers.auto import get_provider_from_uri
+from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 logger = logging.getLogger('eth_token_service')
 
 
 class EthTokenService(object):
-    def __init__(self, web3, function_call_result_transformer=None):
+    def __init__(self, web3, function_call_result_transformer=None, provider_uris=None):
         self._web3 = web3
+        self.web3s = [web3]
+        if provider_uris:
+            for provider in provider_uris:
+                batch_web3_provider = ThreadLocalProxy(lambda: get_provider_from_uri(provider, batch=True))
+                w3 = Web3(batch_web3_provider)
+                self.web3s.append(w3)
         self._function_call_result_transformer = function_call_result_transformer
 
     def get_token(self, token_address):
@@ -58,9 +67,14 @@ class EthTokenService(object):
 
         if address == "0x0000000000000000000000000000000000000000":
             return
-        checksum_token_address = self._web3.toChecksumAddress(token_address)
-        checksum_address = self._web3.toChecksumAddress(address)
-        contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
+        w3 = random.choice(self.web3s)
+        # checksum_token_address = self._web3.toChecksumAddress(token_address)
+        # checksum_address = self._web3.toChecksumAddress(address)
+        # contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
+
+        checksum_token_address = w3.toChecksumAddress(token_address)
+        checksum_address = w3.toChecksumAddress(address)
+        contract = w3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
 
         try:
 

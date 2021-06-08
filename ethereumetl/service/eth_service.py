@@ -20,16 +20,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
+import random
 from datetime import datetime, timezone
 
+from web3 import Web3
+
+from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.service.graph_operations import GraphOperations, OutOfBoundsError, Point
+from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 
 class EthService(object):
-    def __init__(self, web3):
+    def __init__(self, web3, provider_uris=None):
         graph = BlockTimestampGraph(web3)
         self._graph_operations = GraphOperations(graph)
         self.web3 = web3
+        self.web3s = [web3]
+        if provider_uris:
+            for provider in provider_uris:
+                batch_web3_provider = ThreadLocalProxy(lambda: get_provider_from_uri(provider, batch=True))
+                w3 = Web3(batch_web3_provider)
+                self.web3s.append(w3)
 
     def get_block_range_for_date(self, date):
         start_datetime = datetime.combine(date, datetime.min.time().replace(tzinfo=timezone.utc))
@@ -67,7 +78,9 @@ class EthService(object):
     def get_balance(self, address, block_identifier="latest"):
         try:
             checksum_address = self.web3.toChecksumAddress(address)
-            balance = self.web3.eth.getBalance(checksum_address, block_identifier=block_identifier)
+            w3 = random.choice(self.web3s)
+            # balance = self.web3.eth.getBalance(checksum_address, block_identifier=block_identifier)
+            balance = w3.eth.getBalance(checksum_address, block_identifier=block_identifier)
             return balance
         except Exception as e:
             logging.getLogger("EthService").error(e)

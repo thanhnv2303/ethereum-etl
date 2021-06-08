@@ -27,7 +27,7 @@ if __name__ == '__main__':
     geth_ipc_file = home + "/bsc-full-sync/node/geth.ipc"
 
     if not os.path.exists(geth_ipc_file):
-        provider_uri = "http://25.19.185.225:8545"
+        provider_uri = "http://25.19.185.225:8545,http://35.240.140.92:8545"
         # provider_uri =  "https://bsc-dataseed.binance.org/"
     else:
         provider_uri = "file:///" + geth_ipc_file
@@ -54,6 +54,8 @@ if __name__ == '__main__':
     from blockchainetl.streaming.streamer import Streamer
 
     # TODO: Implement fallback mechanism for provider uris instead of picking randomly
+    provider_uris = [uri.strip() for uri in provider_uri.split(',')]
+
     provider_uri = pick_random_provider_uri(provider_uri)
     logging.info('Using ' + provider_uri)
 
@@ -63,7 +65,8 @@ if __name__ == '__main__':
         item_exporter=create_item_exporter(output),
         batch_size=batch_size,
         max_workers=max_workers,
-        entity_types=entity_types
+        entity_types=entity_types,
+        provider_uris=provider_uris
     )
     streamer = Streamer(
         blockchain_streamer_adapter=streamer_adapter,
