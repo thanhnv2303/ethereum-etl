@@ -30,7 +30,7 @@ if __name__ == '__main__':
         provider_uri = "http://25.19.185.225:8545,http://35.240.140.92:8545"
         # provider_uri =  "https://bsc-dataseed.binance.org/"
     else:
-        provider_uri = "file:///" + geth_ipc_file
+        provider_uri = "file:///" + geth_ipc_file +",http://35.240.140.92:8545"
 
     batch_size = 64
     max_workers = 8
