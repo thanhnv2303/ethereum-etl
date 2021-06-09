@@ -1,15 +1,22 @@
-FROM python:3.6
-MAINTAINER Evgeny Medvedev <evge.medvedev@gmail.com>
-ENV PROJECT_DIR=ethereum-etl
+# syntax=docker/dockerfile:1
 
-RUN mkdir /$PROJECT_DIR
-WORKDIR /$PROJECT_DIR
-COPY . .
-RUN pip install --upgrade pip && pip install -e /$PROJECT_DIR/[streaming]
+FROM amd64/python
 
-# Add Tini
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
+RUN \
+ apt-get update \
+ && apt-get install -y -q curl gnupg \
+ && curl -sSL 'http://p80.pool.sks-keyservers.net/pks/lookup?op=get&search=0x8AA7AF1F1091A5FD' | apt-key add -  \
+ && echo 'deb [arch=amd64] http://repo.sawtooth.me/ubuntu/chime/stable bionic universe' >> /etc/apt/sources.list \
+ && apt-get update
+RUN apt-get update
+RUN apt-get install -y python3-pip
 
-ENTRYPOINT ["/tini", "--", "python", "ethereumetl"]
+WORKDIR /project
+
+COPY ./requirements.txt requirements.txt
+
+RUN pip3 install -r requirements.txt
+#COPY .. .
+
+ENV PATH $PATH:/project
+#CMD [ "python3" , "./quick_run/build_knowledge_graph.py"]

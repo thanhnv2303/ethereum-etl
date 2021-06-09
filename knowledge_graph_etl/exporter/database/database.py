@@ -20,7 +20,8 @@ class Database(object):
         self.mongo_blocks = self.mongo_db[MongoDBConfig.BLOCKS]
         self.mongo_token_collection_dict = {}
 
-        self._graph = Graph(Neo4jConfig.bolt, auth=(Neo4jConfig.username, Neo4jConfig.password))
+        bolt = f"bolt://{Neo4jConfig.HOST}:{Neo4jConfig.BOTH_PORT}"
+        self._graph = Graph(bolt, auth=(Neo4jConfig.NEO4J_USERNAME, Neo4jConfig.NEO4J_PASSWORD))
 
         # self._create_index()
 

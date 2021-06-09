@@ -1,8 +1,0 @@
-pyetherchain
-eth-abi==1.3.0
-mythril==0.20.5
-ethereum-etl
-sqlalchemy
-python-dateutil==2.7.0
-eth-utils==1.8.4
-web3==4.7.2
