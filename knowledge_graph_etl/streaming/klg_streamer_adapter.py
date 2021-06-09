@@ -18,7 +18,7 @@ from knowledge_graph_etl.services.eth_token_type_service import EthTokenTypeServ
 logger = logging.getLogger('export_lending_graph')
 
 
-class KLGStreamerAdapter:
+class KLGLendingStreamerAdapter:
     def __init__(
             self,
             batch_web3_provider,
@@ -27,8 +27,8 @@ class KLGStreamerAdapter:
             batch_size=100,
             max_workers=5,
             entity_types=tuple(EntityType.ALL_FOR_STREAMING),
-            tokens_filter_file="../../artifacts/token_filter",
-            v_tokens_filter_file="../../artifacts/vToken_filter",
+            tokens_filter_file="artifacts/token_filter",
+            v_tokens_filter_file="artifacts/vToken_filter",
     ):
         # self.batch_web3_provider = batch_web3_provider
         self.batch_web3_provider = batch_web3_provider
@@ -41,9 +41,9 @@ class KLGStreamerAdapter:
         self.item_id_calculator = EthItemIdCalculator()
         self.item_timestamp_calculator = EthItemTimestampCalculator()
         self.database = database
-        cur_path = os.path.dirname(os.path.realpath(__file__))
-        self.tokens_filter_file = cur_path + "/" + tokens_filter_file
-        self.v_tokens_filter_file = cur_path + "/" + v_tokens_filter_file
+        cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"
+        self.tokens_filter_file = cur_path + tokens_filter_file
+        self.v_tokens_filter_file = cur_path + v_tokens_filter_file
         self.event_handler_map = {
             "Mint": self._mint_handler,
             "Borrow": self._borrow_handler,

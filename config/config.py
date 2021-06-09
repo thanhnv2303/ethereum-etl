@@ -40,7 +40,7 @@ class Neo4jConfig:
     NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD") or "klg_pass"
 
 
-class BuildKnowledgeGraph:
+class BuildKnowledgeGraphConfig:
     LOG_FILE = os.environ.get("KNOWLEDGE_GRAPH_LOG_FILE")
     PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_PROVIDER_URI")
     LAG = os.environ.get("KNOWLEDGE_GRAPH_LAG") or 0
@@ -52,3 +52,18 @@ class BuildKnowledgeGraph:
     BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BLOCK_BATCH_SIZE") or 24
     TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_TOKENS_FILTER_FILE") or "artifacts/token_filter"
     EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_EVENT_ABI_DIR") or "artifacts/event-abi"
+
+
+class KLGLendingStreamerAdapterConfig:
+    LOG_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_LOG_FILE")
+    PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PROVIDER_URI")
+    LAG = os.environ.get("KNOWLEDGE_GRAPH_LENDING_LAG") or 0
+    BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_BATCH_SIZE") or 64
+    MAX_WORKERS = os.environ.get("KNOWLEDGE_GRAPH_LENDING_MAX_WORKERS") or 8
+    START_BLOCK = os.environ.get("KNOWLEDGE_GRAPH_LENDING_START_BLOCK")
+    PERIOD_SECONDS = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PERIOD_SECONDS") or 10
+    PID_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PID_FILE") or None
+    BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_BLOCK_BATCH_SIZE") or 24
+    TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_TOKENS_FILTER_FILE") or "artifacts/token_filter"
+    V_TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_V_TOKENS_FILTER_FILE") or "artifacts/vToken_filter"
+    EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_LENDING_EVENT_ABI_DIR") or "artifacts/event-abi"

@@ -55,3 +55,25 @@ services:
       - NEO4J_HOST=neo4j-klg
       - NEO4J_BOTH_PORT=7687
 
+  knowledge-graph-lending:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: build-knowledge-graph
+    container_name: knowledge-graph-lending-module2
+    depends_on:
+      - mongo-export
+      - neo4j-klg
+    volumes:
+      - .:/project
+    command: |
+      bash -c "
+        python3 ./docker_run/extract_to_knowledge_graph_neo4j.py
+      "
+    env_file:
+      - ./.env
+    environment:
+      - MONGO_HOST=mongo-export
+      - MONGO_PORT=27017
+      - NEO4J_HOST=neo4j-klg
+      - NEO4J_BOTH_PORT=7687

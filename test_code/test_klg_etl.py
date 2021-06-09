@@ -6,7 +6,7 @@ from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 from knowledge_graph_etl.streaming.klg_streamer import Klg_Streamer
-from knowledge_graph_etl.streaming.klg_streamer_adapter import KLGStreamerAdapter
+from knowledge_graph_etl.streaming.klg_streamer_adapter import KLGLendingStreamerAdapter
 
 last_synced_block_file = "./last_synced_block.txt"
 lag = 0
@@ -42,7 +42,7 @@ from ethereumetl.streaming.item_exporter_creator import create_item_exporter
 provider_uri = pick_random_provider_uri(provider_uri)
 logging.info('Using ' + provider_uri)
 
-streamer_adapter = KLGStreamerAdapter(
+streamer_adapter = KLGLendingStreamerAdapter(
     batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
     item_exporter=create_item_exporter(output),
     batch_size=batch_size,

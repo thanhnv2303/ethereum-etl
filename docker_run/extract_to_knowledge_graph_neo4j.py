@@ -1,36 +1,35 @@
 import os
 import sys
+from os import path
 
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
 import logging
-from os import path
 
-from config.config import BuildKnowledgeGraphConfig
+from config.config import KLGLendingStreamerAdapterConfig
 from ethereumetl.service.eth_service import get_latest_block
-from blockchainetl.streaming.streaming_utils import configure_signals, configure_logging
+from ethereumetl.streaming.item_exporter_creator import create_item_exporter
+from blockchainetl.streaming.streaming_utils import configure_logging, configure_signals
 from ethereumetl.cli.stream import pick_random_provider_uri
 from ethereumetl.providers.auto import get_provider_from_uri
-from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
-from ethereumetl.streaming.item_exporter_creator import create_item_exporter
-from blockchainetl.streaming.streamer import Streamer
+from knowledge_graph_etl.streaming.klg_streamer import Klg_Streamer
+from knowledge_graph_etl.streaming.klg_streamer_adapter import KLGLendingStreamerAdapter
 
 if __name__ == '__main__':
-    ### get environment variables
 
-    log_file = str(BuildKnowledgeGraphConfig.LOG_FILE)
-    provider_uri = str(BuildKnowledgeGraphConfig.PROVIDER_URI)
-    lag = int(BuildKnowledgeGraphConfig.LAG)
-    batch_size = int(BuildKnowledgeGraphConfig.BATCH_SIZE)
-    max_workers = int(BuildKnowledgeGraphConfig.MAX_WORKERS)
-    start_block = int(BuildKnowledgeGraphConfig.START_BLOCK)
-    period_seconds = int(BuildKnowledgeGraphConfig.PERIOD_SECONDS)
-    pid_file = str(BuildKnowledgeGraphConfig.PID_FILE)
-    block_batch_size = int(BuildKnowledgeGraphConfig.BLOCK_BATCH_SIZE)
-    tokens_filter_file = str(BuildKnowledgeGraphConfig.TOKENS_FILTER_FILE)
-    event_abi_dir = str(BuildKnowledgeGraphConfig.EVENT_ABI_DIR)
+    log_file = str(KLGLendingStreamerAdapterConfig.LOG_FILE)
+    provider_uri = str(KLGLendingStreamerAdapterConfig.PROVIDER_URI)
+    lag = int(KLGLendingStreamerAdapterConfig.LAG)
+    batch_size = int(KLGLendingStreamerAdapterConfig.BATCH_SIZE)
+    max_workers = int(KLGLendingStreamerAdapterConfig.MAX_WORKERS)
+    start_block = int(KLGLendingStreamerAdapterConfig.START_BLOCK)
+    period_seconds = int(KLGLendingStreamerAdapterConfig.PERIOD_SECONDS)
+    pid_file = str(KLGLendingStreamerAdapterConfig.PID_FILE)
+    block_batch_size = int(KLGLendingStreamerAdapterConfig.BLOCK_BATCH_SIZE)
+    tokens_filter_file = str(KLGLendingStreamerAdapterConfig.TOKENS_FILTER_FILE)
+    v_tokens_filter_file = str(KLGLendingStreamerAdapterConfig.V_TOKENS_FILTER_FILE)
 
     # configure_logging(log_file)
     configure_signals()
@@ -46,7 +45,7 @@ if __name__ == '__main__':
 
     provider_uri = pick_random_provider_uri(provider_uri)
 
-    last_synced_block_file = cur_path + "data/last_synced_block.txt"
+    last_synced_block_file = cur_path + "data/lending_last_synced_block.txt"
     if path.exists(last_synced_block_file):
         start_block = None
     elif not start_block:
@@ -54,18 +53,17 @@ if __name__ == '__main__':
 
     logging.info('Using ' + provider_uri)
 
-    streamer_adapter = EthKnowledgeGraphStreamerAdapter(
-        provider_uri=provider_uri,
-        tokens_filter_file=tokens_filter_file,
-        tokens=None,
-        event_abi_dir=event_abi_dir,
+    # memory_storage = MemoryStorage()
+    streamer_adapter = KLGLendingStreamerAdapter(
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
         item_exporter=create_item_exporter(output),
         batch_size=batch_size,
         max_workers=max_workers,
-        provider_uris=provider_uris
+        entity_types=None,
+        tokens_filter_file=tokens_filter_file,
+        v_tokens_filter_file=v_tokens_filter_file
     )
-    streamer = Streamer(
+    streamer = Klg_Streamer(
         blockchain_streamer_adapter=streamer_adapter,
         last_synced_block_file=last_synced_block_file,
         lag=lag,
