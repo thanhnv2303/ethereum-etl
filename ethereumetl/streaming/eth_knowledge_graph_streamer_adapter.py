@@ -4,21 +4,10 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
-from blockchainetl.jobs.exporters.in_memory_item_exporter import InMemoryItemExporter
 from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
-from ethereumetl.enumeration.entity_type import EntityType
-from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_knowledge_graph_needed_common import export_knowledge_graph_needed_with_item_exporter
-from ethereumetl.jobs.export_receipts_job import ExportReceiptsJob
-from ethereumetl.jobs.export_token_transfers_job import ExportTokenTransfersJob
-from ethereumetl.jobs.export_tokens_job import ExportTokensJob
-from ethereumetl.jobs.export_traces_job import ExportTracesJob
-from ethereumetl.jobs.extract_contracts_job import ExtractContractsJob
-from ethereumetl.jobs.extract_token_transfers_job import ExtractTokenTransfersJob
-from ethereumetl.jobs.extract_tokens_job import ExtractTokensJob
 from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
 from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
-from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 
 class EthKnowledgeGraphStreamerAdapter:
@@ -27,12 +16,13 @@ class EthKnowledgeGraphStreamerAdapter:
             provider_uri,
             batch_web3_provider,
             item_exporter=ConsoleItemExporter(),
-            tokens_filter_file="../../artifacts/token_filter",
+            tokens_filter_file="artifacts/token_filter",
+            event_abi_dir="artifacts/event-abi",
             tokens=None,
+            entity_types=None,
             batch_size=100,
             max_workers=8,
-            provider_uris=None,
-            entity_types=tuple(EntityType.ALL_FOR_STREAMING)):
+            provider_uris=None):
         # self.batch_web3_provider = batch_web3_provider
         self.provider_uri = provider_uri
         self.batch_web3_provider = batch_web3_provider
@@ -41,21 +31,21 @@ class EthKnowledgeGraphStreamerAdapter:
         self.item_exporter = item_exporter
         self.batch_size = batch_size
         self.max_workers = max_workers
-        self.entity_types = entity_types
         self.item_id_calculator = EthItemIdCalculator()
         self.item_timestamp_calculator = EthItemTimestampCalculator()
 
-        cur_path = os.path.dirname(os.path.realpath(__file__))
-        self.tokens_filter_file = cur_path + "/" + tokens_filter_file
+        # change all path from this project root
+        cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"
+        self.tokens_filter_file = cur_path + tokens_filter_file
         self.tokens = tokens
         self.provider_uris = provider_uris
+        self.event_abi_dir = event_abi_dir
 
     def open(self):
         self.item_exporter.open()
 
     def get_current_block_number(self):
-
-        return int(self.w3.eth.getBlock("latest").number)
+        return int(self.w3.eth.blockNumber)
 
     def export_all(self, start_block, end_block):
         partition_batch_size = 10000
@@ -68,9 +58,10 @@ class EthKnowledgeGraphStreamerAdapter:
                 tokens.append(Web3.toChecksumAddress(token))
             export_knowledge_graph_needed_with_item_exporter(partitions, self.provider_uri, self.max_workers,
                                                              self.batch_size,
-                                                             item_exporter, tokens=tokens,
+                                                             item_exporter,
+                                                             event_abi_dir=self.event_abi_dir,
+                                                             tokens=tokens,
                                                              provider_uris=self.provider_uris)
-
 
     def close(self):
         self.item_exporter.close()

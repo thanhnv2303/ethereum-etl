@@ -24,6 +24,7 @@ import random
 from datetime import datetime, timezone
 
 from web3 import Web3
+from web3.middleware import geth_poa_middleware
 
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.service.graph_operations import GraphOperations, OutOfBoundsError, Point
@@ -105,3 +106,16 @@ class BlockTimestampGraph(object):
 
 def block_to_point(block):
     return Point(block.number, block.timestamp)
+
+
+def check_connection(provider_uri):
+    batch_web3_provider = ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True))
+    w3 = Web3(batch_web3_provider)
+    return w3.isConnected()
+
+
+def get_latest_block(provider_uri):
+    batch_web3_provider = ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True))
+    w3 = Web3(batch_web3_provider)
+    # w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+    return int(w3.eth.blockNumber)

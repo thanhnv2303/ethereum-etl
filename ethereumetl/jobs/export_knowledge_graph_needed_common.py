@@ -306,7 +306,9 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
 
 
 def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
-                                                     item_exporter, tokens=None, provider_uris=None):
+                                                     item_exporter, event_abi_dir="artifacts/event-abi",
+                                                     tokens=None,
+                                                     provider_uris=None):
     # provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     # thread_local_proxys =[]
     # for provider in provider_uris:
@@ -370,12 +372,12 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         # print(token_set)
         # # # events in artifacts/event-abi # # #
 
-        dir_path = "../../artifacts/event-abi"
-        cur_path = os.path.dirname(os.path.realpath(__file__))
-        for root, dirs, files in os.walk(cur_path + "/" + dir_path):
+        dir_path = event_abi_dir
+        cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"
+        for root, dirs, files in os.walk(cur_path + dir_path):
 
             for filename in files:
-                file_path = cur_path + "/" + dir_path + "/" + filename
+                file_path = cur_path + dir_path + "/" + filename
 
                 with open(file_path) as json_file:
                     subscriber_event = json.load(json_file)

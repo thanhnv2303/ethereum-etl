@@ -45,7 +45,7 @@ services:
       - .:/project
     command: |
       bash -c "
-        python3 ./quick_run/build_knowledge_graph.py
+        python3 ./docker_run/build_knowledge_graph.py
       "
     env_file:
       - ./.env
