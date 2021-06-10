@@ -61,8 +61,12 @@ class KLGLendingStreamerAdapter:
         self.item_exporter.open()
 
     def get_current_block_number(self):
-        latest_block = self.database.mongo_blocks.find_one(sort=[("number", -1)])  # for MAX
-        return latest_block.get("number") - 16
+        try:
+            latest_block = self.database.mongo_blocks.find_one(sort=[("number", -1)])  # for MAX
+            return latest_block.get("number") - 16
+        except Exception as e:
+            logger.error(e)
+            return 0
 
     def export_all(self, start_block, end_block):
         start_time = time()

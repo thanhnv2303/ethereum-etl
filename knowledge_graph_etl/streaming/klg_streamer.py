@@ -25,8 +25,8 @@ import logging
 import os
 import time
 
-from blockchainetl.streaming.streamer_adapter_stub import StreamerAdapterStub
 from blockchainetl.file_utils import smart_open
+from blockchainetl.streaming.streamer_adapter_stub import StreamerAdapterStub
 
 
 class Klg_Streamer:
@@ -87,7 +87,8 @@ class Klg_Streamer:
 
     def _sync_cycle(self):
         current_block = self.blockchain_streamer_adapter.get_current_block_number()
-
+        if not current_block:
+            return 0
         target_block = self._calculate_target_block(current_block, self.last_synced_block)
         logging.info("target_block")
         logging.info(target_block)
