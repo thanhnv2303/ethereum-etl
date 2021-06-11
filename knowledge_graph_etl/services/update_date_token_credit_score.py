@@ -1,4 +1,5 @@
 import json
+import os
 
 import numpy as np
 from pycoingecko import CoinGeckoAPI
@@ -6,12 +7,15 @@ from pycoingecko import CoinGeckoAPI
 from knowledge_graph_etl.exporter.database.database import Database
 
 
-def update_token_credit_score(database=Database()):
+def update_token_credit_score(fileInput='listToken.txt', fileOutput='infoToken.json', database=Database()):
     cg = CoinGeckoAPI()
     # Const
     currency = 'usd'
-    fileInput = 'listToken.txt'
-    fileOutput = 'infoToken.json'
+    #############
+    # Get list of coins
+    cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../"
+    fileInput = cur_path + fileInput
+    fileOutput = cur_path + fileOutput
     #############
     # Get list of coins
     f = open(fileInput, "r")

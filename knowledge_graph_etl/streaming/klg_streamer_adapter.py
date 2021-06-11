@@ -29,6 +29,8 @@ class KLGLendingStreamerAdapter:
             entity_types=tuple(EntityType.ALL_FOR_STREAMING),
             tokens_filter_file="artifacts/token_filter",
             v_tokens_filter_file="artifacts/vToken_filter",
+            list_token_filter="artifacts/token_credit_info/listToken.txt",
+            token_info="artifacts/token_credit_info/infoToken.json"
     ):
         # self.batch_web3_provider = batch_web3_provider
         self.batch_web3_provider = batch_web3_provider
@@ -56,6 +58,8 @@ class KLGLendingStreamerAdapter:
         self.token_service = EthTokenTypeService(self.w3, clean_user_provided_content)
 
         self.latest_block = self.w3.eth.blockNumber
+        self.list_token_filter = list_token_filter
+        self.token_info = token_info
 
     def open(self):
         self.item_exporter.open()
@@ -84,7 +88,8 @@ class KLGLendingStreamerAdapter:
         self.vtokens = vtokens
         ## update token market info at 3h - 3h5m
         if now.hour == 3 and now.minute < 5:
-            self.credit_score_service.update_token_market_info()
+            self.credit_score_service.update_token_market_info(fileInput=self.list_token_filter,
+                                                               fileOutput=self.token_info)
 
         for block in range(start_block, end_block + 1):
             self.extract_lending_knowledge_graph(tokens, block)

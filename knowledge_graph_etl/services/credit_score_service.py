@@ -259,8 +259,9 @@ class CreditScoreService:
             print(e)
             return 0
 
-    def update_token_market_info(self):
-        update_token_credit_score(self.database)
+    def update_token_market_info(self, fileInput='artifacts/token_credit_info/listToken.txt',
+                                 fileOutput='artifacts/token_credit_info/infoToken.json'):
+        update_token_credit_score(fileInput=fileInput, fileOutput=fileOutput, database=self.database)
         return 0
 
     def get_token_market_info(self):
@@ -284,6 +285,8 @@ keep acc
 781629306315660
 663171985091646
 """
+
+
 # credi = CreditScoreService()
 # score = credi.test_print("0x0d0707963952f2fba59dd06f2b425ace40b492fe")
 # print("score")

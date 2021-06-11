@@ -1,6 +1,8 @@
 import os
 import sys
 
+from ethereumetl.service.eth_service import get_latest_block
+
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
@@ -27,7 +29,7 @@ if __name__ == '__main__':
     geth_ipc_file = home + "/bsc-full-sync/node/geth.ipc"
 
     if not os.path.exists(geth_ipc_file):
-        provider_uri = "http://25.19.185.225:8545,http://35.240.140.92:8545"
+        provider_uri = "http://25.19.185.225:8545"
         # provider_uri =  "https://bsc-dataseed.binance.org/"
     else:
         provider_uri = "file:///" + geth_ipc_file +",http://35.240.140.92:8545"
@@ -39,7 +41,7 @@ if __name__ == '__main__':
     if path.exists(last_synced_block_file):
         start_block = None
     else:
-        start_block = 2472670
+        start_block = get_latest_block(provider_uri)
         # start_block = 7771629
     period_seconds = 10
     pid_file = None

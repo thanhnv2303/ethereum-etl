@@ -30,6 +30,8 @@ if __name__ == '__main__':
     block_batch_size = int(KLGLendingStreamerAdapterConfig.BLOCK_BATCH_SIZE)
     tokens_filter_file = str(KLGLendingStreamerAdapterConfig.TOKENS_FILTER_FILE)
     v_tokens_filter_file = str(KLGLendingStreamerAdapterConfig.V_TOKENS_FILTER_FILE)
+    list_token_filter = "artifacts/token_credit_info/listToken.txt"
+    token_info = "artifacts/token_credit_info/infoToken.json"
 
     # configure_logging(log_file)
     configure_signals()
@@ -61,7 +63,9 @@ if __name__ == '__main__':
         max_workers=max_workers,
         entity_types=None,
         tokens_filter_file=tokens_filter_file,
-        v_tokens_filter_file=v_tokens_filter_file
+        v_tokens_filter_file=v_tokens_filter_file,
+        list_token_filter=list_token_filter,
+        token_info=token_info
     )
     streamer = Klg_Streamer(
         blockchain_streamer_adapter=streamer_adapter,
