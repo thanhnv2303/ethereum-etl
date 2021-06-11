@@ -11,7 +11,6 @@ from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestamp
 
 
 class EthKnowledgeGraphStreamerAdapter:
-    first_time = True
 
     def __init__(
             self,
@@ -24,7 +23,9 @@ class EthKnowledgeGraphStreamerAdapter:
             entity_types=None,
             batch_size=100,
             max_workers=8,
-            provider_uris=None):
+            provider_uris=None,
+            first_time=True
+    ):
         # self.batch_web3_provider = batch_web3_provider
         self.provider_uri = provider_uri
         self.batch_web3_provider = batch_web3_provider
@@ -42,6 +43,7 @@ class EthKnowledgeGraphStreamerAdapter:
         self.tokens = tokens
         self.provider_uris = provider_uris
         self.event_abi_dir = event_abi_dir
+        self.first_time = first_time
 
     def open(self):
         self.item_exporter.open()
@@ -63,7 +65,8 @@ class EthKnowledgeGraphStreamerAdapter:
                                                              item_exporter,
                                                              event_abi_dir=self.event_abi_dir,
                                                              tokens=tokens,
-                                                             provider_uris=self.provider_uris)
+                                                             provider_uris=self.provider_uris,
+                                                             first_time=self.first_time)
 
     def close(self):
         self.item_exporter.close()

@@ -25,11 +25,13 @@ import logging
 import os
 import time
 
-from blockchainetl.streaming.streamer_adapter_stub import StreamerAdapterStub
 from blockchainetl.file_utils import smart_open
+from blockchainetl.streaming.streamer_adapter_stub import StreamerAdapterStub
 
 
 class Streamer:
+    first_time = True
+
     def __init__(
             self,
             blockchain_streamer_adapter=StreamerAdapterStub(),

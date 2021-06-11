@@ -53,6 +53,7 @@ if __name__ == '__main__':
         start_block = get_latest_block(provider_uri)
 
     logging.info('Using ' + provider_uri)
+    first_time = True
 
     streamer_adapter = EthKnowledgeGraphStreamerAdapter(
         provider_uri=provider_uri,
@@ -63,7 +64,8 @@ if __name__ == '__main__':
         item_exporter=create_item_exporter(output),
         batch_size=batch_size,
         max_workers=max_workers,
-        provider_uris=provider_uris
+        provider_uris=provider_uris,
+        first_time=True
     )
     streamer = Streamer(
         blockchain_streamer_adapter=streamer_adapter,
