@@ -11,6 +11,8 @@ from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestamp
 
 
 class EthKnowledgeGraphStreamerAdapter:
+    first_time = True
+
     def __init__(
             self,
             provider_uri,

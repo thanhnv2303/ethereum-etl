@@ -22,6 +22,7 @@
 
 
 import csv
+import datetime
 import json
 import logging
 import os
@@ -43,6 +44,7 @@ from ethereumetl.jobs.exporters.receipts_and_logs_item_exporter import receipts_
 from ethereumetl.jobs.exporters.token_transfers_item_exporter import token_transfers_item_exporter
 from ethereumetl.jobs.exporters.tokens_item_exporter import tokens_item_exporter
 from ethereumetl.providers.auto import get_provider_from_uri
+from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
 logger = logging.getLogger('export_knowledge_graph_needed')
@@ -305,10 +307,14 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
         ))
 
 
+first_time = True
+
+
 def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
                                                      item_exporter, event_abi_dir="artifacts/event-abi",
                                                      tokens=None,
-                                                     provider_uris=None):
+                                                     provider_uris=None
+                                                     ):
     # provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     # thread_local_proxys =[]
     # for provider in provider_uris:
@@ -424,14 +430,15 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         # job.run()
 
         # # # # tokens # # #
-
-        job = ExportTokensJob(
-            token_addresses_iterable=tokens,
-            web3=thread_local_proxy,
-            item_exporter=item_exporter,
-            max_workers=max_workers)
-        job.run()
-
+        now = datetime.datetime.now()
+        if (now.hour == 3 and now.minute < 5) or EthKnowledgeGraphStreamerAdapter.first_time:
+            job = ExportTokensJob(
+                token_addresses_iterable=tokens,
+                web3=thread_local_proxy,
+                item_exporter=item_exporter,
+                max_workers=max_workers)
+            job.run()
+            EthKnowledgeGraphStreamerAdapter.first_time = False
         # print("token exported")
         # print(job.get_cache())
         job.clean_cache()
