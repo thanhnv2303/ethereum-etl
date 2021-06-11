@@ -21,7 +21,6 @@
 # SOFTWARE.
 # import asyncio
 import json
-import time
 
 from web3 import Web3
 
@@ -110,28 +109,28 @@ class ExportBlocksJob(BaseJob):
             # asyncio.set_event_loop(loop)
             # tasks = []
             # print("num transactions at block "+str(block.number)+ " : "+ str(len(block.transactions)))
-            start_time = time.time()
+            # start_time = time.time()
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
                 self._handler_transaction(transaction_dict)
                 # tasks.append(loop.create_task(self._handler_transaction(transaction_dict)))
                 # tasks.append(self._handler_transaction(transaction_dict))
 
-            print("time to update " + str(len(block.transactions)) + " is " + str(time.time() - start_time))
+            # print("time to update " + str(len(block.transactions)) + " is " + str(time.time() - start_time))
             # loop.run_until_complete(asyncio.wait(tasks))
             # loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
             # loop.close()
 
     def _handler_transaction(self, transaction_dict):
         block_number = int(transaction_dict.get("block_number"))
-        start_time = time.time()
+        # start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
-            print("time to update balance " + str(time.time() - start_time))
+            # print("time to update balance " + str(time.time() - start_time))
         # print(transaction_dict)
         # self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
-        print("time to handle transaction " + str(time.time() - start_time))
+        # print("time to handle transaction " + str(time.time() - start_time))
 
     def _end(self):
         self.batch_work_executor.shutdown()
@@ -148,23 +147,23 @@ class ExportBlocksJob(BaseJob):
                 value = int(value)
             else:
                 value = 0
-            start_time = time.time()
+            # start_time = time.time()
             pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
-            end_time = time.time()
-            print("time to call get balance native token of " + from_address + "  is" + str(
-                end_time - start_time))
+            # end_time = time.time()
+            # print("time to call get balance native token of " + from_address + "  is" + str(
+            #     end_time - start_time))
             if pre_from_balance == None:
                 # pre_from_balance = 0
                 from_balance = 0
             else:
                 from_balance = pre_from_balance - value
 
-            start_time = time.time()
+            # start_time = time.time()
             pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
 
-            end_time = time.time()
-            print("time to call get balance native token of " + from_address + "  is" + str(
-                end_time - start_time))
+            # end_time = time.time()
+            # print("time to call get balance native token of " + from_address + "  is" + str(
+            #     end_time - start_time))
             if pre_to_balance == None:
                 # pre_to_balance = 0
                 to_balance = 0
