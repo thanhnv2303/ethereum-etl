@@ -124,14 +124,14 @@ class ExportBlocksJob(BaseJob):
 
     def _handler_transaction(self, transaction_dict):
         block_number = int(transaction_dict.get("block_number"))
-        # start_time = time.time()
+        start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
-            # print("time to update balance " + str(time.time() - start_time))
+            print("time to update balance " + str(time.time() - start_time))
         # print(transaction_dict)
         # self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
-        # print("time to handle transaction " + str(time.time() - start_time))
+        print("time to handle transaction " + str(time.time() - start_time))
 
     def _end(self):
         self.batch_work_executor.shutdown()
