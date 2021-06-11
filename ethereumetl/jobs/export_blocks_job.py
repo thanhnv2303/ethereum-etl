@@ -151,27 +151,32 @@ class ExportBlocksJob(BaseJob):
             start_time = time.time()
             pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
             end_time = time.time()
-            print("time to call get balance native token of " + from_address + " at contract " + " is" + str(
+            print("time to call get balance native token of " + from_address + "  is" + str(
                 end_time - start_time))
             if pre_from_balance == None:
-                pre_from_balance = 0
+                # pre_from_balance = 0
                 from_balance = 0
             else:
-                from_balance = str(int(pre_from_balance) - value)
+                from_balance = pre_from_balance - value
 
+            start_time = time.time()
             pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
+
+            end_time = time.time()
+            print("time to call get balance native token of " + from_address + "  is" + str(
+                end_time - start_time))
             if pre_to_balance == None:
-                pre_to_balance = 0
+                # pre_to_balance = 0
                 to_balance = 0
             else:
-                to_balance = str(int(pre_to_balance) + transaction_dict.get("value"))
+                to_balance = pre_to_balance + transaction_dict.get("value")
 
             wallets = []
-            if int(to_balance) >= 0:
-                wallet = get_wallet_dict(to_address, to_balance, pre_to_balance, block_number)
+            if to_balance >= 0:
+                wallet = get_wallet_dict(to_address, str(to_balance), str(pre_to_balance), block_number)
                 wallets.append(wallet)
-            if int(from_balance) >= 0:
-                wallet = get_wallet_dict(from_address, from_balance, pre_from_balance, block_number)
+            if from_balance >= 0:
+                wallet = get_wallet_dict(from_address, str(from_balance), str(pre_from_balance), block_number)
                 wallets.append(wallet)
 
             transaction_dict["wallets"] = wallets
