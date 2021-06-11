@@ -148,11 +148,11 @@ class ExportBlocksJob(BaseJob):
                 value = int(value)
             else:
                 value = 0
-            # start_time = time.time()
+            start_time = time.time()
             pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
-            # end_time = time.time()
-            # print("time to call get balance native token of " + from_address + " at contract " + " is" + str(
-            #     end_time - start_time))
+            end_time = time.time()
+            print("time to call get balance native token of " + from_address + " at contract " + " is" + str(
+                end_time - start_time))
             if pre_from_balance == None:
                 pre_from_balance = 0
                 from_balance = 0
