@@ -44,6 +44,7 @@ class EthTokenTypeService(object):
             "ERC20": self._erc20_handler,
             "VTOKEN": self._vtoken_hanlder
         }
+        self.contract_dict = {}
 
     def get_token(self, smart_contract_address, token_type="ERC20"):
         handler = self.mapping_handler[token_type]
@@ -53,7 +54,11 @@ class EthTokenTypeService(object):
     def _vtoken_hanlder(self, smart_contract_address, token_type):
 
         checksum_address = self._web3.toChecksumAddress(smart_contract_address)
-        contract = self._web3.eth.contract(address=checksum_address, abi=self.abi_map[token_type])
+        address = str(checksum_address)
+        if not self.contract_dict.get(address):
+            self.contract_dict[address] = self._web3.eth.contract(address=checksum_address,
+                                                                  abi=self.abi_map[token_type])
+        contract = self.contract_dict.get(address)
 
         total_supply = self._get_first_result(contract.functions.totalSupply())
         total_borrow = self._get_first_result(contract.functions.totalBorrowsCurrent())
@@ -74,7 +79,12 @@ class EthTokenTypeService(object):
     def get_account_info(self, account_address, smart_contract_address, token_type, block_identifier="latest"):
         checksum_address = self._web3.toChecksumAddress(smart_contract_address)
         checksum_account_address = self._web3.toChecksumAddress(account_address)
-        contract = self._web3.eth.contract(address=checksum_address, abi=self.abi_map[token_type])
+        address = str(checksum_address)
+        if not self.contract_dict.get(address):
+            self.contract_dict[address] = self._web3.eth.contract(address=checksum_address,
+                                                                  abi=self.abi_map[token_type])
+        contract = self.contract_dict.get(address)
+
         balance = self._get_first_result(contract.functions.balanceOf(checksum_account_address),
                                          block_identifier=block_identifier)
         supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_account_address),
@@ -100,7 +110,11 @@ class EthTokenTypeService(object):
             return
         checksum_token_address = self._web3.toChecksumAddress(token_address)
         checksum_address = self._web3.toChecksumAddress(address)
-        contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
+        address = str(checksum_token_address)
+        if not self.contract_dict.get(address):
+            self.contract_dict[address] = self._web3.eth.contract(address=checksum_address,
+                                                                  abi=self.abi_map["VTOKEN"])
+        contract = self.contract_dict.get(address)
 
         try:
             balance = contract.functions.balanceOf(checksum_address).call(block_identifier=block_identifier)
