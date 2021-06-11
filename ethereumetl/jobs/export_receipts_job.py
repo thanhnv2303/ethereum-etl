@@ -73,7 +73,7 @@ class ExportReceiptsJob(BaseJob):
                 self._export_receipt(receipt)
         except Exception as e:
             logging.getLogger("ExportReceiptsJob").error(e)
-            print(e)
+            # print(e)
 
     def _export_receipt(self, receipt):
         if self.export_receipts:

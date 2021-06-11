@@ -22,6 +22,6 @@ from knowledge_graph_etl.exporter.database.database import Database
 # mongo_transactions = mongo_db[MongoDBConfig.TRANSACTIONS]
 # tx = mongo_transactions.find_one()
 # print(tx)
-database = Database()
-token = database.get_token("0xe9e7cea3dedca5984780bafc599bd69add087d56")
-print(token)
+# database = Database()
+# token = database.get_token("0xe9e7cea3dedca5984780bafc599bd69add087d56")
+# print(token)

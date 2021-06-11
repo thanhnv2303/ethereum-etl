@@ -357,7 +357,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         # print("transaction_hashes-------------------------------")
         # print(transaction_hashes)
         # # # token_transfers # # #
-        token_set = set()
+        # token_set = set()
         if is_log_filter_supported(provider_uri):
             job = ExportTokenTransfersJob(
                 start_block=batch_start_block,
@@ -371,9 +371,9 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                 provider_uris=provider_uris
             )
             job.run()
-            token_transfers_dict = job.get_cache()
-            token_addresses = extract_dict_key_to_list(token_transfers_dict, "contract_address")
-            token_set.update(token_addresses)
+            # token_transfers_dict = job.get_cache()
+            # token_addresses = extract_dict_key_to_list(token_transfers_dict, "contract_address")
+            # token_set.update(token_addresses)
 
         # print("token set in transfer")
         # print(token_set)
@@ -413,9 +413,9 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                         tokens=tokens
                     )
                     job.run()
-                    event_dicts = job.get_cache()
-                    contract_address = extract_dict_key_to_list(event_dicts, "contract_address")
-                    token_set.update(contract_address)
+                    # event_dicts = job.get_cache()
+                    # contract_address = extract_dict_key_to_list(event_dicts, "contract_address")
+                    # token_set.update(contract_address)
 
         # # # receipts_and_logs # # #
         # print("token set after get contact")

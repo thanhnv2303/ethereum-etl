@@ -95,43 +95,43 @@ def test_stream(tmpdir, start_block, end_block, batch_size, resource_group, enti
         )
 
     if 'transaction' in entity_types:
-        print('=====================')
-        print(read_file(transactions_output_file))
+        # print('=====================')
+        # print(read_file(transactions_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_transactions.json'), read_file(transactions_output_file)
         )
 
     if 'log' in entity_types:
-        print('=====================')
-        print(read_file(logs_output_file))
+        # print('=====================')
+        # print(read_file(logs_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_logs.json'), read_file(logs_output_file)
         )
 
     if 'token_transfer' in entity_types:
-        print('=====================')
-        print(read_file(token_transfers_output_file))
+        # print('=====================')
+        # print(read_file(token_transfers_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_token_transfers.json'), read_file(token_transfers_output_file)
         )
 
     if 'trace' in entity_types:
-        print('=====================')
-        print(read_file(traces_output_file))
+        # print('=====================')
+        # print(read_file(traces_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_traces.json'), read_file(traces_output_file)
         )
 
     if 'contract' in entity_types:
-        print('=====================')
-        print(read_file(contracts_output_file))
+        # print('=====================')
+        # print(read_file(contracts_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_contracts.json'), read_file(contracts_output_file)
         )
 
     if 'token' in entity_types:
-        print('=====================')
-        print(read_file(tokens_output_file))
+        # print('=====================')
+        # print(read_file(tokens_output_file))
         compare_lines_ignore_order(
             read_resource(resource_group, 'expected_tokens.json'), read_file(tokens_output_file)
         )

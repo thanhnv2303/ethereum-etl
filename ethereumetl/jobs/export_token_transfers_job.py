@@ -21,6 +21,7 @@
 # SOFTWARE.
 # import asyncio
 import logging
+import time
 
 from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
@@ -93,12 +94,18 @@ class ExportTokenTransfersJob(BaseJob):
 
         if self.tokens is not None and len(self.tokens) > 0:
             filter_params['address'] = self.tokens
+        # start_time = time.time()
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
+
+        # print(
+        #     f"time to call event filter from {block_number_batch[0]} to {block_number_batch[-1]} is{time.time() - start_time}")
         # start = time()
         # loop = asyncio.new_event_loop()
         # asyncio.set_event_loop(loop)
         tasks = []
+        # print(f"num events is{len(events)}")
+        start_time = time.time()
         for event in events:
             # tasks.append(loop.create_task(self._handler_event(event)))
             # tasks.append(self._handler_event(event))
@@ -108,23 +115,30 @@ class ExportTokenTransfersJob(BaseJob):
         # loop.close()
         # end = time()
         # print(f'Time to run all transfer: {end - start:.2f} sec')
-
+        # print(f"time to hander {len(events)} is {time.time() - start_time}")
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _handler_event(self, event):
         log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
+        # start_time = time.time()
         token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
+        # print(f"time to extract token transfer is {time.time() - start_time}")
         if token_transfer is not None:
             token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
             # start_time = time()
             block_number = int(token_transfer_dict.get("block_number"))
             if not self.latest_block or block_number > self.block_thread_hole:
+                start_time = time.time()
                 self._update_balance(token_transfer_dict)
+                # print(f"time to update balance is {time.time() - start_time}")
             # end_time = time()
             # print("run time to update balance:" + str(end_time - start_time))
             # print(token_transfer_dict)
-            self.token_dict_cache.append(token_transfer_dict)
+            # self.token_dict_cache.append(token_transfer_dict)
+            # start_time = time.time()
             self.item_exporter.export_item(token_transfer_dict)
+
+            # print(f"Time to export item {time.time() - start_time}")
 
     def _end(self):
         self.batch_work_executor.shutdown()
