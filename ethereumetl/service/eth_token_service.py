@@ -54,7 +54,7 @@ class EthTokenService(object):
         total_supply = self._get_first_result(contract.functions.totalSupply())
 
         token = EthToken()
-        token.address = token_address
+        token.address = token_address.lower()
         token.symbol = symbol
         token.name = name
         token.decimals = decimals
