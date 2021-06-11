@@ -46,7 +46,7 @@ def test_export_token_transfers_job(tmpdir, start_block, end_block, batch_size, 
 
     job = ExportTokenTransfersJob(
         start_block=start_block, end_block=end_block, batch_size=batch_size,
-        web3=ThreadLocalProxy(
+        w3=ThreadLocalProxy(
             lambda: Web3(get_web3_provider(web3_provider_type, lambda file: read_resource(resource_group, file)))
         ),
         item_exporter=token_transfers_item_exporter(output_file),

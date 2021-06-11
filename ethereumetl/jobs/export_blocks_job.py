@@ -21,7 +21,6 @@
 # SOFTWARE.
 # import asyncio
 import json
-import random
 
 from web3 import Web3
 
@@ -31,9 +30,7 @@ from ethereumetl.json_rpc_requests import generate_get_block_by_number_json_rpc
 from ethereumetl.mappers.block_mapper import EthBlockMapper
 from ethereumetl.mappers.transaction_mapper import EthTransactionMapper
 from ethereumetl.mappers.wallet_mapper import get_wallet_dict
-from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.service.eth_service import EthService
-from ethereumetl.thread_local_proxy import ThreadLocalProxy
 from ethereumetl.utils import rpc_response_batch_to_results, validate_range
 
 
@@ -51,6 +48,7 @@ class ExportBlocksJob(BaseJob):
             export_transactions=True,
             latest_block=None,
             provider_uris=None,
+            web3=None
     ):
         validate_range(start_block, end_block)
         self.start_block = start_block
@@ -74,7 +72,11 @@ class ExportBlocksJob(BaseJob):
         self.transaction_mapper = EthTransactionMapper()
         self.blocks_cache = []
         self.transactions_cache = []
-        self.ethService = EthService(Web3(batch_web3_provider), provider_uris)
+        if web3:
+            self.w3 = web3
+        else:
+            self.w3 = Web3(batch_web3_provider)
+        self.ethService = EthService(self.w3, provider_uris)
         # self.ethService = EthService(batch_web3_provider)
 
     def _start(self):

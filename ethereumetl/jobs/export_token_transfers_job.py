@@ -42,20 +42,20 @@ class ExportTokenTransfersJob(BaseJob):
             start_block,
             end_block,
             batch_size,
-            web3,
+            w3,
             item_exporter,
             max_workers,
             database=Database(),
             tokens=None,
             latest_block=None,
-            provider_uris=None
+            provider_uris=None,
 
     ):
         validate_range(start_block, end_block)
         self.start_block = start_block
         self.end_block = end_block
 
-        self.web3 = web3
+        self.web3 = w3
         self.tokens = tokens
         self.item_exporter = item_exporter
 
@@ -65,7 +65,7 @@ class ExportTokenTransfersJob(BaseJob):
         self.token_transfer_mapper = EthTokenTransferMapper()
         self.token_transfer_extractor = EthTokenTransferExtractor()
         self.token_dict_cache = []
-        self.ethTokenService = EthTokenService(web3, clean_user_provided_content,provider_uris)
+        self.ethTokenService = EthTokenService(w3, clean_user_provided_content, provider_uris)
         self.database = database
         self.latest_block = latest_block
         if latest_block:

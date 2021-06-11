@@ -66,7 +66,9 @@ class EthKnowledgeGraphStreamerAdapter:
                                                              event_abi_dir=self.event_abi_dir,
                                                              tokens=tokens,
                                                              provider_uris=self.provider_uris,
-                                                             first_time=self.first_time)
+                                                             first_time=self.first_time,
+                                                             w3 = self.w3
+                                                             )
 
     def close(self):
         self.item_exporter.close()

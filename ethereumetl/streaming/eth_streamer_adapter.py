@@ -161,7 +161,7 @@ class EthStreamerAdapter:
         job = ExportTokenTransfersJob(
             start_block=start_block,
             end_block=end_block,
-            web3=ThreadLocalProxy(lambda: Web3(self.batch_web3_provider)),
+            w3=ThreadLocalProxy(lambda: Web3(self.batch_web3_provider)),
             batch_size=self.batch_size,
             max_workers=self.max_workers,
             item_exporter=exporter)

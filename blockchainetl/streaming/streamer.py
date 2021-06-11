@@ -30,7 +30,6 @@ from blockchainetl.streaming.streamer_adapter_stub import StreamerAdapterStub
 
 
 class Streamer:
-    first_time = True
 
     def __init__(
             self,

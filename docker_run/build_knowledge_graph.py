@@ -60,7 +60,7 @@ if __name__ == '__main__':
         tokens_filter_file=tokens_filter_file,
         tokens=None,
         event_abi_dir=event_abi_dir,
-        batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
+        batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=False)),
         item_exporter=create_item_exporter(output),
         batch_size=batch_size,
         max_workers=max_workers,

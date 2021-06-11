@@ -79,9 +79,9 @@ class EthService(object):
     def get_balance(self, address, block_identifier="latest"):
         try:
             checksum_address = self.web3.toChecksumAddress(address)
-            w3 = random.choice(self.web3s)
-            # balance = self.web3.eth.getBalance(checksum_address, block_identifier=block_identifier)
-            balance = w3.eth.getBalance(checksum_address, block_identifier=block_identifier)
+            # w3 = random.choice(self.web3s)
+            # balance = w3.eth.getBalance(checksum_address, block_identifier=block_identifier)
+            balance = self.web3.eth.getBalance(checksum_address, block_identifier=block_identifier)
             return balance
         except Exception as e:
             logging.getLogger("EthService").error(e)

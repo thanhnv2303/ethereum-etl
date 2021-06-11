@@ -49,7 +49,7 @@ def export_token_transfers(start_block, end_block, batch_size, output, max_worke
         start_block=start_block,
         end_block=end_block,
         batch_size=batch_size,
-        web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+        w3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
         item_exporter=token_transfers_item_exporter(output),
         max_workers=max_workers,
         tokens=tokens)

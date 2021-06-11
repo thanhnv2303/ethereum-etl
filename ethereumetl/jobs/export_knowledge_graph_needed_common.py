@@ -152,7 +152,7 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
                 start_block=batch_start_block,
                 end_block=batch_end_block,
                 batch_size=batch_size,
-                web3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
+                w3=ThreadLocalProxy(lambda: Web3(get_provider_from_uri(provider_uri))),
                 item_exporter=token_transfers_item_exporter(token_transfers_file),
                 max_workers=max_workers)
             job.run()
@@ -313,7 +313,8 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                                                      item_exporter, event_abi_dir="artifacts/event-abi",
                                                      tokens=None,
                                                      provider_uris=None,
-                                                     first_time=True
+                                                     first_time=True,
+                                                     w3 = None
                                                      ):
     # provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     # thread_local_proxys =[]
@@ -322,8 +323,8 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
     #     latest_block_num = w3.eth.blockNumber
     #     thread_local_proxy = ThreadLocalProxy(lambda: w3)
     #     thread_local_proxys.append(thread_local_proxy)
-
-    w3 = Web3(get_provider_from_uri(provider_uri))
+    if not w3:
+        w3 = Web3(get_provider_from_uri(provider_uri))
     latest_block_num = w3.eth.blockNumber
     thread_local_proxy = ThreadLocalProxy(lambda: w3)
 
@@ -362,7 +363,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                 start_block=batch_start_block,
                 end_block=batch_end_block,
                 batch_size=batch_size,
-                web3=thread_local_proxy,
+                w3=w3,
                 item_exporter=item_exporter,
                 max_workers=max_workers,
                 tokens=tokens,

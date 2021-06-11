@@ -21,6 +21,7 @@
 # SOFTWARE.
 import logging
 import random
+import time
 
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
@@ -67,24 +68,25 @@ class EthTokenService(object):
 
         if address == "0x0000000000000000000000000000000000000000":
             return
-        w3 = random.choice(self.web3s)
-        # checksum_token_address = self._web3.toChecksumAddress(token_address)
-        # checksum_address = self._web3.toChecksumAddress(address)
-        # contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
+        # w3 = random.choice(self.web3s)
+        checksum_token_address = self._web3.toChecksumAddress(token_address)
+        checksum_address = self._web3.toChecksumAddress(address)
+        contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
 
-        checksum_token_address = w3.toChecksumAddress(token_address)
-        checksum_address = w3.toChecksumAddress(address)
-        contract = w3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
+        # checksum_token_address = w3.toChecksumAddress(token_address)
+        # checksum_address = w3.toChecksumAddress(address)
+        # contract = w3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
 
         try:
 
+            # start_time = time.time()
             balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
                                              block_identifier=block_identifier)
             # print("balance ",balance)
             data_balance["data"] = balance
             # end_time = time()
             # print("time to call get balance of " + address + " at contract " + token_address + " is " + str(
-            #     end_time - start_time))
+            #     time.time() - start_time))
             return balance
 
         except Exception as e:
