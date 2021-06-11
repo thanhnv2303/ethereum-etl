@@ -426,7 +426,7 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
         # # # # tokens # # #
 
         job = ExportTokensJob(
-            token_addresses_iterable=token_set,
+            token_addresses_iterable=tokens,
             web3=thread_local_proxy,
             item_exporter=item_exporter,
             max_workers=max_workers)

@@ -75,7 +75,6 @@ class Database(object):
         key = {'address': address}
 
         return self.mongo_tokens.find_one(key)
-
     def get_one_token(self):
         return self.mongo_tokens.find_one()
 
