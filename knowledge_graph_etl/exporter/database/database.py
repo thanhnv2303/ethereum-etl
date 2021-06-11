@@ -76,6 +76,9 @@ class Database(object):
 
         return self.mongo_tokens.find_one(key)
 
+    def get_one_token(self):
+        return self.mongo_tokens.find_one()
+
     def get_event_at_block_num(self, contract_address, block_num):
         key = {'block_number': block_num}
 

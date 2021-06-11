@@ -87,7 +87,7 @@ class KLGLendingStreamerAdapter:
                 vtokens.append(token.lower())
         self.vtokens = vtokens
         ## update token market info at 3h - 3h5m
-        if now.hour == 3 and now.minute < 5:
+        if (now.hour == 3 and now.minute < 5) or not self.database.get_one_token():
             self.credit_score_service.update_token_market_info(fileInput=self.list_token_filter,
                                                                fileOutput=self.token_info)
 
