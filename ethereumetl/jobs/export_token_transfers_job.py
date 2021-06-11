@@ -128,7 +128,7 @@ class ExportTokenTransfersJob(BaseJob):
             # start_time = time()
             block_number = int(token_transfer_dict.get("block_number"))
             if not self.latest_block or block_number > self.block_thread_hole:
-                start_time = time.time()
+                # start_time = time.time()
                 self._update_balance(token_transfer_dict)
                 # print(f"time to update balance is {time.time() - start_time}")
             # end_time = time()
@@ -145,61 +145,69 @@ class ExportTokenTransfersJob(BaseJob):
         self.item_exporter.close()
 
     def _update_balance(self, token_transfer_dict):
+        # start_time = start_time_init = time.time()
         block_number = token_transfer_dict.get("block_number")
         token_address = token_transfer_dict.get("contract_address")
         from_address = token_transfer_dict.get("from_address")
         to_address = token_transfer_dict.get("to_address")
         wallets = []
-        try:
-            # from_wallet = self.database.get_wallet(from_address)
-            # balances = from_wallet.get("balances")
-            # if balances and balances.get(token_address.lower()) and from_wallet.get(
-            #         "at_block_number") and from_wallet.get("at_block_number") < block_number:
-            #     pre_from_balance = str(balances.get(token_address.lower()))
-            #     from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
-            # else:
-            # pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
-            data = {"data": None}
-            pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1, data)
-            # pre_from_balance = data.get("data")
-            if pre_from_balance == None:
-                pre_from_balance = 0
-                from_balance = 0
-            else:
-                from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
 
-            if int(from_balance) >= 0:
-                wallet = get_wallet_dict(from_address, from_balance, pre_from_balance, block_number, token_address)
+        # print(f"time to init info {time.time() - start_time}")
 
-        except Exception as e:
-            print(e)
+        # from_wallet = self.database.get_wallet(from_address)
+        # balances = from_wallet.get("balances")
+        # if balances and balances.get(token_address.lower()) and from_wallet.get(
+        #         "at_block_number") and from_wallet.get("at_block_number") < block_number:
+        #     pre_from_balance = str(balances.get(token_address.lower()))
+        #     from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
+        # else:
+        # pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
+        # data = {"data": None}
+        # start_time = time.time()
+        pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
+        # print(f"get pre from balance {time.time() - start_time}")
+        # pre_from_balance = data.get("data")
+        # start_time = time.time()
+        if pre_from_balance == None:
+            # pre_from_balance = 0
+            from_balance = 0
+        else:
+            from_balance = pre_from_balance - int(token_transfer_dict.get("value"))
 
-        try:
-            # to_wallet = self.database.get_wallet(to_address)
-            # balances = to_wallet.get("balances")
-            # if balances and balances.get(token_address.lower()) and to_wallet.get("at_block_number") and to_wallet.get(
-            #         "at_block_number") < block_number:
-            #     pre_to_balance = str(balances.get(token_address.lower()))
-            #     to_balance = str(int(pre_to_balance) - int(token_transfer_dict.get("value")))
-            # else:
-            # pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1
-            data = {"data": 0}
-            pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1, data)
-            # pre_to_balance = data.get("data")
-            # print("pre_to_balance ", pre_to_balance)
-            if pre_to_balance == None:
-                pre_to_balance = 0
-                to_balance = 0
-            else:
-                to_balance = str(int(pre_to_balance) + int(token_transfer_dict.get("value")))
-            if int(to_balance) >= 0:
-                wallet = get_wallet_dict(to_address, to_balance, pre_to_balance, block_number, token_address)
-                wallets.append(wallet)
-        except Exception as e:
-            print(e)
+        if from_balance >= 0:
+            wallet = get_wallet_dict(from_address, str(from_balance), str(pre_from_balance), block_number,
+                                     token_address)
+            wallets.append(wallet)
+        # print(f"time to append wallet{time.time() - start_time}")
+        # to_wallet = self.database.get_wallet(to_address)
+        # balances = to_wallet.get("balances")
+        # if balances and balances.get(token_address.lower()) and to_wallet.get("at_block_number") and to_wallet.get(
+        #         "at_block_number") < block_number:
+        #     pre_to_balance = str(balances.get(token_address.lower()))
+        #     to_balance = str(int(pre_to_balance) - int(token_transfer_dict.get("value")))
+        # else:
+        # pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1
+        # data = {"data": 0}
+        # start_time = time.time()
+        pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1)
+        # print(f"get pre to balance {time.time() - start_time}")
+        # pre_to_balance = data.get("data")
+        # print("pre_to_balance ", pre_to_balance)
+        # start_time = time.time()
+        if pre_to_balance == None:
+            # pre_to_balance = 0
+            to_balance = 0
+        else:
+            to_balance = pre_to_balance + int(token_transfer_dict.get("value"))
+        if to_balance >= 0:
+            wallet = get_wallet_dict(to_address, str(to_balance), str(pre_to_balance), block_number, token_address)
+            wallets.append(wallet)
 
+        # print(f"time to append wallet{time.time() - start_time}")
+        # start_time = time.time()
         token_transfer_dict["wallets"] = wallets
-
+        # print(f"time to add wallets to token transfer dict {time.time() - start_time}")
+        # print(f"all run time  {time.time() - start_time_init}")
         return token_transfer_dict
 
     def get_cache(self):

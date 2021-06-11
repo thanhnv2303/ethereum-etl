@@ -20,8 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
-import random
-import time
 
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
@@ -44,6 +42,7 @@ class EthTokenService(object):
                 w3 = Web3(batch_web3_provider)
                 self.web3s.append(w3)
         self._function_call_result_transformer = function_call_result_transformer
+        self.token_contract = {}
 
     def get_token(self, token_address):
         checksum_address = self._web3.toChecksumAddress(token_address)
@@ -69,10 +68,13 @@ class EthTokenService(object):
         if address == "0x0000000000000000000000000000000000000000":
             return
         # w3 = random.choice(self.web3s)
-        checksum_token_address = self._web3.toChecksumAddress(token_address)
         checksum_address = self._web3.toChecksumAddress(address)
-        contract = self._web3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
-
+        checksum_token_address = self._web3.toChecksumAddress(token_address)
+        token_address = str(checksum_token_address)
+        if not self.token_contract.get(token_address):
+            self.token_contract[token_address] = self._web3.eth.contract(address=checksum_token_address,
+                                                                         abi=ERC20_ABI)
+        contract = self.token_contract.get(token_address)
         # checksum_token_address = w3.toChecksumAddress(token_address)
         # checksum_address = w3.toChecksumAddress(address)
         # contract = w3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
@@ -83,8 +85,7 @@ class EthTokenService(object):
             balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
                                              block_identifier=block_identifier)
             # print("balance ",balance)
-            data_balance["data"] = balance
-            # end_time = time()
+            # data_balance["data"] = balance
             # print("time to call get balance of " + address + " at contract " + token_address + " is " + str(
             #     time.time() - start_time))
             return balance
@@ -92,7 +93,7 @@ class EthTokenService(object):
         except Exception as e:
             logger.error(e)
             print(e)
-            data_balance["data"] = None
+            # data_balance["data"] = None
             return None
 
     def _get_first_result(self, *funcs, block_identifier="latest"):
