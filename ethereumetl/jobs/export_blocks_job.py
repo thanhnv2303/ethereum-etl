@@ -21,6 +21,7 @@
 # SOFTWARE.
 # import asyncio
 import json
+import time
 
 from web3 import Web3
 
@@ -123,10 +124,10 @@ class ExportBlocksJob(BaseJob):
 
     def _handler_transaction(self, transaction_dict):
         block_number = int(transaction_dict.get("block_number"))
-        # start_time = time.time()
+        start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
-            # print("time to update balance " + str(time.time() - start_time))
+            print("time to update balance " + str(time.time() - start_time))
         # print(transaction_dict)
         # self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
@@ -147,11 +148,11 @@ class ExportBlocksJob(BaseJob):
                 value = int(value)
             else:
                 value = 0
-            # start_time = time.time()
+            start_time = time.time()
             pre_from_balance = self.ethService.get_balance(from_address, block_number - 1)
-            # end_time = time.time()
-            # print("time to call get balance native token of " + from_address + "  is" + str(
-            #     end_time - start_time))
+            end_time = time.time()
+            print("time to call get balance native token of " + from_address + "  is" + str(
+                end_time - start_time))
             if pre_from_balance == None:
                 # pre_from_balance = 0
                 from_balance = 0
