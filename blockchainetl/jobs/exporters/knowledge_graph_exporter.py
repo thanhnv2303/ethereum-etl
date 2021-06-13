@@ -158,6 +158,6 @@ class KnowledgeGraphExporter:
             wallet_in_db["at_block_number"] = item.get("block_number")
             start_time = time.time()
             self.data_base.replace_wallet(wallet_in_db)
-            logger.info(f"time to update wallet in db{time.time() - start_time}")
+            logger.info(f"time to replace_wallet wallet in db{time.time() - start_time}")
 
         logger.info(f"Time to _update_wallet_and_item {time.time() - start_time_all}")
