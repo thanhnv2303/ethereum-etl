@@ -146,15 +146,15 @@ class KnowledgeGraphExporter:
                 wallet_in_db["lending_info"][contract_address] = lending_infos[contract_address][-1]
 
             # print("wallet_in_db ------------------------",wallet_in_db)
-            txs = wallet_in_db.get("transactions")
-            if not txs:
-                txs = set()
-            else:
-                txs = set(txs)
-
-            txs.add(item.get("transaction_hash"))
-
-            wallet_in_db["transactions"] = list(txs)
+            # txs = wallet_in_db.get("transactions")
+            # if not txs:
+            #     txs = set()
+            # else:
+            #     txs = set(txs)
+            #
+            # txs.add(item.get("transaction_hash"))
+            #
+            # wallet_in_db["transactions"] = list(txs)
             wallet_in_db["at_block_number"] = item.get("block_number")
             # start_time = time.time()
             self.data_base.replace_wallet(wallet_in_db)
