@@ -47,7 +47,7 @@ class Database(object):
         key = {'address': wallet['address']}
         # data = {"$set": wallet}
 
-        self.mongo_wallet.replace_one(key, wallet, upsert=True)
+        self.mongo_wallet.replace_one(key, wallet, upsert=False)
 
     def get_wallet(self, address):
         key = {"address": address}
