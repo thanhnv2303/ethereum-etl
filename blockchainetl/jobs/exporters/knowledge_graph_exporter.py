@@ -72,20 +72,20 @@ class KnowledgeGraphExporter:
         item["value"] = str(item.get("value"))
         token_address = item.get("contract_address")
         item["type"] = "Transfer"
-        start_time = time.time()
+        # start_time = time.time()
         self._update_wallet_and_item(item, token_address)
-        logger.info(f"Time to update wallet item in event {time.time() - start_time}")
-        start_time = time.time()
+        # logger.info(f"Time to update wallet item in event {time.time() - start_time}")
+        # start_time = time.time()
         self.data_base.insert_to_token_collection(token_address, item)
-        logger.info(f"Time to insert_to_token_collection item in event {time.time() - start_time}")
+        # logger.info(f"Time to insert_to_token_collection item in event {time.time() - start_time}")
 
     def _event_handler(self, item):
         item["value"] = str(item.get("value"))
         contract_address = item.get("contract_address")
         item["type"] = item.pop("event_type")
-        start_time = time.time()
+        # start_time = time.time()
         self._update_wallet_and_item(item, contract_address)
-        logger.info(f"Time to update wallet item in event {time.time() - start_time}")
+        # logger.info(f"Time to update wallet item in event {time.time() - start_time}")
         self.data_base.insert_to_token_collection(contract_address, item)
 
     def _token_handler(self, item):
@@ -93,14 +93,14 @@ class KnowledgeGraphExporter:
         self.data_base.update_token(item)
 
     def _update_wallet_and_item(self, item, balance_address):
-        start_time_all = time.time()
+        # start_time_all = time.time()
         if not item.get("wallets"):
             return
         for wallet in item.get("wallets"):
             address = wallet.get("address")
-            start_time = time.time()
+            # start_time = time.time()
             wallet_in_db = self.data_base.get_wallet(address)
-            logger.info(f"Time to get wallet in db{time.time() - start_time}")
+            # logger.info(f"Time to get wallet in db{time.time() - start_time}")
             balances = wallet_in_db.get("balances")
             if not balances:
                 balances = {}
@@ -156,8 +156,8 @@ class KnowledgeGraphExporter:
 
             wallet_in_db["transactions"] = list(txs)
             wallet_in_db["at_block_number"] = item.get("block_number")
-            start_time = time.time()
+            # start_time = time.time()
             self.data_base.replace_wallet(wallet_in_db)
-            logger.info(f"time to replace_wallet wallet in db{time.time() - start_time}")
+            # logger.info(f"time to replace_wallet wallet in db{time.time() - start_time}")
 
-        logger.info(f"Time to _update_wallet_and_item {time.time() - start_time_all}")
+        # logger.info(f"Time to _update_wallet_and_item {time.time() - start_time_all}")
