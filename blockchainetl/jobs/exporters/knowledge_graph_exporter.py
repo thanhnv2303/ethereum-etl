@@ -19,10 +19,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import logging
 import time
 
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 
+logger = logging.getLogger("KnowledgeGraphExporter")
 
 class KnowledgeGraphExporter:
     def __init__(self):
@@ -69,9 +71,12 @@ class KnowledgeGraphExporter:
         item["value"] = str(item.get("value"))
         token_address = item.get("contract_address")
         item["type"] = "Transfer"
+        start_time = time.time()
         self._update_wallet_and_item(item, token_address)
-
+        logger.info(f"Time to update wallet item in event {time.time() - start_time}")
+        start_time = time.time()
         self.data_base.insert_to_token_collection(token_address, item)
+        logger.info(f"Time to insert_to_token_collection item in event {time.time() - start_time}")
 
     def _event_handler(self, item):
         item["value"] = str(item.get("value"))
@@ -79,7 +84,7 @@ class KnowledgeGraphExporter:
         item["type"] = item.pop("event_type")
         start_time = time.time()
         self._update_wallet_and_item(item, contract_address)
-        print(f"Time to update wallet item in transfer{time.time() - start_time}")
+        logger.info(f"Time to update wallet item in event {time.time() - start_time}")
         self.data_base.insert_to_token_collection(contract_address, item)
 
     def _token_handler(self, item):
