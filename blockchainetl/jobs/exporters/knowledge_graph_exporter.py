@@ -26,6 +26,7 @@ from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 
 logger = logging.getLogger("KnowledgeGraphExporter")
 
+
 class KnowledgeGraphExporter:
     def __init__(self):
         self.mapping_handler = {
@@ -92,12 +93,14 @@ class KnowledgeGraphExporter:
         self.data_base.update_token(item)
 
     def _update_wallet_and_item(self, item, balance_address):
+        start_time_all = time.time()
         if not item.get("wallets"):
             return
         for wallet in item.get("wallets"):
             address = wallet.get("address")
+            start_time = time.time()
             wallet_in_db = self.data_base.get_wallet(address)
-
+            logger.info(f"Time to get wallet in db{time.time() - start_time}")
             balances = wallet_in_db.get("balances")
             if not balances:
                 balances = {}
@@ -153,5 +156,8 @@ class KnowledgeGraphExporter:
 
             wallet_in_db["transactions"] = list(txs)
             wallet_in_db["at_block_number"] = item.get("block_number")
-
+            start_time = time.time()
             self.data_base.update_wallet(wallet_in_db)
+            logger.info(f"time to update wallet in db{time.time() - start_time}")
+
+        logger.info(f"Time to _update_wallet_and_item {time.time() - start_time_all}")
