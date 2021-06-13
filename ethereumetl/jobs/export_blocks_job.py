@@ -21,6 +21,7 @@
 # SOFTWARE.
 # import asyncio
 import json
+import logging
 import time
 
 from web3 import Web3
@@ -33,6 +34,8 @@ from ethereumetl.mappers.transaction_mapper import EthTransactionMapper
 from ethereumetl.mappers.wallet_mapper import get_wallet_dict
 from ethereumetl.service.eth_service import EthService
 from ethereumetl.utils import rpc_response_batch_to_results, validate_range
+
+logger = logging.getLogger("ExportBlocksJob")
 
 
 # Exports blocks and transactions
@@ -127,11 +130,11 @@ class ExportBlocksJob(BaseJob):
         start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
-            print("time to update balance " + str(time.time() - start_time))
+            logger.info("time to update balance " + str(time.time() - start_time))
         # print(transaction_dict)
         # self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
-        # print("time to handle transaction " + str(time.time() - start_time))
+        logger.info("time to handle transaction " + str(time.time() - start_time))
 
     def _end(self):
         self.batch_work_executor.shutdown()
@@ -159,12 +162,12 @@ class ExportBlocksJob(BaseJob):
             else:
                 from_balance = pre_from_balance - value
 
-            # start_time = time.time()
+            start_time = time.time()
             pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
 
-            # end_time = time.time()
-            # print("time to call get balance native token of " + from_address + "  is" + str(
-            #     end_time - start_time))
+            end_time = time.time()
+            print("time to call get balance native token of " + from_address + "  is" + str(
+                end_time - start_time))
             if pre_to_balance == None:
                 # pre_to_balance = 0
                 to_balance = 0

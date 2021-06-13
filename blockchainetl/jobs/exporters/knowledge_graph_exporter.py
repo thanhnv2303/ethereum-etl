@@ -19,6 +19,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import time
 
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 
@@ -76,7 +77,9 @@ class KnowledgeGraphExporter:
         item["value"] = str(item.get("value"))
         contract_address = item.get("contract_address")
         item["type"] = item.pop("event_type")
+        start_time = time.time()
         self._update_wallet_and_item(item, contract_address)
+        print(f"Time to update wallet item in transfer{time.time() - start_time}")
         self.data_base.insert_to_token_collection(contract_address, item)
 
     def _token_handler(self, item):
@@ -137,11 +140,13 @@ class KnowledgeGraphExporter:
             # print("wallet_in_db ------------------------",wallet_in_db)
             txs = wallet_in_db.get("transactions")
             if not txs:
-                txs = []
-            if item.get("transaction_hash") not in txs:
-                txs.append(item.get("transaction_hash"))
+                txs = set()
+            else:
+                txs = set(txs)
 
-            wallet_in_db["transactions"] = txs
+            txs.add(item.get("transaction_hash"))
+
+            wallet_in_db["transactions"] = list(txs)
             wallet_in_db["at_block_number"] = item.get("block_number")
 
             self.data_base.update_wallet(wallet_in_db)

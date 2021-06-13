@@ -115,12 +115,12 @@ class ExportTokenTransfersJob(BaseJob):
         # loop.close()
         # end = time()
         # print(f'Time to run all transfer: {end - start:.2f} sec')
-        # print(f"time to hander {len(events)} is {time.time() - start_time}")
+        logger.info(f"time to hander {len(events)} is {time.time() - start_time}")
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _handler_event(self, event):
         log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
-        # start_time = time.time()
+        start_time1 = time.time()
         token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
         # print(f"time to extract token transfer is {time.time() - start_time}")
         if token_transfer is not None:
@@ -128,9 +128,9 @@ class ExportTokenTransfersJob(BaseJob):
             # start_time = time()
             block_number = int(token_transfer_dict.get("block_number"))
             if not self.latest_block or block_number > self.block_thread_hole:
-                # start_time = time.time()
+                start_time = time.time()
                 self._update_balance(token_transfer_dict)
-                # print(f"time to update balance is {time.time() - start_time}")
+                logger.info(f"time to update balance is {time.time() - start_time}")
             # end_time = time()
             # print("run time to update balance:" + str(end_time - start_time))
             # print(token_transfer_dict)
@@ -138,7 +138,7 @@ class ExportTokenTransfersJob(BaseJob):
             # start_time = time.time()
             self.item_exporter.export_item(token_transfer_dict)
 
-            # print(f"Time to export item {time.time() - start_time}")
+            logger.info(f"Time to export item {time.time() - start_time1}")
 
     def _end(self):
         self.batch_work_executor.shutdown()
@@ -163,9 +163,9 @@ class ExportTokenTransfersJob(BaseJob):
         # else:
         # pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
         # data = {"data": None}
-        # start_time = time.time()
+        start_time = time.time()
         pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
-        # print(f"get pre from balance {time.time() - start_time}")
+        logger.info(f"get pre from balance {time.time() - start_time}")
         # pre_from_balance = data.get("data")
         # start_time = time.time()
         if pre_from_balance == None:
@@ -188,9 +188,9 @@ class ExportTokenTransfersJob(BaseJob):
         # else:
         # pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1
         # data = {"data": 0}
-        # start_time = time.time()
+        start_time = time.time()
         pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1)
-        # print(f"get pre to balance {time.time() - start_time}")
+        logger.info(f"get pre to balance {time.time() - start_time}")
         # pre_to_balance = data.get("data")
         # print("pre_to_balance ", pre_to_balance)
         # start_time = time.time()
