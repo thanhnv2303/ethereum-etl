@@ -130,11 +130,11 @@ class ExportBlocksJob(BaseJob):
         start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
-            logger.info(f"time to update balance " + str(time.time() - start_time))
+            logger.debug(f"time to update balance " + str(time.time() - start_time))
         # print(transaction_dict)
         # self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
-        # logger.info(f"time to handle transaction " + str(time.time() - start_time))
+        # logger.debug(f"time to handle transaction " + str(time.time() - start_time))
 
     def _end(self):
         self.batch_work_executor.shutdown()

@@ -74,10 +74,10 @@ class KnowledgeGraphExporter:
         item["type"] = "Transfer"
         # start_time = time.time()
         self._update_wallet_and_item(item, token_address)
-        # logger.info(f"Time to update wallet item in event {time.time() - start_time}")
+        # logger.debug(f"Time to update wallet item in event {time.time() - start_time}")
         start_time = time.time()
         self.data_base.insert_to_token_collection(token_address, item)
-        logger.info(f"Time to insert_to_token_collection item in event {time.time() - start_time}")
+        logger.debug(f"Time to insert_to_token_collection item in event {time.time() - start_time}")
 
     def _event_handler(self, item):
         item["value"] = str(item.get("value"))
@@ -85,7 +85,7 @@ class KnowledgeGraphExporter:
         item["type"] = item.pop("event_type")
         start_time = time.time()
         self._update_wallet_and_item(item, contract_address)
-        logger.info(f"Time to update wallet item in event {time.time() - start_time}")
+        logger.debug(f"Time to update wallet item in event {time.time() - start_time}")
         self.data_base.insert_to_token_collection(contract_address, item)
 
     def _token_handler(self, item):
@@ -100,7 +100,7 @@ class KnowledgeGraphExporter:
             address = wallet.get("address")
             start_time = time.time()
             wallet_in_db = self.data_base.get_wallet(address)
-            logger.info(f"Time to get wallet in db{time.time() - start_time}")
+            logger.debug(f"Time to get wallet in db{time.time() - start_time}")
             balances = wallet_in_db.get("balances")
             if not balances:
                 balances = {}
@@ -158,6 +158,6 @@ class KnowledgeGraphExporter:
             wallet_in_db["at_block_number"] = item.get("block_number")
             start_time = time.time()
             self.data_base.replace_wallet(wallet_in_db)
-            logger.info(f"time to replace_wallet wallet in db{time.time() - start_time}")
+            logger.debug(f"time to replace_wallet wallet in db{time.time() - start_time}")
 
-        # logger.info(f"Time to _update_wallet_and_item {time.time() - start_time_all}")
+        # logger.debug(f"Time to _update_wallet_and_item {time.time() - start_time_all}")
