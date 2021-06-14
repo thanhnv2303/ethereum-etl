@@ -40,7 +40,6 @@ services:
     container_name: build-knowledge-graph-module1
     depends_on:
       - mongo-export
-      - neo4j-klg
     volumes:
       - .:/project
     command: |
@@ -68,6 +67,7 @@ services:
       - .:/project
     command: |
       bash -c "
+      sleep 20
         python3 ./docker_run/extract_to_knowledge_graph_neo4j.py
       "
     env_file:
