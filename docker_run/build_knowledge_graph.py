@@ -1,7 +1,6 @@
 import os
 import sys
 
-from blockchainetl.logging_utils import logging_debug_config
 
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
@@ -9,6 +8,7 @@ sys.path.insert(0, os.path.join(TOP_DIR, './'))
 import logging
 from os import path
 
+from blockchainetl.logging_utils import logging_debug_config
 from config.config import BuildKnowledgeGraphConfig
 from ethereumetl.service.eth_service import get_latest_block
 from blockchainetl.streaming.streaming_utils import configure_signals, configure_logging
