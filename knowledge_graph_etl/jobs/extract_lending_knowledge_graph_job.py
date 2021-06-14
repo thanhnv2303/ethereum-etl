@@ -78,13 +78,13 @@ class ExtractLendingKnowledgeGraphJob(BaseJob):
         self.item_exporter.open()
 
     def _export(self):
-        self.batch_work_executor.execute(self.token_list, self._extract_landing_events)
+        self.batch_work_executor.execute(self.token_list, self._extract_lending_events)
 
-    def _extract_landing_events(self, token_list):
+    def _extract_lending_events(self, token_list):
         for token_address in token_list:
-            self._extract_landing_event(token_address)
+            self._extract_lending_event(token_address)
 
-    def _extract_landing_event(self, contract_address):
+    def _extract_lending_event(self, contract_address):
         now = datetime.datetime.now()
         contract_address = contract_address.lower()
         token = self.database.get_token(contract_address)

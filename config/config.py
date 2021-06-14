@@ -29,6 +29,19 @@ class MongoDBConfig:
     BLOCKS = "BLOCKS"
     TOKENS = "TOKENS"
 
+class AerospikeDBConfig:
+    NAME = os.environ.get("AEROSPIKE_USERNAME") or "just_for_dev"
+    PASSWORD = os.environ.get("AEROSPIKE_PASSWORD") or "password_for_dev"
+    HOST = os.environ.get("AEROSPIKE_HOST") or "0.0.0.0"
+    # HOST = "25.19.185.225"
+    PORT = os.environ.get("AEROSPIKE_PORT") or "3000"
+    NAMESPACE = "test"
+    TRANSACTION_SET = "txs"
+    TRANSACTION_TRANSFER_SET = "txs_tsf"
+    WALLET_SET = "wallets"
+    POOL_SET = "pools"
+    BLOCK_SET = "blocks"
+    TOKEN_SET = "tokens"
 
 class Neo4jConfig:
     BOLT = "bolt://0.0.0.0:7687"
@@ -41,12 +54,12 @@ class Neo4jConfig:
 
 
 class BuildKnowledgeGraphConfig:
-    LOG_FILE = os.environ.get("KNOWLEDGE_GRAPH_LOG_FILE")
+    LOG_FILE = os.environ.get("KNOWLEDGE_GRAPH_LOG_FILE") or None
     PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_PROVIDER_URI")
     LAG = os.environ.get("KNOWLEDGE_GRAPH_LAG") or 0
     BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BATCH_SIZE") or 64
     MAX_WORKERS = os.environ.get("KNOWLEDGE_GRAPH_MAX_WORKERS") or 8
-    START_BLOCK = os.environ.get("KNOWLEDGE_GRAPH_START_BLOCK")
+    START_BLOCK = os.environ.get("KNOWLEDGE_GRAPH_START_BLOCK") or None
     PERIOD_SECONDS = os.environ.get("KNOWLEDGE_GRAPH_PERIOD_SECONDS") or 10
     PID_FILE = os.environ.get("KNOWLEDGE_GRAPH_PID_FILE") or None
     BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BLOCK_BATCH_SIZE") or 24

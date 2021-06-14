@@ -10,3 +10,4 @@ pycoingecko==2.0.0
 ethereum-dasm==0.1.4
 click==8.0.1
 numpy==1.19.0
+aerospike=6.0.0

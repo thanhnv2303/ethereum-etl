@@ -77,3 +77,10 @@ services:
       - MONGO_PORT=27017
       - NEO4J_HOST=neo4j-klg
       - NEO4J_BOTH_PORT=7687
+
+  aerospikedb:
+    image: aerospike/aerospike-server
+    ports:
+    - 3000:3000
+    volumes:
+      - ./aerospikedb/etc:/opt/aerospike/etc
