@@ -122,15 +122,15 @@ class ExportTokenTransfersJob(BaseJob):
         log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
         start_time1 = time.time()
         token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
-        # print(f"time to extract token transfer is {time.time() - start_time}")
+        print(f"time to extract token transfer is {time.time() - start_time}")
         if token_transfer is not None:
             token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
             # start_time = time()
             block_number = int(token_transfer_dict.get("block_number"))
             if not self.latest_block or block_number > self.block_thread_hole:
-                # start_time = time.time()
+                start_time = time.time()
                 self._update_balance(token_transfer_dict)
-                # logger.info(f"time to update balance is {time.time() - start_time}")
+                logger.info(f"time to update balance is {time.time() - start_time}")
             # end_time = time()
             # print("run time to update balance:" + str(end_time - start_time))
             # print(token_transfer_dict)

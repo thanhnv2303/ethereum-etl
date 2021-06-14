@@ -75,9 +75,9 @@ class KnowledgeGraphExporter:
         # start_time = time.time()
         self._update_wallet_and_item(item, token_address)
         # logger.info(f"Time to update wallet item in event {time.time() - start_time}")
-        # start_time = time.time()
+        start_time = time.time()
         self.data_base.insert_to_token_collection(token_address, item)
-        # logger.info(f"Time to insert_to_token_collection item in event {time.time() - start_time}")
+        logger.info(f"Time to insert_to_token_collection item in event {time.time() - start_time}")
 
     def _event_handler(self, item):
         item["value"] = str(item.get("value"))
@@ -98,9 +98,9 @@ class KnowledgeGraphExporter:
             return
         for wallet in item.get("wallets"):
             address = wallet.get("address")
-            # start_time = time.time()
+            start_time = time.time()
             wallet_in_db = self.data_base.get_wallet(address)
-            # logger.info(f"Time to get wallet in db{time.time() - start_time}")
+            logger.info(f"Time to get wallet in db{time.time() - start_time}")
             balances = wallet_in_db.get("balances")
             if not balances:
                 balances = {}
