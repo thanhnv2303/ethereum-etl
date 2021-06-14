@@ -166,7 +166,7 @@ class ExportBlocksJob(BaseJob):
             pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
 
             end_time = time.time()
-            print(f"time to call get balance native token of " + from_address + "  is" + str(
+            logger.debug(f"time to call get balance native token of " + from_address + "  is" + str(
                 end_time - start_time))
             if pre_to_balance == None:
                 # pre_to_balance = 0
