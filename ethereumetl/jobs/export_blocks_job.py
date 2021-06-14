@@ -127,10 +127,10 @@ class ExportBlocksJob(BaseJob):
 
     def _handler_transaction(self, transaction_dict):
         block_number = int(transaction_dict.get("block_number"))
-        # start_time = time.time()
+        start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
-            # logger.info(f"time to update balance " + str(time.time() - start_time))
+            logger.info(f"time to update balance " + str(time.time() - start_time))
         # print(transaction_dict)
         # self.transactions_cache.append(transaction_dict)
         self.item_exporter.export_item(transaction_dict)
@@ -162,12 +162,12 @@ class ExportBlocksJob(BaseJob):
             else:
                 from_balance = pre_from_balance - value
 
-            # start_time = time.time()
+            start_time = time.time()
             pre_to_balance = self.ethService.get_balance(to_address, block_number - 1)
 
             end_time = time.time()
-            # print(f"time to call get balance native token of " + from_address + "  is" + str(
-            #     end_time - start_time))
+            print(f"time to call get balance native token of " + from_address + "  is" + str(
+                end_time - start_time))
             if pre_to_balance == None:
                 # pre_to_balance = 0
                 to_balance = 0

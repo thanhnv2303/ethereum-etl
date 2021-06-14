@@ -1,6 +1,12 @@
+import logging
+import sys
+import time
+
 from pymongo import MongoClient
 
 from config.config import MongoDBConfig
+
+logger = logging.getLogger("Database")
 
 
 class Database(object):
@@ -44,12 +50,16 @@ class Database(object):
         self.mongo_wallet.update_one(key, data, upsert=True)
 
     def replace_wallet(self, wallet):
+        stat_time = time.time()
         key = {'address': wallet['address']}
-        # data = {"$set": wallet}
+        data = {"$set": wallet}
 
         self.mongo_wallet.replace_one(key, wallet, upsert=False)
+        logger.info(f"Wallet size {sys.getsizeof(wallet)}")
+        logger.info(f"time to update wallet {time.time() - stat_time}")
 
     def get_wallet(self, address):
+        start_time = time.time()
         key = {"address": address}
         wallet = self.mongo_wallet.find_one(key)
         if not wallet:
@@ -57,6 +67,7 @@ class Database(object):
                 "address": address,
             }
             self.update_wallet(wallet)
+        logger.info(f"Time to get wallet {time.time() - start_time}")
         return wallet
 
     def insert_to_token_collection(self, token_address, event):
