@@ -120,7 +120,7 @@ class ExportTokenTransfersJob(BaseJob):
 
     def _handler_event(self, event):
         log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
-        start_time1 = time.time()
+        start_time = time.time()
         token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
         print(f"time to extract token transfer is {time.time() - start_time}")
         if token_transfer is not None:
