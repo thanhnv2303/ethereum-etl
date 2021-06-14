@@ -1,6 +1,8 @@
 import os
 import sys
 
+from blockchainetl.logging_utils import logging_debug_config
+
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
@@ -33,6 +35,7 @@ if __name__ == '__main__':
     event_abi_dir = str(BuildKnowledgeGraphConfig.EVENT_ABI_DIR)
 
     # configure_logging(log_file)
+    # logging_debug_config()
     configure_signals()
     if log_file:
         configure_logging(log_file)
