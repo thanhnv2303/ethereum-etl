@@ -24,6 +24,7 @@ import logging
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
+from config.constant import WalletConstant
 from ethereumetl.domain.token import EthToken
 from ethereumetl.erc20_abi import ERC20_ABI
 from ethereumetl.providers.auto import get_provider_from_uri
@@ -65,7 +66,7 @@ class EthTokenService(object):
     def get_balance(self, token_address, address, block_identifier="latest", data_balance={}):
         # start_time = time()
 
-        if address == "0x0000000000000000000000000000000000000000":
+        if address == WalletConstant.address_nowhere:
             return
         # w3 = random.choice(self.web3s)
         checksum_address = self._web3.toChecksumAddress(address)

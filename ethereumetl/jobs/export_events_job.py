@@ -22,6 +22,7 @@
 import logging
 
 from blockchainetl.jobs.base_job import BaseJob
+from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
@@ -73,10 +74,10 @@ class ExportEventsJob(BaseJob):
 
     def _init_events_subscription(self):
         event_abi = self.subscriber_event
-        if event_abi.get("type") == "event":
+        if event_abi.get(EventConstant.type) == EventConstant.event:
             method_signature_hash = get_topic_filter(event_abi)
             list_params_in_order = get_list_params_in_order(event_abi)
-            event_name = event_abi.get("name")
+            event_name = event_abi.get(EventConstant.name)
             event_subscriber = EventSubscriber(method_signature_hash, event_name, list_params_in_order)
             self.event_subscriber = event_subscriber
             self.topic = method_signature_hash
@@ -97,12 +98,12 @@ class ExportEventsJob(BaseJob):
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
         filter_params = {
-            'fromBlock': block_number_batch[0],
-            'toBlock': block_number_batch[-1],
-            'topics': [self.topic]
+            EventFilterConstant.fromBlock: block_number_batch[0],
+            EventFilterConstant.toBlock: block_number_batch[-1],
+            EventFilterConstant.topics: [self.topic]
         }
         if self.tokens is not None and len(self.tokens) > 0:
-            filter_params['address'] = self.tokens
+            filter_params[TokenConstant.address] = self.tokens
 
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
@@ -123,8 +124,8 @@ class ExportEventsJob(BaseJob):
     def _update_wallet(self, eth_event_dict):
         if self._has_get_balance:
             wallets = []
-            contract_address = eth_event_dict.get("contract_address")
-            block_num = eth_event_dict.get("block_number")
+            contract_address = eth_event_dict.get(TokenConstant.contract_address)
+            block_num = eth_event_dict.get(TransactionConstant.block_number)
             for address_field in self.address_name_field:
                 address = eth_event_dict.get(address_field)
                 balance = self.ethTokenService.get_balance(contract_address, address, block_num)
@@ -133,7 +134,7 @@ class ExportEventsJob(BaseJob):
                 if balance:
                     wallet = get_wallet_dict(address, balance, pre_balance, block_num, contract_address)
                     wallets.append(wallet)
-            eth_event_dict["wallets"] = wallets
+            eth_event_dict[TransactionConstant.wallets] = wallets
         return eth_event_dict
 
     def get_cache(self):

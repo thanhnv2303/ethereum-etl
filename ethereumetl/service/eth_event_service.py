@@ -1,5 +1,7 @@
 from eth_utils import keccak
 
+from config.constant import EventConstant, EventInputConstant
+
 
 def get_topic_filter(event_abi):
     input_string = event_abi.get("name") + "("
@@ -13,8 +15,8 @@ def get_topic_filter(event_abi):
 def get_list_params_in_order(event_abi):
     indexed = []
     non_indexed = []
-    for input in event_abi.get("inputs"):
-        if input.get("indexed"):
+    for input in event_abi.get(EventConstant.inputs):
+        if input.get(EventInputConstant.indexed):
             indexed.append(input)
         else:
             non_indexed.append(input)
@@ -23,9 +25,9 @@ def get_list_params_in_order(event_abi):
 
 def get_all_address_name_field(event_abi):
     address_name_field = []
-    for input in event_abi.get("inputs"):
-        if input.get("type") == "address":
-            address_name_field.append(input.get("name"))
+    for input in event_abi.get(EventConstant.inputs):
+        if input.get(EventInputConstant.type) == EventInputConstant.address:
+            address_name_field.append(input.get(EventInputConstant.name))
     return address_name_field
 
 

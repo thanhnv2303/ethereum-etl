@@ -32,6 +32,7 @@ from time import time
 from web3 import Web3
 
 from blockchainetl.file_utils import smart_open
+from config.constant import EthKnowledgeGraphStreamerAdapterConstant, EventConstant, TimeUpdateConstant
 from ethereumetl.csv_utils import set_max_field_size_limit
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_events_job import ExportEventsJob
@@ -306,16 +307,14 @@ def export_knowledge_graph_needed_common(partitions, output_dir, provider_uri, m
         ))
 
 
-first_time = True
-
-
-def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
-                                                     item_exporter, event_abi_dir="artifacts/event-abi",
-                                                     tokens=None,
-                                                     provider_uris=None,
-                                                     first_time=True,
-                                                     w3 = None
-                                                     ):
+def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_size,
+                                  item_exporter,
+                                  event_abi_dir=EthKnowledgeGraphStreamerAdapterConstant.event_abi_dir_default,
+                                  tokens=None,
+                                  provider_uris=None,
+                                  first_time=True,
+                                  w3=None
+                                  ):
     # provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     # thread_local_proxys =[]
     # for provider in provider_uris:
@@ -389,17 +388,17 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
                 with open(file_path) as json_file:
                     subscriber_event = json.load(json_file)
 
-                event_name = subscriber_event.get("name")
-                save_name = subscriber_event.get("saveName")
-                has_get_balance = subscriber_event.get("hasGetBalance")
+                event_name = subscriber_event.get(EventConstant.name)
+                save_name = subscriber_event.get(EventConstant.saveName)
+                has_get_balance = subscriber_event.get(EventConstant.hasGetBalance)
                 if not save_name:
                     save_name = event_name
-                inputs = subscriber_event.get("inputs")
+                inputs = subscriber_event.get(EventConstant.inputs)
                 if is_log_filter_supported(provider_uri):
                     add_fields_to_export = []
                     for input in inputs:
                         if input:
-                            add_fields_to_export.append(input.get("name"))
+                            add_fields_to_export.append(input.get(EventConstant.name))
 
                     job = ExportEventsJob(
                         start_block=batch_start_block,
@@ -432,7 +431,8 @@ def export_knowledge_graph_needed_with_item_exporter(partitions, provider_uri, m
 
         # # # # tokens # # #
         now = datetime.datetime.now()
-        if (now.hour == 3 and now.minute < 5) or first_time:
+        if (now.hour == TimeUpdateConstant.token_update_hour and now.minute < TimeUpdateConstant.token_update_minute) \
+                or first_time:
             job = ExportTokensJob(
                 token_addresses_iterable=tokens,
                 web3=thread_local_proxy,

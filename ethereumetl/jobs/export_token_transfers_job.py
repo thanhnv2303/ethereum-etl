@@ -25,6 +25,7 @@ import time
 
 from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
+from config.constant import EventFilterConstant, TokenConstant, TransactionConstant
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
@@ -87,35 +88,19 @@ class ExportTokenTransfersJob(BaseJob):
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
         filter_params = {
-            'fromBlock': block_number_batch[0],
-            'toBlock': block_number_batch[-1],
-            'topics': [TRANSFER_EVENT_TOPIC]
+            EventFilterConstant.fromBlock: block_number_batch[0],
+            EventFilterConstant.toBlock: block_number_batch[-1],
+            EventFilterConstant.topics: [TRANSFER_EVENT_TOPIC]
         }
 
         if self.tokens is not None and len(self.tokens) > 0:
-            filter_params['address'] = self.tokens
-        # start_time = time.time()
+            filter_params[TokenConstant.address] = self.tokens
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
 
-        # print(
-        #     f"time to call event filter from {block_number_batch[0]} to {block_number_batch[-1]} is{time.time() - start_time}")
-        # start = time()
-        # loop = asyncio.new_event_loop()
-        # asyncio.set_event_loop(loop)
-        tasks = []
-        # print(f"num events is{len(events)}")
-        # start_time = time.time()
         for event in events:
-            # tasks.append(loop.create_task(self._handler_event(event)))
-            # tasks.append(self._handler_event(event))
+
             self._handler_event(event)
-        # loop.run_until_complete(asyncio.wait(tasks))
-        # loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
-        # loop.close()
-        # end = time()
-        # print(f'Time to run all transfer: {end - start:.2f} sec')
-        # logger.debug(f"time to hander {len(events)} is {time.time() - start_time}")
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _handler_event(self, event):
@@ -126,7 +111,7 @@ class ExportTokenTransfersJob(BaseJob):
         if token_transfer is not None:
             token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
             # start_time = time()
-            block_number = int(token_transfer_dict.get("block_number"))
+            block_number = int(token_transfer_dict.get(TokenConstant.block_number))
             if not self.latest_block or block_number > self.block_thread_hole:
                 start_time = time.time()
                 self._update_balance(token_transfer_dict)
@@ -145,69 +130,33 @@ class ExportTokenTransfersJob(BaseJob):
         self.item_exporter.close()
 
     def _update_balance(self, token_transfer_dict):
-        # start_time = start_time_init = time.time()
-        block_number = token_transfer_dict.get("block_number")
-        token_address = token_transfer_dict.get("contract_address")
-        from_address = token_transfer_dict.get("from_address")
-        to_address = token_transfer_dict.get("to_address")
+        block_number = token_transfer_dict.get(TransactionConstant.block_number)
+        token_address = token_transfer_dict.get(TokenConstant.contract_address)
+        from_address = token_transfer_dict.get(TransactionConstant.from_address)
+        to_address = token_transfer_dict.get(TransactionConstant.to_address)
         wallets = []
 
-        # print(f"time to init info {time.time() - start_time}")
-
-        # from_wallet = self.database.get_wallet(from_address)
-        # balances = from_wallet.get("balances")
-        # if balances and balances.get(token_address.lower()) and from_wallet.get(
-        #         "at_block_number") and from_wallet.get("at_block_number") < block_number:
-        #     pre_from_balance = str(balances.get(token_address.lower()))
-        #     from_balance = str(int(pre_from_balance) - int(token_transfer_dict.get("value")))
-        # else:
-        # pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
-        # data = {"data": None}
-        # start_time = time.time()
         pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
-        # logger.debug(f"get pre from balance {time.time() - start_time}")
-        # pre_from_balance = data.get("data")
-        # start_time = time.time()
+
         if pre_from_balance == None:
-            # pre_from_balance = 0
             from_balance = 0
         else:
-            from_balance = pre_from_balance - int(token_transfer_dict.get("value"))
+            from_balance = pre_from_balance - int(token_transfer_dict.get(TransactionConstant.value))
 
         if from_balance >= 0:
             wallet = get_wallet_dict(from_address, str(from_balance), str(pre_from_balance), block_number,
                                      token_address)
             wallets.append(wallet)
-        # print(f"time to append wallet{time.time() - start_time}")
-        # to_wallet = self.database.get_wallet(to_address)
-        # balances = to_wallet.get("balances")
-        # if balances and balances.get(token_address.lower()) and to_wallet.get("at_block_number") and to_wallet.get(
-        #         "at_block_number") < block_number:
-        #     pre_to_balance = str(balances.get(token_address.lower()))
-        #     to_balance = str(int(pre_to_balance) - int(token_transfer_dict.get("value")))
-        # else:
-        # pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1
-        # data = {"data": 0}
-        # start_time = time.time()
         pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1)
-        # logger.debug(f"get pre to balance {time.time() - start_time}")
-        # pre_to_balance = data.get("data")
-        # print("pre_to_balance ", pre_to_balance)
-        # start_time = time.time()
         if pre_to_balance == None:
-            # pre_to_balance = 0
             to_balance = 0
         else:
-            to_balance = pre_to_balance + int(token_transfer_dict.get("value"))
+            to_balance = pre_to_balance + int(token_transfer_dict.get(TransactionConstant.value))
         if to_balance >= 0:
             wallet = get_wallet_dict(to_address, str(to_balance), str(pre_to_balance), block_number, token_address)
             wallets.append(wallet)
+        token_transfer_dict[TransactionConstant.wallets] = wallets
 
-        # print(f"time to append wallet{time.time() - start_time}")
-        # start_time = time.time()
-        token_transfer_dict["wallets"] = wallets
-        # print(f"time to add wallets to token transfer dict {time.time() - start_time}")
-        # print(f"all run time  {time.time() - start_time_init}")
         return token_transfer_dict
 
     def get_cache(self):

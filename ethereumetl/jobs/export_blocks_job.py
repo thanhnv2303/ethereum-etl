@@ -27,6 +27,7 @@ import time
 from web3 import Web3
 
 from blockchainetl.jobs.base_job import BaseJob
+from config.constant import LoggerConstant, TransactionConstant, TokenConstant
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.json_rpc_requests import generate_get_block_by_number_json_rpc
 from ethereumetl.mappers.block_mapper import EthBlockMapper
@@ -35,7 +36,7 @@ from ethereumetl.mappers.wallet_mapper import get_wallet_dict
 from ethereumetl.service.eth_service import EthService
 from ethereumetl.utils import rpc_response_batch_to_results, validate_range
 
-logger = logging.getLogger("ExportBlocksJob")
+logger = logging.getLogger(LoggerConstant.ExportBlocksJob)
 
 
 # Exports blocks and transactions
@@ -126,7 +127,7 @@ class ExportBlocksJob(BaseJob):
             # loop.close()
 
     def _handler_transaction(self, transaction_dict):
-        block_number = int(transaction_dict.get("block_number"))
+        block_number = int(transaction_dict.get(TransactionConstant.block_number))
         start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
@@ -142,11 +143,11 @@ class ExportBlocksJob(BaseJob):
 
     def _update_balance(self, transaction_dict):
         # return transaction_dict
-        if transaction_dict.get("input") == "0x":
-            block_number = transaction_dict.get("block_number")
-            from_address = transaction_dict.get("from_address")
-            to_address = transaction_dict.get("to_address")
-            value = transaction_dict.get("value")
+        if transaction_dict.get(TransactionConstant.input) == TokenConstant.native_token:
+            block_number = transaction_dict.get(TransactionConstant.block_number)
+            from_address = transaction_dict.get(TransactionConstant.from_address)
+            to_address = transaction_dict.get(TransactionConstant.to_address)
+            value = transaction_dict.get(TransactionConstant.value)
             if value:
                 value = int(value)
             else:
@@ -172,7 +173,7 @@ class ExportBlocksJob(BaseJob):
                 # pre_to_balance = 0
                 to_balance = 0
             else:
-                to_balance = pre_to_balance + transaction_dict.get("value")
+                to_balance = pre_to_balance + transaction_dict.get(TransactionConstant.value)
 
             wallets = []
             if to_balance >= 0:
@@ -182,7 +183,7 @@ class ExportBlocksJob(BaseJob):
                 wallet = get_wallet_dict(from_address, str(from_balance), str(pre_from_balance), block_number)
                 wallets.append(wallet)
 
-            transaction_dict["wallets"] = wallets
+            transaction_dict[TransactionConstant.wallets] = wallets
 
     def get_cache(self):
         return self.blocks_cache + self.transactions_cache

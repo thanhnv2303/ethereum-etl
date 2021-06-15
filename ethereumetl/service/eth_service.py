@@ -20,12 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
-import random
 from datetime import datetime, timezone
 
 from web3 import Web3
-from web3.middleware import geth_poa_middleware
 
+from config.constant import LoggerConstant
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.service.graph_operations import GraphOperations, OutOfBoundsError, Point
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -84,8 +83,8 @@ class EthService(object):
             balance = self.web3.eth.getBalance(checksum_address, block_identifier=block_identifier)
             return balance
         except Exception as e:
-            logging.getLogger("EthService").error(e)
-            print(e)
+            logging.getLogger(LoggerConstant.EthService).error(e)
+            # print(e)
             return None
 
 

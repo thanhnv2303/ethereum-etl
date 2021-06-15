@@ -19,16 +19,17 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from config.constant import TokenConstant, ExportItemConstant, ExportItemTypeConstant
 
 
 class EthTokenMapper(object):
     def token_to_dict(self, token):
         return {
-            'type': 'token',
-            'address': token.address,
-            'symbol': token.symbol,
-            'name': token.name,
-            'decimals': token.decimals,
-            'total_supply': token.total_supply,
-            'block_number': token.block_number
+            ExportItemConstant.type: ExportItemTypeConstant.token,
+            TokenConstant.address: token.address,
+            TokenConstant.symbol: token.symbol,
+            TokenConstant.name: token.name,
+            TokenConstant.decimals: token.decimals,
+            TokenConstant.total_supply: token.total_supply,
+            TokenConstant.block_number: token.block_number
         }

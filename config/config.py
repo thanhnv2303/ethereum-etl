@@ -21,13 +21,13 @@ class MongoDBConfig:
     HOST = os.environ.get("MONGO_HOST") or "localhost"
     # HOST = "25.19.185.225"
     PORT = os.environ.get("MONGO_PORT") or "27027"
-    DATABASE = "EXTRACT_DATA_KNOWLEDGE_GRAPH"
-    TRANSACTIONS = "TRANSACTIONS"
-    TRANSACTIONS_TRANSFER = "TRANSACTIONS_TRANSFER"
-    WALLET = "WALLET"
-    POOL = "POOL"
-    BLOCKS = "BLOCKS"
-    TOKENS = "TOKENS"
+    DATABASE = "extract_data_knowledge_graph"
+    TRANSACTIONS = "transactions"
+    TRANSACTIONS_TRANSFER = "native_transfer_transactions"
+    WALLET = "wallets"
+    POOL = "pool"
+    BLOCKS = "blocks"
+    TOKENS = "tokens"
 
 
 class Neo4jConfig:
