@@ -23,7 +23,7 @@ import logging
 
 from web3.exceptions import BadFunctionCallOutput
 
-from artifacts.abi_pi.vToken_abi import VToken_ABI
+from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
 from ethereumetl.erc20_abi import ERC20_ABI
 
 logger = logging.getLogger('eth_token_service')
@@ -38,7 +38,7 @@ class EthTokenTypeService(object):
         self._function_call_result_transformer = function_call_result_transformer
         self.abi_map = {
             "ERC20": ERC20_ABI,
-            "VTOKEN": VToken_ABI
+            "VTOKEN": VTOKEN_ABI
         }
         self.mapping_handler = {
             "ERC20": self._erc20_handler,

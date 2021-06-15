@@ -1,4 +1,4 @@
-VToken_ABI = [
+VTOKEN_ABI = [
     {
       "inputs": [
         {

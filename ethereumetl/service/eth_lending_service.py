@@ -24,7 +24,7 @@ import logging
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
-from artifacts.abi_pi.vToken_abi import VToken_ABI
+from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
 from config.constant import WalletConstant, LendingTypeConfig, LoggerConstant
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -70,7 +70,7 @@ class EthLendingService(object):
         contract_address = str(checksum_token_address).lower()
         if not self.token_contract.get(contract_address):
             self.token_contract[contract_address] = self._web3.eth.contract(address=checksum_token_address,
-                                                                            abi=VToken_ABI)
+                                                                            abi=VTOKEN_ABI)
         contract = self.token_contract.get(contract_address)
 
         try:
