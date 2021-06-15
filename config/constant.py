@@ -77,6 +77,8 @@ class EventConstant:
     type = "type"
     event = "event"
     log_index = "log_index"
+    event_type = "event_type"
+    contract_address = "contract_address"
 
 
 class EventInputConstant:

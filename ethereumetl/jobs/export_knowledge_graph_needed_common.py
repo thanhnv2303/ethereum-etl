@@ -389,16 +389,14 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                     subscriber_event = json.load(json_file)
 
                 event_name = subscriber_event.get(EventConstant.name)
-                save_name = subscriber_event.get(EventConstant.saveName)
                 has_get_balance = subscriber_event.get(EventConstant.hasGetBalance)
-                if not save_name:
-                    save_name = event_name
+
                 inputs = subscriber_event.get(EventConstant.inputs)
                 if is_log_filter_supported(provider_uri):
-                    add_fields_to_export = []
-                    for input in inputs:
-                        if input:
-                            add_fields_to_export.append(input.get(EventConstant.name))
+                    # add_fields_to_export = []
+                    # for input in inputs:
+                    #     if input:
+                    #         add_fields_to_export.append(input.get(EventConstant.name))
 
                     job = ExportEventsJob(
                         start_block=batch_start_block,
