@@ -107,57 +107,11 @@ class KnowledgeGraphExporter:
             balances = wallet_in_db.get(WalletConstant.balances)
             if not balances:
                 balances = {}
-            wallet[TransactionConstant.balance] = str(wallet.get(TransactionConstant.balance))
-            wallet[TransactionConstant.pre_balance] = str(wallet.get(TransactionConstant.pre_balance))
-            balances[balance_address] = wallet.get(TransactionConstant.balance)
+            wallet[WalletConstant.balance] = str(wallet.get(WalletConstant.balance))
+            wallet[WalletConstant.pre_balance] = str(wallet.get(WalletConstant.pre_balance))
+            balances[balance_address] = wallet.get(WalletConstant.balance)
             wallet_in_db[WalletConstant.balances] = balances
-            wallet[TransactionConstant.balances] = balances
-            # print("in  balance_address",balance_address)
-
-            ## add transfer native token to lending info
-            # account_info = {
-            #     "balance": str(wallet["balance"]),
-            #     "supply": "0",
-            #     "borrow": "0",
-            #     "block_number": item.get("block_number")
-            # }
-            # contract_address = "0x"
-            #
-            # lending_infos = wallet_in_db.get("lending_infos")
-            # if not lending_infos:
-            #     lending_infos = {contract_address: [account_info]}
-            # lending_infos_token = lending_infos.get(contract_address)
-            # if not lending_infos_token:
-            #     lending_infos[contract_address] = [account_info]
-            # else:
-            #     i = len(lending_infos_token) - 1
-            #     while i >= 0:
-            #         if lending_infos_token[i].get("block_number") < account_info.get("block_number"):
-            #             lending_infos_token.insert(i + 1, account_info)
-            #             break
-            #         elif lending_infos_token[i].get("block_number") == account_info.get("block_number"):
-            #             break
-            #         i = i - 1
-            #     if i < 0:
-            #         lending_infos_token.insert(0, account_info)
-            #     wallet_in_db["lending_infos"] = lending_infos
-            #
-            # if not wallet_in_db.get("lending_info"):
-            #     wallet_in_db["lending_info"] = {}
-            #     wallet_in_db["lending_info"][contract_address] = lending_infos[contract_address][-1]
-            # else:
-            #     wallet_in_db["lending_info"][contract_address] = lending_infos[contract_address][-1]
-
-            # print("wallet_in_db ------------------------",wallet_in_db)
-            # txs = wallet_in_db.get("transactions")
-            # if not txs:
-            #     txs = set()
-            # else:
-            #     txs = set(txs)
-            #
-            # txs.add(item.get("transaction_hash"))
-            #
-            # wallet_in_db["transactions"] = list(txs)
+            wallet[WalletConstant.balances] = balances
             wallet_in_db[WalletConstant.at_block_number] = item.get(TransactionConstant.block_number)
             start_time = time.time()
             self.data_base.replace_wallet(wallet_in_db)

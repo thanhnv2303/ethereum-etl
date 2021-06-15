@@ -11,9 +11,6 @@ class TransactionConstant:
     hash = "hash"
     transaction_hash = "transaction_hash"
     wallets = "wallets"
-    balance = "balance"
-    pre_balance = "pre_balance"
-    balances = "balances"
     block_number = "block_number"
     from_address = "from_address"
     to_address = "to_address"
@@ -39,9 +36,11 @@ class TokenTypeConstant:
 
 class WalletConstant:
     address = "address"
-    balances = "balances"
     at_block_number = "at_block_number"
     address_nowhere = '0x0000000000000000000000000000000000000000'
+    balance = "new_balance_of_concerning_token"
+    pre_balance = "old_balance_of_concerning_token"
+    balances = "balance"
 
 
 class ExportItemConstant:
