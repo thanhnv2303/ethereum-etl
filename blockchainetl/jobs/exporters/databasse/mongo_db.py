@@ -1,10 +1,9 @@
 import logging
-import sys
-import time
 
 from pymongo import MongoClient
 
 from config.config import MongoDBConfig
+from config.constant import MongoIndexConstant
 
 logger = logging.getLogger("Database")
 
@@ -25,13 +24,19 @@ class Database(object):
         self.mongo_blocks = self.mongo_db[MongoDBConfig.BLOCKS]
         self.mongo_token_collection_dict = {}
 
-        # self._create_index()
+        self._create_index()
 
     def _create_index(self):
-        self.mongo_transactions.create_index([("hash", "hashed")])
-        self.mongo_transactions_transfer.create_index([("hash", "hashed")])
-        self.mongo_transactions_transfer.create_index([("block_num", -1)])
-        self.mongo_wallet.create_index([("address", "hashed")])
+
+        if MongoIndexConstant.tx_id not in self.mongo_transactions.index_information():
+            self.mongo_transactions.create_index([("hash", "hashed")], name=MongoIndexConstant.tx_id)
+        if MongoIndexConstant.transfer_tx_id not in self.mongo_transactions_transfer.index_information():
+            self.mongo_transactions_transfer.create_index([("hash", "hashed")], name=MongoIndexConstant.transfer_tx_id)
+        if MongoIndexConstant.transfer_block_number not in self.mongo_transactions_transfer.index_information():
+            self.mongo_transactions_transfer.create_index([("block_num", "hashed")],
+                                                          name=MongoIndexConstant.transfer_block_number)
+        if MongoIndexConstant.wallet_address not in self.mongo_wallet.index_information():
+            self.mongo_wallet.create_index([("address", "hashed")], name=MongoIndexConstant.wallet_address)
         # self.mongo_pool.create_index([("address", "hashed")])
 
     def update_block(self, block):
