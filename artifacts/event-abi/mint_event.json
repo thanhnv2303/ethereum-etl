@@ -23,5 +23,6 @@
   "name": "Mint",
   "type": "event",
   "saveName": "VToken_Deposit",
-  "hasGetBalance": true
+  "isLending": true,
+  "lendingType": "VTOKEN"
 }

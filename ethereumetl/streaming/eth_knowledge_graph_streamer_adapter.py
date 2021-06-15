@@ -7,6 +7,8 @@ from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExport
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant
 from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
 from ethereumetl.jobs.export_knowledge_graph_needed_common import export_klg_with_item_exporter
+from ethereumetl.service.eth_lending_service import EthLendingService
+from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
 from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
 
@@ -45,6 +47,8 @@ class EthKnowledgeGraphStreamerAdapter:
         self.provider_uris = provider_uris
         self.event_abi_dir = event_abi_dir
         self.first_time = first_time
+        self.ethTokenService = EthTokenService(self.w3, clean_user_provided_content)
+        self.ethLendingService = EthLendingService(self.w3, clean_user_provided_content)
 
     def open(self):
         self.item_exporter.open()
@@ -68,8 +72,23 @@ class EthKnowledgeGraphStreamerAdapter:
                                           tokens=tokens,
                                           provider_uris=self.provider_uris,
                                           first_time=self.first_time,
-                                          w3=self.w3
+                                          w3=self.w3,
+                                          ethTokenService=self.ethTokenService,
+                                          ethLendingService=self.ethLendingService
                                           )
 
     def close(self):
         self.item_exporter.close()
+
+
+ASCII_0 = 0
+
+
+def clean_user_provided_content(content):
+    if isinstance(content, str):
+        # This prevents this error in BigQuery
+        # Error while reading data, error message: Error detected while parsing row starting at position: 9999.
+        # Error: Bad character (ASCII 0) encountered.
+        return content.translate({ASCII_0: None})
+    else:
+        return content

@@ -51,6 +51,7 @@ class ExportTokenTransfersJob(BaseJob):
             tokens=None,
             latest_block=None,
             provider_uris=None,
+            ethTokenService=None
 
     ):
         validate_range(start_block, end_block)
@@ -67,7 +68,11 @@ class ExportTokenTransfersJob(BaseJob):
         self.token_transfer_mapper = EthTokenTransferMapper()
         self.token_transfer_extractor = EthTokenTransferExtractor()
         self.token_dict_cache = []
-        self.ethTokenService = EthTokenService(w3, clean_user_provided_content, provider_uris)
+        if ethTokenService:
+            self.ethTokenService = ethTokenService
+        else:
+            self.ethTokenService = EthTokenService(w3, clean_user_provided_content)
+
         self.database = database
         self.latest_block = latest_block
         if latest_block:
@@ -99,7 +104,6 @@ class ExportTokenTransfersJob(BaseJob):
         events = event_filter.get_all_entries()
 
         for event in events:
-
             self._handler_event(event)
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 

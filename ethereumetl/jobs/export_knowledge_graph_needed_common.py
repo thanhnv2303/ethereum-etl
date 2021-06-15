@@ -313,7 +313,9 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                                   tokens=None,
                                   provider_uris=None,
                                   first_time=True,
-                                  w3=None
+                                  w3=None,
+                                  ethTokenService=None,
+                                  ethLendingService=None
                                   ):
     # provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     # thread_local_proxys =[]
@@ -367,7 +369,8 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                 max_workers=max_workers,
                 tokens=tokens,
                 latest_block=latest_block_num,
-                provider_uris=provider_uris
+                provider_uris=provider_uris,
+                ethTokenService=ethTokenService
             )
             job.run()
             # token_transfers_dict = job.get_cache()
@@ -388,10 +391,8 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                 with open(file_path) as json_file:
                     subscriber_event = json.load(json_file)
 
-                event_name = subscriber_event.get(EventConstant.name)
-                has_get_balance = subscriber_event.get(EventConstant.hasGetBalance)
+                has_get_balance = subscriber_event.get(EventConstant.isLending)
 
-                inputs = subscriber_event.get(EventConstant.inputs)
                 if is_log_filter_supported(provider_uri):
                     # add_fields_to_export = []
                     # for input in inputs:
@@ -406,8 +407,10 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                         item_exporter=item_exporter,
                         max_workers=max_workers,
                         subscriber_event=subscriber_event,
-                        has_get_balance=has_get_balance,
-                        tokens=tokens
+                        is_lending=has_get_balance,
+                        tokens=tokens,
+                        ethTokenService=ethTokenService,
+                        ethLendingService=ethLendingService
                     )
                     job.run()
                     # event_dicts = job.get_cache()
@@ -435,7 +438,9 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                 token_addresses_iterable=tokens,
                 web3=thread_local_proxy,
                 item_exporter=item_exporter,
-                max_workers=max_workers)
+                max_workers=max_workers,
+                ethTokenService=ethTokenService
+            )
             job.run()
             first_time = False
         # print("token exported")

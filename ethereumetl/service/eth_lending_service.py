@@ -24,16 +24,15 @@ import logging
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
-from config.constant import WalletConstant
-from ethereumetl.domain.token import EthToken
-from ethereumetl.erc20_abi import ERC20_ABI
+from artifacts.abi_pi.vToken_abi import VToken_ABI
+from config.constant import WalletConstant, LendingTypeConfig, LoggerConstant
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
-logger = logging.getLogger('eth_token_service')
+logger = logging.getLogger(LoggerConstant.EthLendingService)
 
 
-class EthTokenService(object):
+class EthLendingService(object):
     def __init__(self, web3, function_call_result_transformer=None, provider_uris=None):
         self._web3 = web3
         self.web3s = [web3]
@@ -44,58 +43,48 @@ class EthTokenService(object):
                 self.web3s.append(w3)
         self._function_call_result_transformer = function_call_result_transformer
         self.token_contract = {}
+        # self.mapping_abi = {
+        #     TokenABIConfig.ERC20: ERC20_ABI,
+        #     TokenABIConfig.VTOKEN: VToken_ABI
+        # }
+        self.mapping_handler = {
+            LendingTypeConfig.VTOKEN: self.get_lending_info_v_token
+        }
 
-    def get_token(self, token_address):
-        checksum_address = self._web3.toChecksumAddress(token_address)
-        contract = self._web3.eth.contract(address=checksum_address, abi=ERC20_ABI)
+    def get_lending_info(self, contract_address, address, block_identifier="latest",
+                         token_type=LendingTypeConfig.VTOKEN):
+        handler = self.mapping_handler[token_type]
+        if not handler:
+            logger.warning(f"getting lending info for smart contract type :{token_type} has not supported ")
+            return
+        return handler(contract_address, address, block_identifier)
 
-        symbol = self._get_first_result(contract.functions.symbol(), contract.functions.SYMBOL())
-        name = self._get_first_result(contract.functions.name(), contract.functions.NAME())
-        decimals = self._get_first_result(contract.functions.decimals(), contract.functions.DECIMALS())
-        total_supply = self._get_first_result(contract.functions.totalSupply())
-
-        token = EthToken()
-        token.address = token_address.lower()
-        token.symbol = symbol
-        token.name = name
-        token.decimals = decimals
-        token.total_supply = total_supply
-
-        return token
-
-    def get_balance(self, token_address, address, block_identifier="latest", abi=ERC20_ABI):
+    def get_lending_info_v_token(self, contract_address, address, block_identifier="latest"):
         # start_time = time()
 
         if address == WalletConstant.address_nowhere:
             return
         # w3 = random.choice(self.web3s)
         checksum_address = self._web3.toChecksumAddress(address)
-        checksum_token_address = self._web3.toChecksumAddress(token_address)
-        token_address = str(checksum_token_address).lower()
-        if not self.token_contract.get(token_address):
-            self.token_contract[token_address] = self._web3.eth.contract(address=checksum_token_address,
-                                                                         abi=abi)
-        contract = self.token_contract.get(token_address)
-        # checksum_token_address = w3.toChecksumAddress(token_address)
-        # checksum_address = w3.toChecksumAddress(address)
-        # contract = w3.eth.contract(address=checksum_token_address, abi=ERC20_ABI)
+        checksum_token_address = self._web3.toChecksumAddress(contract_address)
+        contract_address = str(checksum_token_address).lower()
+        if not self.token_contract.get(contract_address):
+            self.token_contract[contract_address] = self._web3.eth.contract(address=checksum_token_address,
+                                                                            abi=VToken_ABI)
+        contract = self.token_contract.get(contract_address)
 
         try:
-
-            # start_time = time.time()
-            balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
-                                             block_identifier=block_identifier)
-            # print("balance ",balance)
-            # data_balance["data"] = balance
-            # print("time to call get balance of " + address + " at contract " + token_address + " is " + str(
-            #     time.time() - start_time))
-            return balance
+            supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_address),
+                                            block_identifier=block_identifier)
+            borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_address),
+                                            block_identifier=block_identifier)
+            return supply, borrow
 
         except Exception as e:
             logger.error(e)
             print(e)
             # data_balance["data"] = None
-            return None
+            return None, None
 
     def _get_first_result(self, *funcs, block_identifier="latest"):
         for func in funcs:

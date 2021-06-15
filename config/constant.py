@@ -41,6 +41,8 @@ class WalletConstant:
     balance = "new_balance_of_concerning_token"
     pre_balance = "old_balance_of_concerning_token"
     balances = "balance"
+    supply = "supply"
+    borrow = "borrow"
 
 
 class ExportItemConstant:
@@ -59,6 +61,7 @@ class LoggerConstant:
     KnowledgeGraphExporter = "KnowledgeGraphExporter"
     ExportBlocksJob = "ExportBlocksJob"
     EthService = "EthService"
+    EthLendingService = "EthLendingService"
 
 
 class EthKnowledgeGraphStreamerAdapterConstant:
@@ -72,7 +75,7 @@ class EthKnowledgeGraphStreamerAdapterConstant:
 class EventConstant:
     name = "name"
     saveName = "saveName"
-    hasGetBalance = "hasGetBalance"
+    isLending = "isLending"
     inputs = "inputs"
     type = "type"
     event = "event"
@@ -104,3 +107,9 @@ class MongoIndexConstant:
     transfer_tx_id = "transfer_tx_id"
     transfer_block_number = "transfer_block_number"
     wallet_address = "wallet_address"
+
+class LendingTypeConfig:
+    lendingType ="lendingType"
+    VTOKEN = "VTOKEN"
+    TRAVA = "TRAVA"
+    ERC20 = "ERC20"

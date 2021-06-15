@@ -35,5 +35,6 @@
   "name": "RepayBorrow",
   "type": "event",
   "saveName": "VToken_Repay",
-  "hasGetBalance": true
+  "isLending": true,
+  "lendingType": "VTOKEN"
 }

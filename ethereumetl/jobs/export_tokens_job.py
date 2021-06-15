@@ -28,12 +28,16 @@ from ethereumetl.service.eth_token_service import EthTokenService
 
 
 class ExportTokensJob(BaseJob):
-    def __init__(self, web3, item_exporter, token_addresses_iterable, max_workers):
+    def __init__(self, web3, item_exporter, token_addresses_iterable, max_workers, ethTokenService=None):
         self.item_exporter = item_exporter
         self.token_addresses_iterable = token_addresses_iterable
         self.batch_work_executor = BatchWorkExecutor(1, max_workers)
 
-        self.token_service = EthTokenService(web3, clean_user_provided_content)
+        if ethTokenService:
+            self.token_service = ethTokenService
+        else:
+            self.token_service = EthTokenService(web3, clean_user_provided_content)
+
         self.token_mapper = EthTokenMapper()
         self.tokens_cache = []
 

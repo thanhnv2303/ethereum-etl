@@ -35,5 +35,6 @@
   "name": "LiquidateBorrow",
   "type": "event",
   "saveName": "VToken_LiquidateBorrow",
-  "hasGetBalance": true
+  "isLending": true,
+  "lendingType": "VTOKEN"
 }

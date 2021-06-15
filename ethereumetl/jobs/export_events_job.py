@@ -22,14 +22,15 @@
 import logging
 
 from blockchainetl.jobs.base_job import BaseJob
-from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant
+from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConfig
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
-from ethereumetl.mappers.wallet_mapper import get_wallet_dict
+from ethereumetl.mappers.wallet_mapper import get_wallet_dict, wallet_append_lending_info
 from ethereumetl.service.eth_event_service import get_topic_filter, get_list_params_in_order, EventSubscriber, \
     get_all_address_name_field
+from ethereumetl.service.eth_lending_service import EthLendingService
 from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.event_extractor import EthEventExtractor
 from ethereumetl.utils import validate_range
@@ -47,13 +48,16 @@ class ExportEventsJob(BaseJob):
             item_exporter,
             max_workers,
             subscriber_event,
-            has_get_balance=False,
-            tokens=None):
+            is_lending=False,
+            tokens=None,
+            ethTokenService=None,
+            ethLendingService=None
+    ):
         validate_range(start_block, end_block)
         self.start_block = start_block
         self.end_block = end_block
 
-        self._has_get_balance = has_get_balance
+        self._is_lending = is_lending
         self.web3 = web3
         self.tokens = tokens
         self.item_exporter = item_exporter
@@ -70,7 +74,20 @@ class ExportEventsJob(BaseJob):
         self._init_events_subscription()
 
         self.eth_events_dict_cache = []
-        self.ethTokenService = EthTokenService(web3, clean_user_provided_content)
+        if ethTokenService:
+            self.ethTokenService = ethTokenService
+        else:
+            self.ethTokenService = EthTokenService(web3, clean_user_provided_content)
+
+        if ethLendingService:
+            self.ethLendingService = ethLendingService
+        else:
+            self.ethLendingService = EthLendingService(web3, clean_user_provided_content)
+
+        if subscriber_event.get(LendingTypeConfig.lendingType):
+            self.token_type = subscriber_event.get(LendingTypeConfig.lendingType)
+        else:
+            self.token_type = LendingTypeConfig.ERC20
 
     def _init_events_subscription(self):
         event_abi = self.subscriber_event
@@ -122,19 +139,25 @@ class ExportEventsJob(BaseJob):
         self.item_exporter.close()
 
     def _update_wallet(self, eth_event_dict):
-        if self._has_get_balance:
-            wallets = []
-            contract_address = eth_event_dict.get(TokenConstant.contract_address)
-            block_num = eth_event_dict.get(TransactionConstant.block_number)
-            for address_field in self.address_name_field:
-                address = eth_event_dict.get(address_field)
-                balance = self.ethTokenService.get_balance(contract_address, address, block_num)
-                pre_balance = self.ethTokenService.get_balance(contract_address, address, block_num - 1)
+        wallets = []
+        contract_address = eth_event_dict.get(TokenConstant.contract_address)
+        block_num = eth_event_dict.get(TransactionConstant.block_number)
+        for address_field in self.address_name_field:
+            address = eth_event_dict.get(address_field)
+            balance = self.ethTokenService.get_balance(contract_address, address, block_num)
+            pre_balance = self.ethTokenService.get_balance(contract_address, address, block_num - 1)
 
-                if balance:
-                    wallet = get_wallet_dict(address, balance, pre_balance, block_num, contract_address)
-                    wallets.append(wallet)
-            eth_event_dict[TransactionConstant.wallets] = wallets
+            if balance != None:
+                wallet = get_wallet_dict(address, balance, pre_balance, block_num, contract_address)
+                wallets.append(wallet)
+                if self._is_lending :
+                    supply, borrow = self.ethLendingService.get_lending_info(contract_address, address, block_num,
+                                                                             self.token_type)
+                    if supply != None and borrow != None:
+                        wallet_append_lending_info(wallet, supply, borrow)
+
+        eth_event_dict[TransactionConstant.wallets] = wallets
+
         return eth_event_dict
 
     def get_cache(self):

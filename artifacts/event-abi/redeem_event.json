@@ -23,5 +23,6 @@
   "name": "Redeem",
   "type": "event",
   "saveName": "VToken_Withdraw",
-  "hasGetBalance": true
+  "isLending": true,
+  "lendingType": "VTOKEN"
 }

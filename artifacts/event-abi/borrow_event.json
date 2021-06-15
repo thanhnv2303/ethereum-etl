@@ -29,5 +29,6 @@
   "name": "Borrow",
   "type": "event",
   "saveName": "VToken_Borrow",
-  "hasGetBalance": true
+  "isLending": true,
+  "lendingType": "VTOKEN"
 }
