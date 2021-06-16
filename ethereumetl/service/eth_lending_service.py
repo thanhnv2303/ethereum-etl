@@ -24,6 +24,7 @@ import logging
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
+from artifacts.abi_pi.lending_pool_abi import LENDING_POOL_ABI
 from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
 from config.constant import WalletConstant, LendingTypeConfig, LoggerConstant
 from ethereumetl.providers.auto import get_provider_from_uri
@@ -48,11 +49,16 @@ class EthLendingService(object):
         #     TokenABIConfig.VTOKEN: VToken_ABI
         # }
         self.mapping_handler = {
-            LendingTypeConfig.VTOKEN: self.get_lending_info_v_token
+            LendingTypeConfig.VTOKEN: self.get_lending_info_v_token,
+            LendingTypeConfig.LENDING_POOL: self.get_lending_info_pool
         }
 
     def get_lending_info(self, contract_address, address, block_identifier="latest",
                          token_type=LendingTypeConfig.VTOKEN):
+        """
+
+        :rtype: balance, pre_balance, supply, borrow, unit_token
+        """
         handler = self.mapping_handler[token_type]
         if not handler:
             logger.warning(f"getting lending info for smart contract type :{token_type} has not supported ")
@@ -60,6 +66,10 @@ class EthLendingService(object):
         return handler(contract_address, address, block_identifier)
 
     def get_lending_info_v_token(self, contract_address, address, block_identifier="latest"):
+        """
+
+        :rtype: balance, pre_balance, supply, borrow, unit_token
+        """
         # start_time = time()
 
         if address == WalletConstant.address_nowhere:
@@ -74,11 +84,50 @@ class EthLendingService(object):
         contract = self.token_contract.get(contract_address)
 
         try:
+            balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
+                                             block_identifier=block_identifier)
+            pre_balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
+                                                 block_identifier=block_identifier - 1)
+
             supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_address),
                                             block_identifier=block_identifier)
             borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_address),
                                             block_identifier=block_identifier)
-            return supply, borrow
+            unit_token = contract_address
+            return balance, pre_balance, supply, borrow, unit_token
+
+        except Exception as e:
+            logger.error(e)
+            print(e)
+            # data_balance["data"] = None
+            return None, None, None, None, None
+
+    def get_lending_info_pool(self, contract_address, address, block_identifier="latest"):
+        """
+
+        :rtype: balance, pre_balance, supply, borrow, unit_token
+        """
+        if address == WalletConstant.address_nowhere:
+            return
+            # w3 = random.choice(self.web3s)
+        checksum_address = self._web3.toChecksumAddress(address)
+        checksum_token_address = self._web3.toChecksumAddress(contract_address)
+        contract_address = str(checksum_token_address).lower()
+        if not self.token_contract.get(contract_address):
+            self.token_contract[contract_address] = self._web3.eth.contract(address=checksum_token_address,
+                                                                            abi=LENDING_POOL_ABI)
+        contract = self.token_contract.get(contract_address)
+
+        try:
+            totalCollateralETH, totalDebtETH, availableBorrowsETH, currentLiquidationThreshold, ltv, healthFactor = self._get_first_result(
+                contract.functions.getUserAccountData(checksum_address),
+                block_identifier=block_identifier)
+            supply = totalCollateralETH
+            borrow = totalDebtETH
+            balance = 0
+            pre_balance = 0
+            unit_token = "usd"
+            return balance, pre_balance, supply, borrow, unit_token
 
         except Exception as e:
             logger.error(e)

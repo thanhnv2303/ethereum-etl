@@ -43,6 +43,7 @@ class WalletConstant:
     balances = "balance"
     supply = "supply"
     borrow = "borrow"
+    unit_token = "unit_token"
 
 
 class ExportItemConstant:
@@ -113,3 +114,4 @@ class LendingTypeConfig:
     VTOKEN = "VTOKEN"
     TRAVA = "TRAVA"
     ERC20 = "ERC20"
+    LENDING_POOL = "LENDING_POOL"

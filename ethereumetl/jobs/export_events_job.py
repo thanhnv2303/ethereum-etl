@@ -145,17 +145,15 @@ class ExportEventsJob(BaseJob):
         block_num = eth_event_dict.get(TransactionConstant.block_number)
         for address_field in self.address_name_field:
             address = eth_event_dict.get(address_field)
-            balance = self.ethTokenService.get_balance(contract_address, address, block_num)
-            pre_balance = self.ethTokenService.get_balance(contract_address, address, block_num - 1)
-            wallet = {WalletConstant.address: address}
-            if balance != None:
-                wallet = get_wallet_dict(address, balance, pre_balance, block_num, contract_address)
-                wallets.append(wallet)
+
             if self._is_lending:
-                supply, borrow = self.ethLendingService.get_lending_info(contract_address, address, block_num,
-                                                                         self.token_type)
-                if supply != None and borrow != None:
+                balance, pre_balance, supply, borrow, unit_token = self.ethLendingService.get_lending_info(
+                    contract_address, address, block_num,
+                    self.token_type)
+                if balance != None and supply != None and borrow != None:
+                    wallet = get_wallet_dict(address, balance, pre_balance, block_num, unit_token)
                     wallet_append_lending_info(wallet, supply, borrow)
+                    wallets.append(wallet)
 
         eth_event_dict[TransactionConstant.wallets] = wallets
 

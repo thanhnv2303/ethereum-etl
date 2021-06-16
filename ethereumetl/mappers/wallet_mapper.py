@@ -6,7 +6,8 @@ def get_wallet_dict(address, balance, pre_balance, block_number, token_address="
         WalletConstant.address: address,
         WalletConstant.balance: str(balance),
         WalletConstant.pre_balance: str(pre_balance),
-        TransactionConstant.block_number: block_number
+        TransactionConstant.block_number: block_number,
+        WalletConstant.unit_token: token_address
     }
 
 
