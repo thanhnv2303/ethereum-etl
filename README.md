@@ -124,3 +124,14 @@ For the latest version, check out the repo and call
 
 * [Google](https://goo.gl/oY5BCQ) - Public BigQuery Ethereum datasets
 * [Nansen](https://www.nansen.ai/?ref=ethereumetl) - Analytics platform for Ethereum
+
+## Run for dev
+   1. Install dependencies 
+      > pip3 install -r requirements.txt
+   2. Create mongodb
+      > cp example.env .env
+      > docker-compose up mongo-export
+      
+   3. Quick run for dev
+      
+      > python3 ./quick_run/build_knowledge_graph.py
