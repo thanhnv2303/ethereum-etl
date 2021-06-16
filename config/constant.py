@@ -10,7 +10,7 @@ class TransactionConstant:
     input = "input"
     hash = "hash"
     transaction_hash = "transaction_hash"
-    wallets = "wallets"
+    wallets = "related_wallets"
     block_number = "block_number"
     from_address = "from_address"
     to_address = "to_address"
