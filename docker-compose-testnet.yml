@@ -1,0 +1,55 @@
+version: '3'
+services:
+  mongo-export-testnet:
+    image: mongo:4.1.13
+    container_name: mongo-export-testnet
+    restart: always
+    expose:
+      - 27017
+    ports:
+      - ${MONGO_PORT}:27017
+    env_file:
+      - ./.env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - ./data/mongodb/data/:/data/db/
+
+#  neo4j-klg:
+#    image: neo4j:4.0.3
+#    hostname: neo4j
+#    container_name: neo4j-klg
+#    ports:
+#      - ${NEO4J_HTTP_PORT}:7474
+#      - ${NEO4J_HTTPS_PORT}:7473
+#      - ${NEO4J_BOTH_PORT}:7687
+#    volumes:
+#      - ./neo4j/plugins:/plugins
+#    env_file:
+#      - ./.env
+#    environment:
+#      NEO4J_AUTH: ${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+#      NEO4J_dbms_logs_debug_level: DEBUG
+
+  build-knowledge-graph-testnet:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: build-knowledge-graph
+    container_name: build-knowledge-graph-module1-testnet
+    depends_on:
+      - mongo-export-testnet
+    volumes:
+      - .:/project
+    command: |
+      bash -c "
+        python3 ./docker_run/build_knowledge_graph.py
+      "
+    env_file:
+      - ./.env
+    environment:
+      - MONGO_HOST=mongo-export-testnet
+      - MONGO_PORT=27017
+      - NEO4J_HOST=neo4j-klg
+      - NEO4J_BOTH_PORT=7687
