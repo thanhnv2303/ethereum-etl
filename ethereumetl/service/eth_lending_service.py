@@ -94,12 +94,12 @@ class EthLendingService(object):
 
             exchange_rate /= 10 ** VTokenConstant.EXCHANGE_RATE_DECIMALS
 
-            supply = int(round(self._get_first_result(contract.functions.balanceOfUnderlying(checksum_address),
-                                                      block_identifier=block_identifier)))
-            borrow = int(round(self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_address),
-                                                      block_identifier=block_identifier)))
-            supply /= exchange_rate
-            borrow /= exchange_rate
+            supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_address),
+                                            block_identifier=block_identifier)
+            borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_address),
+                                            block_identifier=block_identifier)
+            supply = round(supply / exchange_rate)
+            borrow = round(borrow / exchange_rate)
             unit_token = contract_address
             return balance, pre_balance, supply, borrow, unit_token
 
