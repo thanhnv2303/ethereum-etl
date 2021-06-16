@@ -130,6 +130,7 @@ For the latest version, check out the repo and call
       > pip3 install -r requirements.txt
    2. Create mongodb
       > cp example.env .env
+      
       > docker-compose up mongo-export
       
    3. Quick run for dev
