@@ -119,3 +119,5 @@ class LendingTypeConstant:
 class LendingPoolConstant:
     DECIMALS = 8
 
+class VTokenConstant:
+    EXCHANGE_RATE_DECIMALS = 18

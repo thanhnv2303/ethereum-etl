@@ -26,7 +26,7 @@ from web3.exceptions import BadFunctionCallOutput
 
 from artifacts.abi_pi.lending_pool_abi import LENDING_POOL_ABI
 from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
-from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, LendingPoolConstant
+from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, LendingPoolConstant, VTokenConstant
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
@@ -89,16 +89,23 @@ class EthLendingService(object):
             pre_balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
                                                  block_identifier=block_identifier - 1)
 
-            supply = self._get_first_result(contract.functions.balanceOfUnderlying(checksum_address),
-                                            block_identifier=block_identifier)
-            borrow = self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_address),
-                                            block_identifier=block_identifier)
+            exchange_rate = self._get_first_result(contract.functions.exchangeRateCurrent(),
+                                                   block_identifier=block_identifier)
+
+            exchange_rate /= 10 ** VTokenConstant.EXCHANGE_RATE_DECIMALS
+
+            supply = int(round(self._get_first_result(contract.functions.balanceOfUnderlying(checksum_address),
+                                                      block_identifier=block_identifier)))
+            borrow = int(round(self._get_first_result(contract.functions.borrowBalanceCurrent(checksum_address),
+                                                      block_identifier=block_identifier)))
+            supply /= exchange_rate
+            borrow /= exchange_rate
             unit_token = contract_address
             return balance, pre_balance, supply, borrow, unit_token
 
         except Exception as e:
             logger.error(e)
-            print(e)
+            # print(e)
             # data_balance["data"] = None
             return None, None, None, None, None
 
@@ -173,3 +180,7 @@ def call_contract_function(func, ignore_errors, default_value=None, block_identi
         else:
             logger.exception(ex)
             return default_value
+
+
+# int("123123.0")
+print(str(int(round(2342.9999999999999999999999456456456456456456456))))
