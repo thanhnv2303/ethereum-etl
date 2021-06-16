@@ -105,12 +105,31 @@ class KnowledgeGraphExporter:
             wallet_in_db = self.data_base.get_wallet(address)
             logger.debug(f"Time to get wallet in db{time.time() - start_time}")
             balances = wallet_in_db.get(WalletConstant.balances)
+            supply = wallet_in_db.get(WalletConstant.supply)
+            borrow = wallet_in_db.get(WalletConstant.borrow)
             if not balances:
                 balances = {}
+            if not supply:
+                supply = {}
+            if not borrow:
+                borrow = {}
+            unit_token = wallet.get(WalletConstant.unit_token)
+            if not unit_token:
+                unit_token = balance_address
+
             wallet[WalletConstant.balance] = str(wallet.get(WalletConstant.balance))
             wallet[WalletConstant.pre_balance] = str(wallet.get(WalletConstant.pre_balance))
+
             balances[balance_address] = wallet.get(WalletConstant.balance)
+            if wallet.get(WalletConstant.supply):
+                supply[unit_token] = wallet.get(WalletConstant.supply)
+            if wallet.get(WalletConstant.borrow):
+                borrow[unit_token] = wallet.get(WalletConstant.borrow)
+
             wallet_in_db[WalletConstant.balances] = balances
+            wallet_in_db[WalletConstant.supply] = supply
+            wallet_in_db[WalletConstant.borrow] = borrow
+
             wallet[WalletConstant.balances] = balances
             wallet_in_db[WalletConstant.at_block_number] = item.get(TransactionConstant.block_number)
             start_time = time.time()
