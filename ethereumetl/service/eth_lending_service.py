@@ -84,10 +84,13 @@ class EthLendingService(object):
         contract = self.token_contract.get(contract_address)
 
         try:
-            balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
-                                             block_identifier=block_identifier)
-            pre_balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
-                                                 block_identifier=block_identifier - 1)
+            # balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
+            #                                  block_identifier=block_identifier)
+            # pre_balance = self._get_first_result(contract.functions.balanceOf(checksum_address),
+            #                                      block_identifier=block_identifier - 1)
+
+            balance = 0
+            pre_balance = 0
 
             exchange_rate = self._get_first_result(contract.functions.exchangeRateCurrent(),
                                                    block_identifier=block_identifier)
