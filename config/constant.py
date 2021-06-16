@@ -109,9 +109,13 @@ class MongoIndexConstant:
     transfer_block_number = "transfer_block_number"
     wallet_address = "wallet_address"
 
-class LendingTypeConfig:
+class LendingTypeConstant:
     lendingType ="lendingType"
     VTOKEN = "VTOKEN"
     TRAVA = "TRAVA"
     ERC20 = "ERC20"
     LENDING_POOL = "LENDING_POOL"
+
+class LendingPoolConstant:
+    DECIMALS = 8
+

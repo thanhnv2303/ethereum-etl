@@ -26,7 +26,7 @@ from web3.exceptions import BadFunctionCallOutput
 
 from artifacts.abi_pi.lending_pool_abi import LENDING_POOL_ABI
 from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
-from config.constant import WalletConstant, LendingTypeConfig, LoggerConstant
+from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, LendingPoolConstant
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
@@ -49,12 +49,12 @@ class EthLendingService(object):
         #     TokenABIConfig.VTOKEN: VToken_ABI
         # }
         self.mapping_handler = {
-            LendingTypeConfig.VTOKEN: self.get_lending_info_v_token,
-            LendingTypeConfig.LENDING_POOL: self.get_lending_info_pool
+            LendingTypeConstant.VTOKEN: self.get_lending_info_v_token,
+            LendingTypeConstant.LENDING_POOL: self.get_lending_info_pool
         }
 
     def get_lending_info(self, contract_address, address, block_identifier="latest",
-                         token_type=LendingTypeConfig.VTOKEN):
+                         token_type=LendingTypeConstant.VTOKEN):
         """
 
         :rtype: balance, pre_balance, supply, borrow, unit_token
@@ -122,8 +122,8 @@ class EthLendingService(object):
             totalCollateralETH, totalDebtETH, availableBorrowsETH, currentLiquidationThreshold, ltv, healthFactor = self._get_first_result(
                 contract.functions.getUserAccountData(checksum_address),
                 block_identifier=block_identifier)
-            supply = totalCollateralETH
-            borrow = totalDebtETH
+            supply = totalCollateralETH / 10 ** LendingPoolConstant.DECIMALS
+            borrow = totalDebtETH / 10 ** LendingPoolConstant.DECIMALS
             balance = 0
             pre_balance = 0
             unit_token = "usd"

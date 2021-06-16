@@ -22,8 +22,7 @@
 import logging
 
 from blockchainetl.jobs.base_job import BaseJob
-from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConfig, \
-    WalletConstant
+from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConstant
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
@@ -85,10 +84,10 @@ class ExportEventsJob(BaseJob):
         else:
             self.ethLendingService = EthLendingService(web3, clean_user_provided_content)
 
-        if subscriber_event.get(LendingTypeConfig.lendingType):
-            self.token_type = subscriber_event.get(LendingTypeConfig.lendingType)
+        if subscriber_event.get(LendingTypeConstant.lendingType):
+            self.token_type = subscriber_event.get(LendingTypeConstant.lendingType)
         else:
-            self.token_type = LendingTypeConfig.ERC20
+            self.token_type = LendingTypeConstant.ERC20
 
     def _init_events_subscription(self):
         event_abi = self.subscriber_event
@@ -130,6 +129,8 @@ class ExportEventsJob(BaseJob):
             eth_event = self.event_extractor.extract_event_from_log(log, self.event_subscriber)
             if eth_event is not None:
                 eth_event_dict = self.event_mapper.eth_event_to_dict(eth_event)
+                # logger.info("eth_event_dict ")
+                # logger.info(eth_event_dict)
                 self._update_wallet(eth_event_dict)
                 self.item_exporter.export_item(eth_event_dict)
 
