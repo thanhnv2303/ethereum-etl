@@ -184,6 +184,3 @@ def call_contract_function(func, ignore_errors, default_value=None, block_identi
             logger.exception(ex)
             return default_value
 
-
-# int("123123.0")
-print(str(int(round(2342.9999999999999999999999456456456456456456456))))
