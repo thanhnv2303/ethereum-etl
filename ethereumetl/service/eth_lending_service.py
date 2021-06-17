@@ -26,7 +26,8 @@ from web3.exceptions import BadFunctionCallOutput
 
 from artifacts.abi_pi.lending_pool_abi import LENDING_POOL_ABI
 from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
-from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, LendingPoolConstant, VTokenConstant
+from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, VTokenConstant
+from ethereumetl.erc20_abi import ERC20_ABI
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
@@ -54,7 +55,7 @@ class EthLendingService(object):
         }
 
     def get_lending_info(self, contract_address, address, block_identifier="latest",
-                         token_type=LendingTypeConstant.VTOKEN):
+                         token_type=LendingTypeConstant.VTOKEN, asset_address=None):
         """
 
         :rtype: balance, pre_balance, supply, borrow, unit_token
@@ -63,9 +64,9 @@ class EthLendingService(object):
         if not handler:
             logger.warning(f"getting lending info for smart contract type :{token_type} has not supported ")
             return
-        return handler(contract_address, address, block_identifier)
+        return handler(contract_address, address, block_identifier, asset_address)
 
-    def get_lending_info_v_token(self, contract_address, address, block_identifier="latest"):
+    def get_lending_info_v_token(self, contract_address, address, block_identifier="latest", asset_address=None):
         """
 
         :rtype: balance, pre_balance, supply, borrow, unit_token
@@ -112,7 +113,7 @@ class EthLendingService(object):
             # data_balance["data"] = None
             return None, None, None, None, None
 
-    def get_lending_info_pool(self, contract_address, address, block_identifier="latest"):
+    def get_lending_info_pool(self, contract_address, address, block_identifier="latest", asset_address=None):
         """
 
         :rtype: balance, pre_balance, supply, borrow, unit_token
@@ -129,21 +130,41 @@ class EthLendingService(object):
         contract = self.token_contract.get(contract_address)
 
         try:
-            totalCollateralETH, totalDebtETH, availableBorrowsETH, currentLiquidationThreshold, ltv, healthFactor = self._get_first_result(
-                contract.functions.getUserAccountData(checksum_address),
-                block_identifier=block_identifier)
-            supply = totalCollateralETH / 10 ** LendingPoolConstant.DECIMALS
-            borrow = totalDebtETH / 10 ** LendingPoolConstant.DECIMALS
+            # totalCollateralETH, totalDebtETH, availableBorrowsETH, currentLiquidationThreshold, ltv, healthFactor = self._get_first_result(
+            #     contract.functions.getUserAccountData(checksum_address),
+            #     block_identifier=block_identifier)
+            asset_address = self._web3.toChecksumAddress(asset_address)
+            ReserveData = self._get_first_result(contract.functions.getReserveData(asset_address),
+                                                 block_identifier=block_identifier)
+            tTokenAddress = str(ReserveData[6]).lower()
+            variableDebtTokenAddress = str(ReserveData[7]).lower()
+
+            if not self.token_contract.get(tTokenAddress):
+                checksum_token_address = self._web3.toChecksumAddress(tTokenAddress)
+                self.token_contract[tTokenAddress] = self._web3.eth.contract(address=checksum_token_address,
+                                                                             abi=ERC20_ABI)
+
+            if not self.token_contract.get(variableDebtTokenAddress):
+                checksum_token_address = self._web3.toChecksumAddress(variableDebtTokenAddress)
+                self.token_contract[variableDebtTokenAddress] = self._web3.eth.contract(address=checksum_token_address,
+                                                                                        abi=ERC20_ABI)
+
+            contract_tToken = self.token_contract.get(tTokenAddress)
+            contract_dToken = self.token_contract.get(variableDebtTokenAddress)
+            supply = self._get_first_result(contract_tToken.functions.balanceOf(checksum_address),
+                                            block_identifier=block_identifier)
+            borrow = self._get_first_result(contract_dToken.functions.balanceOf(checksum_address),
+                                            block_identifier=block_identifier)
             balance = 0
             pre_balance = 0
-            unit_token = "usd"
+            unit_token = str(asset_address).lower()
             return balance, pre_balance, supply, borrow, unit_token
 
         except Exception as e:
             logger.error(e)
             print(e)
             # data_balance["data"] = None
-            return None, None
+            return None, None, None, None, None
 
     def _get_first_result(self, *funcs, block_identifier="latest"):
         for func in funcs:
@@ -183,4 +204,3 @@ def call_contract_function(func, ignore_errors, default_value=None, block_identi
         else:
             logger.exception(ex)
             return default_value
-

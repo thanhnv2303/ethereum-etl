@@ -1,0 +1,2 @@
+class EventLendingConstant:
+    AssetName=["reserve"]

@@ -23,6 +23,7 @@ import logging
 
 from blockchainetl.jobs.base_job import BaseJob
 from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConstant
+from config.event_lending_constant import EventLendingConstant
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
@@ -148,9 +149,10 @@ class ExportEventsJob(BaseJob):
             address = eth_event_dict.get(address_field)
 
             if self._is_lending:
+                asset_address = get_asset_address(eth_event_dict)
                 balance, pre_balance, supply, borrow, unit_token = self.ethLendingService.get_lending_info(
                     contract_address, address, block_num,
-                    self.token_type)
+                    self.token_type,asset_address)
                 if balance != None and supply != None and borrow != None:
                     wallet = get_wallet_dict(address, balance, pre_balance, block_num, unit_token)
                     wallet_append_lending_info(wallet, supply, borrow)
@@ -165,3 +167,12 @@ class ExportEventsJob(BaseJob):
 
     def clean_cache(self):
         self.eth_events_dict_cache = []
+
+
+def get_asset_address(eth_event_dict):
+    list_asset_name = EventLendingConstant.AssetName
+    for asset_name in list_asset_name:
+        if eth_event_dict.get(asset_name):
+            return eth_event_dict.get(asset_name)
+
+    return None

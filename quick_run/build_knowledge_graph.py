@@ -31,6 +31,7 @@ if __name__ == '__main__':
     if not os.path.exists(geth_ipc_file):
         # provider_uri = "http://25.19.185.225:8545"
         provider_uri =  "https://bsc-dataseed.binance.org/"
+        # provider_uri =  "https://data-seed-prebsc-1-s1.binance.org:8545/"
     else:
         provider_uri = "file:///" + geth_ipc_file +",http://35.240.140.92:8545"
 
@@ -60,7 +61,7 @@ if __name__ == '__main__':
 
     provider_uri = pick_random_provider_uri(provider_uri)
     logging.info('Using ' + provider_uri)
-
+    tokens_filter_file = "artifacts/token_filter_bnb_testnet"
     streamer_adapter = EthKnowledgeGraphStreamerAdapter(
         provider_uri=provider_uri,
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
@@ -68,6 +69,7 @@ if __name__ == '__main__':
         batch_size=batch_size,
         max_workers=max_workers,
         entity_types=entity_types,
+        tokens_filter_file=tokens_filter_file,
         provider_uris=provider_uris
     )
     streamer = Streamer(
