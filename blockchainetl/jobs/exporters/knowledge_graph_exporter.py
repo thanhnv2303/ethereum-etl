@@ -131,6 +131,9 @@ class KnowledgeGraphExporter:
             wallet_in_db[WalletConstant.borrow] = borrow
 
             wallet[WalletConstant.balances] = balances
+            wallet[WalletConstant.supply] = supply
+            wallet[WalletConstant.borrow] = borrow
+
             wallet_in_db[WalletConstant.at_block_number] = item.get(TransactionConstant.block_number)
             start_time = time.time()
             self.data_base.replace_wallet(wallet_in_db)
