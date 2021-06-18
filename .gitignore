@@ -49,4 +49,5 @@ storage/.env
 venv/
 ENV/
 data
+quick_run/data
 
