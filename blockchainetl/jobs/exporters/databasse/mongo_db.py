@@ -33,7 +33,7 @@ class Database(object):
         if MongoIndexConstant.transfer_tx_id not in self.mongo_transactions_transfer.index_information():
             self.mongo_transactions_transfer.create_index([("hash", "hashed")], name=MongoIndexConstant.transfer_tx_id)
         if MongoIndexConstant.transfer_block_number not in self.mongo_transactions_transfer.index_information():
-            self.mongo_transactions_transfer.create_index([("block_num", "hashed")],
+            self.mongo_transactions_transfer.create_index([("block_number", "hashed")],
                                                           name=MongoIndexConstant.transfer_block_number)
         if MongoIndexConstant.wallet_address not in self.mongo_wallet.index_information():
             self.mongo_wallet.create_index([("address", "hashed")], name=MongoIndexConstant.wallet_address)
