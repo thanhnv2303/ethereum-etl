@@ -44,6 +44,8 @@ class WalletConstant:
     supply = "supply"
     borrow = "borrow"
     unit_token = "unit_token"
+    update_checkpoint = "update_checkpoint"
+    update_checkpoint_next_time = 86400
 
 
 class ExportItemConstant:
@@ -66,7 +68,7 @@ class LoggerConstant:
 
 
 class EthKnowledgeGraphStreamerAdapterConstant:
-    tokens_filter_file_default = "artifacts/token_filter"
+    tokens_filter_file_default = "artifacts/smart_contract_filter/token_filter"
     event_abi_dir_default = "artifacts/event-abi"
     batch_size_default = 100
     max_workers_default = 8
@@ -109,15 +111,18 @@ class MongoIndexConstant:
     transfer_block_number = "transfer_block_number"
     wallet_address = "wallet_address"
 
+
 class LendingTypeConstant:
-    lendingType ="lendingType"
+    lendingType = "lendingType"
     VTOKEN = "VTOKEN"
     TRAVA = "TRAVA"
     ERC20 = "ERC20"
     LENDING_POOL = "LENDING_POOL"
 
+
 class LendingPoolConstant:
     DECIMALS = 8
+
 
 class VTokenConstant:
     EXCHANGE_RATE_DECIMALS = 18

@@ -26,6 +26,7 @@ import time
 from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 from config.constant import EventFilterConstant, TokenConstant, TransactionConstant
+from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
@@ -34,6 +35,7 @@ from ethereumetl.mappers.wallet_mapper import get_wallet_dict
 from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.token_transfer_extractor import EthTokenTransferExtractor, TRANSFER_EVENT_TOPIC
 from ethereumetl.utils import validate_range
+from services.wallet_services import get_balance_at_block_smart_contract, update_balance_to_cache
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +81,7 @@ class ExportTokenTransfersJob(BaseJob):
             self.block_thread_hole = int(latest_block * 0.8)
 
     def _start(self):
+        self.wallet_storage = WalletMemoryStorage.getInstance()
         self.item_exporter.open()
 
     def _export(self):
@@ -140,12 +143,21 @@ class ExportTokenTransfersJob(BaseJob):
         to_address = token_transfer_dict.get(TransactionConstant.to_address)
         wallets = []
 
-        pre_from_balance = self.ethTokenService.get_balance(token_address, from_address, block_number - 1)
+        pre_from_balance, _wallet = get_balance_at_block_smart_contract(wallet_storage=self.wallet_storage,
+                                                                        ethService=self.ethTokenService,
+                                                                        address=from_address,
+                                                                        token_address=token_address,
+                                                                        block_number=block_number)
 
         if pre_from_balance == None:
             from_balance = 0
         else:
             from_balance = pre_from_balance - int(token_transfer_dict.get(TransactionConstant.value))
+
+            ## update to cache
+            update_balance_to_cache(wallet_storage=self.wallet_storage, _wallet=_wallet,
+                                    token_address=token_address,
+                                    balance=from_balance)
 
         if from_balance >= 0:
             wallet = get_wallet_dict(from_address, str(from_balance), str(pre_from_balance), block_number,
@@ -156,6 +168,12 @@ class ExportTokenTransfersJob(BaseJob):
             to_balance = 0
         else:
             to_balance = pre_to_balance + int(token_transfer_dict.get(TransactionConstant.value))
+
+            ## update to cache
+            update_balance_to_cache(wallet_storage=self.wallet_storage, _wallet=_wallet,
+                                    token_address=token_address,
+                                    balance=to_balance)
+
         if to_balance >= 0:
             wallet = get_wallet_dict(to_address, str(to_balance), str(pre_to_balance), block_number, token_address)
             wallets.append(wallet)

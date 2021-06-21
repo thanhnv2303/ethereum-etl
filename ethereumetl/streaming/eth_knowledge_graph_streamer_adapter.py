@@ -5,6 +5,7 @@ from web3.middleware import geth_poa_middleware
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant
+from data_storage.memory_storage import MemoryStorage
 from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
 from ethereumetl.jobs.export_knowledge_graph_needed_common import export_klg_with_item_exporter
 from ethereumetl.service.eth_lending_service import EthLendingService
