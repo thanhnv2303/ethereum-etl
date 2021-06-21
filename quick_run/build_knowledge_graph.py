@@ -10,7 +10,7 @@ from ethereumetl.service.eth_service import get_latest_block
 import logging
 from os import path
 
-from blockchainetl.streaming.streaming_utils import configure_signals, configure_logging
+from blockchainetl.streaming.streaming_utils import configure_signals
 from ethereumetl.cli.stream import parse_entity_types, validate_entity_types, pick_random_provider_uri
 from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.providers.auto import get_provider_from_uri
@@ -30,13 +30,14 @@ if __name__ == '__main__':
     geth_ipc_file = home + "/bsc-full-sync/node/geth.ipc"
 
     if not os.path.exists(geth_ipc_file):
-        # provider_uri = "http://25.19.185.225:8545"
-        provider_uri =  "https://bsc-dataseed.binance.org/"
+        provider_uri = "http://25.19.185.225:8545"
+        # provider_uri = "https://bsc-dataseed.binance.org/"
+        # provider_uri = "https://bsc-dataseed1.ninicoin.io/"
         # provider_uri =  "https://data-seed-prebsc-1-s1.binance.org:8545/"
     else:
-        provider_uri = "file:///" + geth_ipc_file +",http://35.240.140.92:8545"
+        provider_uri = "file:///" + geth_ipc_file + ",http://35.240.140.92:8545"
 
-    batch_size = 2
+    batch_size = 4
     max_workers = 8
 
     # start_block = 4678378
@@ -47,7 +48,7 @@ if __name__ == '__main__':
         # start_block = 7771629
     period_seconds = 2
     pid_file = None
-    block_batch_size = 2
+    block_batch_size = 16
 
     # configure_logging(log_file)
     configure_signals()
@@ -57,7 +58,6 @@ if __name__ == '__main__':
     from ethereumetl.streaming.item_exporter_creator import create_item_exporter
     from blockchainetl.streaming.streamer import Streamer
 
-    config_log(level=logging.DEBUG)
     # TODO: Implement fallback mechanism for provider uris instead of picking randomly
     provider_uris = [uri.strip() for uri in provider_uri.split(',')]
 
@@ -75,6 +75,7 @@ if __name__ == '__main__':
         tokens_filter_file=tokens_filter_file,
         provider_uris=provider_uris
     )
+    config_log(level=logging.DEBUG)
     streamer = Streamer(
         blockchain_streamer_adapter=streamer_adapter,
         last_synced_block_file=last_synced_block_file,

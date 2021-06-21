@@ -102,6 +102,7 @@ class ExportEventsJob(BaseJob):
             self.address_name_field = get_all_address_name_field(event_abi)
 
     def _start(self):
+        self.
         self.item_exporter.open()
 
     def _export(self):

@@ -103,13 +103,13 @@ class ExportBlocksJob(BaseJob):
         response = self.batch_web3_provider.make_batch_request(json.dumps(blocks_rpc))
         results = rpc_response_batch_to_results(response)
         end_time = time.time()
-        logger.debug(
-            f"time to get info blocks {block_number_batch[1] - block_number_batch[0]} is {end_time - start_time}")
+        logger.info(
+            f"time to get info blocks {block_number_batch[0]} - {block_number_batch[-1]} is {end_time - start_time}")
         blocks = [self.block_mapper.json_dict_to_block(result) for result in results]
         for block in blocks:
             self._export_block(block)
-        logger.debug(
-            f"total time to process {block_number_batch[-1] - block_number_batch[0]} blocks  is {time.time() - start_time}")
+        logger.info(
+            f"total time to process {block_number_batch[0]} - {block_number_batch[-1]} blocks  is {time.time() - start_time}")
 
     def _export_block(self, block):
         if self.export_blocks:
@@ -123,7 +123,7 @@ class ExportBlocksJob(BaseJob):
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
                 self._handler_transaction(transaction_dict)
 
-            logger.debug(f"total processed transaction {len(block.transactions)} take : {time.time() - start_time}s")
+            logger.info(f"total processed transaction {len(block.transactions)} take : {time.time() - start_time}s")
 
     def _handler_transaction(self, transaction_dict):
         block_number = int(transaction_dict.get(TransactionConstant.block_number))
@@ -156,7 +156,7 @@ class ExportBlocksJob(BaseJob):
                                                              ethService=self.ethService,
                                                              address=from_address, block_number=block_number - 1)
             end_time = time.time()
-            logger.debug(f"time to call get balance native token of " + from_address + "  is" + str(
+            logger.info(f"time to call get balance native token of {from_address} is" + str(
                 end_time - start_time))
             if pre_from_balance == None:
                 # pre_from_balance = 0
@@ -174,7 +174,7 @@ class ExportBlocksJob(BaseJob):
                                                            ethService=self.ethService,
                                                            address=to_address, block_number=block_number - 1)
             end_time = time.time()
-            logger.debug(f"time to call get balance native token of " + from_address + "  is" + str(
+            logger.info(f"time to call get balance native token of " + from_address + "  is" + str(
                 end_time - start_time))
             if pre_to_balance == None:
                 # pre_to_balance = 0

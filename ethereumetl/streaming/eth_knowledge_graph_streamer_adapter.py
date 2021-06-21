@@ -4,6 +4,7 @@ from web3 import Web3
 from web3.middleware import geth_poa_middleware
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
+from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant
 from data_storage.memory_storage import MemoryStorage
 from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
@@ -53,7 +54,8 @@ class EthKnowledgeGraphStreamerAdapter:
 
     def open(self):
         self.item_exporter.open()
-
+    def get_wallet_filter(self):
+        self.database = Database()
     def get_current_block_number(self):
         return int(self.w3.eth.blockNumber)
 

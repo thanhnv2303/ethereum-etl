@@ -28,7 +28,7 @@ def _get_origin_shop_products(receipt_log, listing_id, ipfs_client, shop_ipfs_ha
     shop_data_dir = _get_shop_data_dir(shop_index_page)
 
     path = "{}/{}".format(shop_ipfs_hash, shop_data_dir) if shop_data_dir else shop_ipfs_hash
-    logger.debug("Using shop path {}".format(path))
+    logger.info("Using shop path {}".format(path))
 
     products_path = "{}/{}".format(path, 'products.json')
     try:

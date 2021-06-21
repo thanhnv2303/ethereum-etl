@@ -88,3 +88,6 @@ class Database(object):
         data = {"$set": token}
 
         res = self.mongo_tokens.update_one(key, data, upsert=True)
+
+    def get_all_wallet(self):
+        return self.mongo_wallet.find({})
