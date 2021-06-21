@@ -1,6 +1,8 @@
 import os
 import sys
 
+from services.log_services import config_log
+
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
@@ -56,6 +58,7 @@ if __name__ == '__main__':
     logging.info('Using ' + provider_uri)
     first_time = True
 
+    config_log(level=logging.DEBUG)
     streamer_adapter = EthKnowledgeGraphStreamerAdapter(
         provider_uri=provider_uri,
         tokens_filter_file=tokens_filter_file,

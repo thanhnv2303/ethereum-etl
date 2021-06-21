@@ -142,13 +142,13 @@ class ExportTokenTransfersJob(BaseJob):
         from_address = token_transfer_dict.get(TransactionConstant.from_address)
         to_address = token_transfer_dict.get(TransactionConstant.to_address)
         wallets = []
-
+        start_time = time.time()
         pre_from_balance, _wallet = get_balance_at_block_smart_contract(wallet_storage=self.wallet_storage,
                                                                         ethService=self.ethTokenService,
                                                                         address=from_address,
                                                                         token_address=token_address,
                                                                         block_number=block_number)
-
+        logger.debug(f"time to get balance of {from_address} at block num {block_number} is {time.time() - start_time}")
         if pre_from_balance == None:
             from_balance = 0
         else:
@@ -163,7 +163,15 @@ class ExportTokenTransfersJob(BaseJob):
             wallet = get_wallet_dict(from_address, str(from_balance), str(pre_from_balance), block_number,
                                      token_address)
             wallets.append(wallet)
-        pre_to_balance = self.ethTokenService.get_balance(token_address, to_address, block_number - 1)
+
+        start_time = time.time()
+        pre_to_balance, _wallet = get_balance_at_block_smart_contract(wallet_storage=self.wallet_storage,
+                                                                      ethService=self.ethTokenService,
+                                                                      address=token_address,
+                                                                      token_address=token_address,
+                                                                      block_number=block_number)
+
+        logger.debug(f"time to get balance of {from_address} at block num {block_number} is {time.time() - start_time}")
         if pre_to_balance == None:
             to_balance = 0
         else:
