@@ -49,7 +49,6 @@ class ExportSubscriberEventsJob(BaseJob):
             item_exporter,
             max_workers,
             subscriber_events,
-            is_lending=False,
             tokens=None,
             ethTokenService=None,
             ethLendingService=None
@@ -58,7 +57,6 @@ class ExportSubscriberEventsJob(BaseJob):
         self.start_block = start_block
         self.end_block = end_block
 
-        self._is_lending = is_lending
         self.web3 = web3
         self.tokens = tokens
         self.item_exporter = item_exporter

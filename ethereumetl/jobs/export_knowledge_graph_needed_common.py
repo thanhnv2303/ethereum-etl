@@ -361,6 +361,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         # print(transaction_hashes)
         # # # token_transfers # # #
         # token_set = set()
+        start_transfer = time()
         if is_log_filter_supported(provider_uri):
             job = ExportTokenTransfersJob(
                 start_block=batch_start_block,
@@ -378,7 +379,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
             # token_transfers_dict = job.get_cache()
             # token_addresses = extract_dict_key_to_list(token_transfers_dict, "contract_address")
             # token_set.update(token_addresses)
-
+            logger.info(f"time to export transfer {time() - start_transfer}s")
         # print("token set in transfer")
         # print(token_set)
         # # # events in artifacts/event-abi # # #
@@ -416,6 +417,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                 #         ethLendingService=ethLendingService
                 #     )
                 #     job.run()
+        start_export_event = time()
         job = ExportSubscriberEventsJob(
             batch_start_block,
             batch_end_block,
@@ -424,13 +426,12 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
             item_exporter,
             max_workers,
             subscriber_events,
-            is_lending=False,
-            tokens=None,
-            ethTokenService=None,
-            ethLendingService=None
+            tokens=tokens,
+            ethTokenService=ethTokenService,
+            ethLendingService=ethLendingService
         )
         job.run()
-
+        logger.info(f"time to extract all events {time() - start_export_event}s")
         # # # # tokens # # #
         now = datetime.datetime.now()
         memomory_storage = MemoryStorage.getInstance()
