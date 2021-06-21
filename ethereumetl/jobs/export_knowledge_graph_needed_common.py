@@ -33,6 +33,7 @@ from web3 import Web3
 
 from blockchainetl.file_utils import smart_open
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant, EventConstant, TimeUpdateConstant
+from data_storage.memory_storage import MemoryStorage
 from ethereumetl.csv_utils import set_max_field_size_limit
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_events_job import ExportEventsJob
@@ -432,8 +433,9 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
 
         # # # # tokens # # #
         now = datetime.datetime.now()
+        memomory_storage = MemoryStorage.getInstance()
         if (now.hour == TimeUpdateConstant.token_update_hour and now.minute < TimeUpdateConstant.token_update_minute) \
-                or first_time:
+                or memomory_storage.get("first_time"):
             job = ExportTokensJob(
                 token_addresses_iterable=tokens,
                 web3=thread_local_proxy,
@@ -442,7 +444,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                 ethTokenService=ethTokenService
             )
             job.run()
-            first_time = False
+            memomory_storage.set("first_time", False)
         # print("token exported")
         # print(job.get_cache())
         job.clean_cache()

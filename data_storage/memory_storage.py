@@ -16,10 +16,10 @@ class MemoryStorage:
             MemoryStorage.__instance = self
         self.storage = {}
 
-    def set_element(self, key, value):
+    def set(self, key, value):
         self.storage[key] = value
 
-    def get_element(self, key):
+    def get(self, key):
         return self.storage.get(key)
 
     def get_keys(self):
