@@ -32,12 +32,13 @@ from time import time
 from web3 import Web3
 
 from blockchainetl.file_utils import smart_open
-from config.constant import EthKnowledgeGraphStreamerAdapterConstant, EventConstant, TimeUpdateConstant
+from config.constant import EthKnowledgeGraphStreamerAdapterConstant, TimeUpdateConstant
 from data_storage.memory_storage import MemoryStorage
 from ethereumetl.csv_utils import set_max_field_size_limit
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_events_job import ExportEventsJob
 from ethereumetl.jobs.export_receipts_job import ExportReceiptsJob
+from ethereumetl.jobs.export_subscriber_events_job import ExportSubscriberEventsJob
 from ethereumetl.jobs.export_token_transfers_job import ExportTokenTransfersJob
 from ethereumetl.jobs.export_tokens_job import ExportTokensJob
 from ethereumetl.jobs.exporters.blocks_and_transactions_item_exporter import blocks_and_transactions_item_exporter
@@ -384,6 +385,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
 
         dir_path = event_abi_dir
         cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"
+        subscriber_events = []
         for root, dirs, files in os.walk(cur_path + dir_path):
 
             for filename in files:
@@ -391,51 +393,49 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
 
                 with open(file_path) as json_file:
                     subscriber_event = json.load(json_file)
+                    subscriber_events.append(subscriber_event)
+                # has_get_balance = subscriber_event.get(EventConstant.isLending)
 
-                has_get_balance = subscriber_event.get(EventConstant.isLending)
-
-                if is_log_filter_supported(provider_uri):
-                    # add_fields_to_export = []
-                    # for input in inputs:
-                    #     if input:
-                    #         add_fields_to_export.append(input.get(EventConstant.name))
-
-                    job = ExportEventsJob(
-                        start_block=batch_start_block,
-                        end_block=batch_end_block,
-                        batch_size=batch_size,
-                        web3=thread_local_proxy,
-                        item_exporter=item_exporter,
-                        max_workers=max_workers,
-                        subscriber_event=subscriber_event,
-                        is_lending=has_get_balance,
-                        tokens=tokens,
-                        ethTokenService=ethTokenService,
-                        ethLendingService=ethLendingService
-                    )
-                    job.run()
-                    # event_dicts = job.get_cache()
-                    # contract_address = extract_dict_key_to_list(event_dicts, "contract_address")
-                    # token_set.update(contract_address)
-
-        # # # receipts_and_logs # # #
-        # print("token set after get contact")
-        # print(token_set)
-
-        # job = ExportReceiptsJob(
-        #     # transaction_hashes_iterable=(transaction_hash.strip() for transaction_hash in transaction_hashes),
-        #     transaction_hashes_iterable=transaction_hashes,
-        #     batch_size=batch_size,
-        #     batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),
-        #     max_workers=max_workers,
-        #     item_exporter=item_exporter, )
-        # job.run()
+                # if is_log_filter_supported(provider_uri):
+                #     # add_fields_to_export = []
+                #     # for input in inputs:
+                #     #     if input:
+                #     #         add_fields_to_export.append(input.get(EventConstant.name))
+                #
+                #     job = ExportEventsJob(
+                #         start_block=batch_start_block,
+                #         end_block=batch_end_block,
+                #         batch_size=batch_size,
+                #         web3=thread_local_proxy,
+                #         item_exporter=item_exporter,
+                #         max_workers=max_workers,
+                #         subscriber_event=subscriber_event,
+                #         is_lending=has_get_balance,
+                #         tokens=tokens,
+                #         ethTokenService=ethTokenService,
+                #         ethLendingService=ethLendingService
+                #     )
+                #     job.run()
+        job = ExportSubscriberEventsJob(
+            batch_start_block,
+            batch_end_block,
+            batch_size,
+            thread_local_proxy,
+            item_exporter,
+            max_workers,
+            subscriber_events,
+            is_lending=False,
+            tokens=None,
+            ethTokenService=None,
+            ethLendingService=None
+        )
+        job.run()
 
         # # # # tokens # # #
         now = datetime.datetime.now()
         memomory_storage = MemoryStorage.getInstance()
         if (now.hour == TimeUpdateConstant.token_update_hour and now.minute < TimeUpdateConstant.token_update_minute) \
-                or memomory_storage.get("first_time"):
+                or not memomory_storage.get("first_time"):
             job = ExportTokensJob(
                 token_addresses_iterable=tokens,
                 web3=thread_local_proxy,
@@ -444,7 +444,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                 ethTokenService=ethTokenService
             )
             job.run()
-            memomory_storage.set("first_time", False)
+            memomory_storage.set("first_time", True)
         # print("token exported")
         # print(job.get_cache())
         job.clean_cache()
