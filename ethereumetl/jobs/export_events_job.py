@@ -24,6 +24,7 @@ import logging
 from blockchainetl.jobs.base_job import BaseJob
 from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConstant
 from config.event_lending_constant import EventLendingConstant
+from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
@@ -102,7 +103,7 @@ class ExportEventsJob(BaseJob):
             self.address_name_field = get_all_address_name_field(event_abi)
 
     def _start(self):
-        self.
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
         self.item_exporter.open()
 
     def _export(self):
@@ -153,11 +154,13 @@ class ExportEventsJob(BaseJob):
                 asset_address = get_asset_address(eth_event_dict)
                 balance, pre_balance, supply, borrow, unit_token = self.ethLendingService.get_lending_info(
                     contract_address, address, block_num,
-                    self.token_type,asset_address)
+                    self.token_type, asset_address)
                 if balance != None and supply != None and borrow != None:
                     wallet = get_wallet_dict(address, balance, pre_balance, block_num, unit_token)
                     wallet_append_lending_info(wallet, supply, borrow)
                     wallets.append(wallet)
+
+                    self.wallet_filter.set(address, wallet)
 
         eth_event_dict[TransactionConstant.wallets] = wallets
 

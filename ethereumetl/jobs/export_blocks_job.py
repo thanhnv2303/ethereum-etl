@@ -28,6 +28,7 @@ from web3 import Web3
 
 from blockchainetl.jobs.base_job import BaseJob
 from config.constant import LoggerConstant, TransactionConstant, TokenConstant
+from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.json_rpc_requests import generate_get_block_by_number_json_rpc
@@ -88,6 +89,7 @@ class ExportBlocksJob(BaseJob):
 
     def _start(self):
         self.wallet_storage = WalletMemoryStorage.getInstance()
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
         self.item_exporter.open()
 
     def _export(self):
@@ -144,6 +146,10 @@ class ExportBlocksJob(BaseJob):
             block_number = transaction_dict.get(TransactionConstant.block_number)
             from_address = transaction_dict.get(TransactionConstant.from_address)
             to_address = transaction_dict.get(TransactionConstant.to_address)
+
+            if self.wallet_filter.get(from_address) or self.wallet_filter.get(to_address):
+                return
+
             value = transaction_dict.get(TransactionConstant.value)
             if value:
                 value = int(value)

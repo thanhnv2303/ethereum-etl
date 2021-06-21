@@ -26,6 +26,7 @@ import time
 from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 from config.constant import EventFilterConstant, TokenConstant, TransactionConstant
+from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
@@ -82,6 +83,7 @@ class ExportTokenTransfersJob(BaseJob):
 
     def _start(self):
         self.wallet_storage = WalletMemoryStorage.getInstance()
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
         self.item_exporter.open()
 
     def _export(self):
@@ -141,6 +143,10 @@ class ExportTokenTransfersJob(BaseJob):
         token_address = token_transfer_dict.get(TokenConstant.contract_address)
         from_address = token_transfer_dict.get(TransactionConstant.from_address)
         to_address = token_transfer_dict.get(TransactionConstant.to_address)
+
+        if self.wallet_filter.get(from_address) or self.wallet_filter.get(to_address):
+            return
+        
         wallets = []
         start_time = time.time()
         pre_from_balance, _wallet = get_balance_at_block_smart_contract(wallet_storage=self.wallet_storage,
