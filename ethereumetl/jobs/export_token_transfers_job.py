@@ -144,9 +144,9 @@ class ExportTokenTransfersJob(BaseJob):
         from_address = token_transfer_dict.get(TransactionConstant.from_address)
         to_address = token_transfer_dict.get(TransactionConstant.to_address)
 
-        if self.wallet_filter.get(from_address) or self.wallet_filter.get(to_address):
+        if not self.wallet_filter.get(from_address) and not self.wallet_filter.get(to_address):
             return
-        
+
         wallets = []
         start_time = time.time()
         pre_from_balance, _wallet = get_balance_at_block_smart_contract(wallet_storage=self.wallet_storage,

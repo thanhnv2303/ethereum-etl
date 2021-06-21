@@ -147,7 +147,7 @@ class ExportBlocksJob(BaseJob):
             from_address = transaction_dict.get(TransactionConstant.from_address)
             to_address = transaction_dict.get(TransactionConstant.to_address)
 
-            if self.wallet_filter.get(from_address) or self.wallet_filter.get(to_address):
+            if not self.wallet_filter.get(from_address) and not self.wallet_filter.get(to_address):
                 return
 
             value = transaction_dict.get(TransactionConstant.value)
