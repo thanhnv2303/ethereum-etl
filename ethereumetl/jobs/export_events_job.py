@@ -102,7 +102,6 @@ class ExportEventsJob(BaseJob):
             self.address_name_field = get_all_address_name_field(event_abi)
 
     def _start(self):
-        self.
         self.item_exporter.open()
 
     def _export(self):
@@ -153,7 +152,7 @@ class ExportEventsJob(BaseJob):
                 asset_address = get_asset_address(eth_event_dict)
                 balance, pre_balance, supply, borrow, unit_token = self.ethLendingService.get_lending_info(
                     contract_address, address, block_num,
-                    self.token_type,asset_address)
+                    self.token_type, asset_address)
                 if balance != None and supply != None and borrow != None:
                     wallet = get_wallet_dict(address, balance, pre_balance, block_num, unit_token)
                     wallet_append_lending_info(wallet, supply, borrow)

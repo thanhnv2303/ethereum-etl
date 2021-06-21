@@ -5,8 +5,8 @@ from web3.middleware import geth_poa_middleware
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
-from config.constant import EthKnowledgeGraphStreamerAdapterConstant
-from data_storage.memory_storage import MemoryStorage
+from config.constant import EthKnowledgeGraphStreamerAdapterConstant, WalletConstant
+from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
 from ethereumetl.jobs.export_knowledge_graph_needed_common import export_klg_with_item_exporter
 from ethereumetl.service.eth_lending_service import EthLendingService
@@ -54,8 +54,15 @@ class EthKnowledgeGraphStreamerAdapter:
 
     def open(self):
         self.item_exporter.open()
+
     def get_wallet_filter(self):
         self.database = Database()
+        self.wallet_filter = WalletFilterMemoryStorage()
+        wallets = self.database.get_all_wallet()
+        for wallet in wallets:
+            address = wallet.get(WalletConstant.address)
+            self.wallet_filter.set(address, wallet)
+
     def get_current_block_number(self):
         return int(self.w3.eth.blockNumber)
 
