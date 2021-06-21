@@ -50,7 +50,7 @@ class BuildKnowledgeGraphConfig:
     PERIOD_SECONDS = os.environ.get("KNOWLEDGE_GRAPH_PERIOD_SECONDS") or 10
     PID_FILE = os.environ.get("KNOWLEDGE_GRAPH_PID_FILE") or None
     BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BLOCK_BATCH_SIZE") or 24
-    TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_TOKENS_FILTER_FILE") or "artifacts/token_filter"
+    TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/token_filter"
     EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_EVENT_ABI_DIR") or "artifacts/event-abi"
 
 
@@ -64,8 +64,10 @@ class KLGLendingStreamerAdapterConfig:
     PERIOD_SECONDS = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PERIOD_SECONDS") or 10
     PID_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PID_FILE") or None
     BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_BLOCK_BATCH_SIZE") or 24
-    TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_TOKENS_FILTER_FILE") or "artifacts/token_filter"
-    V_TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_V_TOKENS_FILTER_FILE") or "artifacts/vToken_filter"
+    TOKENS_FILTER_FILE = os.environ.get(
+        "KNOWLEDGE_GRAPH_LENDING_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/token_filter"
+    V_TOKENS_FILTER_FILE = os.environ.get(
+        "KNOWLEDGE_GRAPH_LENDING_V_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/vToken_filter"
     EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_LENDING_EVENT_ABI_DIR") or "artifacts/event-abi"
     LIST_TOKEN_FILTER = os.environ.get(
         "KNOWLEDGE_GRAPH_LENDING_LIST_TOKEN_FILTER") or "artifacts/token_credit_info/listToken.txt"
