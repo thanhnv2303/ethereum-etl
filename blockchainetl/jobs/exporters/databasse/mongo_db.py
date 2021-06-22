@@ -79,7 +79,7 @@ class Database(object):
         if not self.mongo_token_collection_dict.get(token_address):
             self.mongo_token_collection_dict[token_address] = self.mongo_db[token_address]
             self.mongo_token_collection_dict[token_address].create_index([("transaction_hash", "hashed")])
-            self.mongo_token_collection_dict[token_address].create_index([("block_num", "hashed")])
+            self.mongo_token_collection_dict[token_address].create_index([("block_number", "hashed")])
 
         self.mongo_token_collection_dict[token_address].insert_one(event)
 
