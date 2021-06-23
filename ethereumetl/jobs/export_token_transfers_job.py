@@ -25,7 +25,8 @@ import time
 
 from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
-from config.constant import EventFilterConstant, TokenConstant, TransactionConstant
+from config.constant import EventFilterConstant, TokenConstant, TransactionConstant, TestPerformanceConstant
+from data_storage.memory_storage import MemoryStorage
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
@@ -81,6 +82,8 @@ class ExportTokenTransfersJob(BaseJob):
         if latest_block:
             self.block_thread_hole = int(latest_block * 0.8)
 
+        self.local_storage = MemoryStorage.getInstance()
+
     def _start(self):
         self.wallet_storage = WalletMemoryStorage.getInstance()
         self.wallet_filter = WalletFilterMemoryStorage.getInstance()
@@ -95,6 +98,7 @@ class ExportTokenTransfersJob(BaseJob):
 
     def _export_batch(self, block_number_batch):
         # self.token_dict_cache = []
+        start = time.time()
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
         filter_params = {
@@ -108,6 +112,9 @@ class ExportTokenTransfersJob(BaseJob):
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
 
+        total_time = self.local_storage.get(TestPerformanceConstant.get_transfer_filter_time)
+
+        self.local_storage.set(TestPerformanceConstant.get_transfer_filter_time, total_time + time.time() - start)
         for event in events:
             self._handler_event(event)
         self.web3.eth.uninstallFilter(event_filter.filter_id)

@@ -89,7 +89,7 @@ class Streamer:
     def _sync_cycle(self):
         current_block = self.blockchain_streamer_adapter.get_current_block_number()
         if current_block - 150 > self.last_synced_block:
-            self.last_synced_block = current_block - 1
+            self.last_synced_block = current_block - 4
         target_block = self._calculate_target_block(current_block, self.last_synced_block)
         logging.info("target_block")
         logging.info(target_block)

@@ -27,7 +27,8 @@ import time
 from web3 import Web3
 
 from blockchainetl.jobs.base_job import BaseJob
-from config.constant import LoggerConstant, TransactionConstant, TokenConstant
+from config.constant import LoggerConstant, TransactionConstant, TokenConstant, TestPerformanceConstant
+from data_storage.memory_storage import MemoryStorage
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
@@ -86,6 +87,7 @@ class ExportBlocksJob(BaseJob):
             self.w3 = Web3(batch_web3_provider)
         self.ethService = EthService(self.w3, provider_uris)
         # self.ethService = EthService(batch_web3_provider)
+        self.local_storage = MemoryStorage.getInstance()
 
     def _start(self):
         self.wallet_storage = WalletMemoryStorage.getInstance()
@@ -105,6 +107,9 @@ class ExportBlocksJob(BaseJob):
         response = self.batch_web3_provider.make_batch_request(json.dumps(blocks_rpc))
         results = rpc_response_batch_to_results(response)
         end_time = time.time()
+        get_block_by_number_time = self.local_storage.get(TestPerformanceConstant.get_block_by_number_json)
+        self.local_storage.set(TestPerformanceConstant.get_block_by_number_json,
+                               get_block_by_number_time + (time.time() - start_time))
         logger.info(
             f"time to get info blocks {block_number_batch[0]} - {block_number_batch[-1]} is {end_time - start_time}")
         blocks = [self.block_mapper.json_dict_to_block(result) for result in results]

@@ -32,7 +32,7 @@ from time import time
 from web3 import Web3
 
 from blockchainetl.file_utils import smart_open
-from config.constant import EthKnowledgeGraphStreamerAdapterConstant, TimeUpdateConstant
+from config.constant import EthKnowledgeGraphStreamerAdapterConstant, TimeUpdateConstant, TestPerformanceConstant
 from data_storage.memory_storage import MemoryStorage
 from ethereumetl.csv_utils import set_max_field_size_limit
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
@@ -333,9 +333,21 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
 
     for batch_start_block, batch_end_block, partition_dir in partitions:
         # # # start # # #
-        start_time = time()
+        job_start_time = time()
         padded_batch_start_block = str(batch_start_block).zfill(8)
         padded_batch_end_block = str(batch_end_block).zfill(8)
+
+        """
+        init local storage to calculate time test performance
+        """
+        local_storage = MemoryStorage.getInstance()
+        local_storage.set(TestPerformanceConstant.get_transfer_filter_time, 0)
+        local_storage.set(TestPerformanceConstant.get_event_filter_time, 0)
+        local_storage.set(TestPerformanceConstant.get_balance_smart_contract_time, 0)
+        local_storage.set(TestPerformanceConstant.get_balance_time, 0)
+        local_storage.set(TestPerformanceConstant.get_block_by_number_json, 0)
+        local_storage.set(TestPerformanceConstant.get_lending_info_trava_time, 0)
+        local_storage.set(TestPerformanceConstant.get_lending_info_vtoken_time, 0)
 
         block_range = '{padded_batch_start_block}-{padded_batch_end_block}'.format(
             padded_batch_start_block=padded_batch_start_block,
@@ -450,10 +462,38 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         # print(job.get_cache())
         job.clean_cache()
 
+        """
+        Show total time to call from provider
+        """
+        get_transfer_filter_time = local_storage.get(TestPerformanceConstant.get_transfer_filter_time)
+        get_event_filter_time = local_storage.get(TestPerformanceConstant.get_event_filter_time)
+        get_balance_smart_contract_time = local_storage.get(TestPerformanceConstant.get_balance_smart_contract_time)
+        get_balance_time = local_storage.get(TestPerformanceConstant.get_balance_time)
+        get_block_by_number_json = local_storage.get(TestPerformanceConstant.get_block_by_number_json)
+        get_lending_info_trava_time = local_storage.get(TestPerformanceConstant.get_lending_info_trava_time)
+        get_lending_info_vtoken_time = local_storage.get(TestPerformanceConstant.get_lending_info_vtoken_time)
+        total_time = get_transfer_filter_time + \
+                     get_event_filter_time + \
+                     get_balance_smart_contract_time + \
+                     get_balance_time + get_block_by_number_json + \
+                     get_lending_info_trava_time + \
+                     get_lending_info_vtoken_time
+
+        logger.info(f"Exporting blocks {block_range} get_transfer_filter_time take {get_transfer_filter_time}")
+        logger.info(f"Exporting blocks {block_range} get_event_filter_time take {get_event_filter_time}")
+        logger.info(
+            f"Exporting blocks {block_range} get_balance_smart_contract_time take {get_balance_smart_contract_time}")
+        logger.info(f"Exporting blocks {block_range} get_balance_time take {get_balance_time}")
+        logger.info(f"Exporting blocks {block_range} get_block_by_number_json take {get_block_by_number_json}")
+        logger.info(f"Exporting blocks {block_range} get_lending_info_trava_time take {get_lending_info_trava_time}")
+        logger.info(f"Exporting blocks {block_range} get_lending_info_vtoken_time take {get_lending_info_vtoken_time}")
+        logger.info(f"Exporting blocks {block_range} get_lending_info_vtoken_time take {get_lending_info_vtoken_time}")
+        logger.info(f"Exporting blocks {block_range} total time call provider take {total_time}")
+
         # # # finish # # #
         # shutil.rmtree(os.path.dirname(cache_output_dir))
         end_time = time()
-        time_diff = round(end_time - start_time, 5)
+        time_diff = end_time - job_start_time
         logger.info('Exporting blocks {block_range} took {time_diff} seconds'.format(
             block_range=block_range,
             time_diff=time_diff,

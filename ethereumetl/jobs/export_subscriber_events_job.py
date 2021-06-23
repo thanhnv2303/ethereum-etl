@@ -22,7 +22,7 @@
 import logging
 
 from blockchainetl.jobs.base_job import BaseJob
-from config.constant import EventConstant, TokenConstant, TransactionConstant, LendingTypeConstant
+from config.constant import EventConstant
 from config.event_lending_constant import EventLendingConstant
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
@@ -30,7 +30,6 @@ from ethereumetl.jobs.export_events_job import ExportEventsJob
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
-from ethereumetl.mappers.wallet_mapper import get_wallet_dict, wallet_append_lending_info
 from ethereumetl.service.eth_lending_service import EthLendingService
 from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.event_extractor import EthEventExtractor
@@ -84,7 +83,6 @@ class ExportSubscriberEventsJob(BaseJob):
         else:
             self.ethLendingService = EthLendingService(web3, clean_user_provided_content)
 
-
     def _start(self):
         self.wallet_filter = WalletFilterMemoryStorage.getInstance()
         self.item_exporter.open()
@@ -95,6 +93,7 @@ class ExportSubscriberEventsJob(BaseJob):
             self._export_batch,
             total_items=len(self.subscriber_events)
         )
+        # self._export_batch(subscriber_events=self.subscriber_events)
 
     def _export_batch(self, subscriber_events):
         for subscriber_event in subscriber_events:
@@ -117,8 +116,6 @@ class ExportSubscriberEventsJob(BaseJob):
     def _end(self):
         self.batch_work_executor.shutdown()
         self.item_exporter.close()
-
-
 
     def get_cache(self):
         return self.eth_events_dict_cache

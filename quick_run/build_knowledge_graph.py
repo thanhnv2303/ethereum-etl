@@ -30,9 +30,12 @@ if __name__ == '__main__':
     geth_ipc_file = home + "/bsc-full-sync/node/geth.ipc"
 
     if not os.path.exists(geth_ipc_file):
-        provider_uri = "http://25.19.185.225:8545"
+        # provider_uri = "http://25.19.185.225:8545"
         # provider_uri = "https://bsc-dataseed.binance.org/"
+        # provider_uri = "https://bsc-dataseed1.defibit.io/"
         # provider_uri = "https://bsc-dataseed1.ninicoin.io/"
+        # provider_uri = "https://bsc-dataseed2.defibit.io/"
+        provider_uri = "https://bsc-dataseed4.binance.org/"
         # provider_uri =  "https://data-seed-prebsc-1-s1.binance.org:8545/"
     else:
         provider_uri = "file:///" + geth_ipc_file + ",http://35.240.140.92:8545"
@@ -48,7 +51,7 @@ if __name__ == '__main__':
         # start_block = 7771629
     period_seconds = 2
     pid_file = None
-    block_batch_size = 16
+    block_batch_size = 32
 
     # configure_logging(log_file)
     configure_signals()
