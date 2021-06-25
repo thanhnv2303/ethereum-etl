@@ -16,22 +16,6 @@ services:
     volumes:
       - ./data/mongodb/data/:/data/db/
 
-#  neo4j-klg:
-#    image: neo4j:4.0.3
-#    hostname: neo4j
-#    container_name: neo4j-klg
-#    ports:
-#      - ${NEO4J_HTTP_PORT}:7474
-#      - ${NEO4J_HTTPS_PORT}:7473
-#      - ${NEO4J_BOTH_PORT}:7687
-#    volumes:
-#      - ./neo4j/plugins:/plugins
-#    env_file:
-#      - ./.env
-#    environment:
-#      NEO4J_AUTH: ${NEO4J_USERNAME}/${NEO4J_PASSWORD}
-#      NEO4J_dbms_logs_debug_level: DEBUG
-
   build-knowledge-graph:
     build:
       context: .
@@ -53,27 +37,3 @@ services:
       - MONGO_PORT=27017
       - NEO4J_HOST=neo4j-klg
       - NEO4J_BOTH_PORT=7687
-
-#  knowledge-graph-lending:
-#    build:
-#      context: .
-#      dockerfile: ./Dockerfile
-#    image: build-knowledge-graph
-#    container_name: knowledge-graph-lending-module2
-#    depends_on:
-#      - mongo-export
-#      - neo4j-klg
-#    volumes:
-#      - .:/project
-#    command: |
-#      bash -c "
-#      sleep 20
-#        python3 ./docker_run/extract_to_knowledge_graph_neo4j.py
-#      "
-#    env_file:
-#      - ./.env
-#    environment:
-#      - MONGO_HOST=mongo-export
-#      - MONGO_PORT=27017
-#      - NEO4J_HOST=neo4j-klg
-#      - NEO4J_BOTH_PORT=7687
