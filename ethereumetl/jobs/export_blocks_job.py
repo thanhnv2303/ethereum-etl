@@ -27,7 +27,10 @@ import time
 from web3 import Web3
 
 from blockchainetl.jobs.base_job import BaseJob
-from config.constant import LoggerConstant, TransactionConstant, TokenConstant
+from config.config import FilterConfig
+from config.constant import LoggerConstant, TransactionConstant, TokenConstant, TestPerformanceConstant
+from data_storage.memory_storage import MemoryStorage
+from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.mappers.block_mapper import EthBlockMapper
@@ -36,6 +39,7 @@ from ethereumetl.mappers.wallet_mapper import get_wallet_dict
 from ethereumetl.service.eth_service import EthService
 from services.json_rpc_requests import generate_get_block_by_number_json_rpc
 from services.wallet_services import get_balance_at_block, update_balance_to_cache
+from utils.boolean_utils import to_bool
 from utils.utils import rpc_response_batch_to_results, validate_range
 
 logger = logging.getLogger(LoggerConstant.ExportBlocksJob)
@@ -85,9 +89,13 @@ class ExportBlocksJob(BaseJob):
             self.w3 = Web3(batch_web3_provider)
         self.ethService = EthService(self.w3, provider_uris)
         # self.ethService = EthService(batch_web3_provider)
+        self.local_storage = MemoryStorage.getInstance()
+
+        self.filter_for_lending = to_bool(FilterConfig.FILTER_FOR_LENDING)
 
     def _start(self):
         self.wallet_storage = WalletMemoryStorage.getInstance()
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
         self.item_exporter.open()
 
     def _export(self):
@@ -103,6 +111,9 @@ class ExportBlocksJob(BaseJob):
         response = self.batch_web3_provider.make_batch_request(json.dumps(blocks_rpc))
         results = rpc_response_batch_to_results(response)
         end_time = time.time()
+        get_block_by_number_time = self.local_storage.get(TestPerformanceConstant.get_block_by_number_json)
+        self.local_storage.set(TestPerformanceConstant.get_block_by_number_json,
+                               get_block_by_number_time + (time.time() - start_time))
         logger.info(
             f"time to get info blocks {block_number_batch[0]} - {block_number_batch[-1]} is {end_time - start_time}")
         blocks = [self.block_mapper.json_dict_to_block(result) for result in results]
@@ -144,6 +155,11 @@ class ExportBlocksJob(BaseJob):
             block_number = transaction_dict.get(TransactionConstant.block_number)
             from_address = transaction_dict.get(TransactionConstant.from_address)
             to_address = transaction_dict.get(TransactionConstant.to_address)
+
+            if self.filter_for_lending and not self.wallet_filter.get(from_address) \
+                    and not self.wallet_filter.get(to_address):
+                return
+
             value = transaction_dict.get(TransactionConstant.value)
             if value:
                 value = int(value)

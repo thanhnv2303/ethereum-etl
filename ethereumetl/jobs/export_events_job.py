@@ -20,10 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
+import time
 
 from blockchainetl.jobs.base_job import BaseJob
-from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConstant
+from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConstant, \
+    TestPerformanceConstant
 from config.event_lending_constant import EventLendingConstant
+from data_storage.memory_storage import MemoryStorage
+from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
 from ethereumetl.mappers.event_mapper import EthEventMapper
@@ -90,6 +94,8 @@ class ExportEventsJob(BaseJob):
         else:
             self.token_type = LendingTypeConstant.ERC20
 
+        self.local_storage = MemoryStorage.getInstance()
+
     def _init_events_subscription(self):
         event_abi = self.subscriber_event
         if event_abi.get(EventConstant.type) == EventConstant.event:
@@ -102,6 +108,7 @@ class ExportEventsJob(BaseJob):
             self.address_name_field = get_all_address_name_field(event_abi)
 
     def _start(self):
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
         self.item_exporter.open()
 
     def _export(self):
@@ -113,6 +120,7 @@ class ExportEventsJob(BaseJob):
 
     def _export_batch(self, block_number_batch):
         # self.eth_events_dict_cache = []
+        start = time.time()
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
         filter_params = {
@@ -125,6 +133,10 @@ class ExportEventsJob(BaseJob):
 
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
+
+        total_time = self.local_storage.get(TestPerformanceConstant.get_event_filter_time)
+        self.local_storage.set(TestPerformanceConstant.get_event_filter_time, total_time + (time.time() - start))
+
         for event in events:
             log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
             eth_event = self.event_extractor.extract_event_from_log(log, self.event_subscriber)
@@ -157,6 +169,8 @@ class ExportEventsJob(BaseJob):
                     wallet = get_wallet_dict(address, balance, pre_balance, block_num, unit_token)
                     wallet_append_lending_info(wallet, supply, borrow)
                     wallets.append(wallet)
+
+                    self.wallet_filter.set(address, wallet)
 
         eth_event_dict[TransactionConstant.wallets] = wallets
 

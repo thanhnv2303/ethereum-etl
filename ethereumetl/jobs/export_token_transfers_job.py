@@ -25,7 +25,10 @@ import time
 
 from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
-from config.constant import EventFilterConstant, TokenConstant, TransactionConstant
+from config.config import FilterConfig
+from config.constant import EventFilterConstant, TokenConstant, TransactionConstant, TestPerformanceConstant
+from data_storage.memory_storage import MemoryStorage
+from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
@@ -34,8 +37,9 @@ from ethereumetl.mappers.token_transfer_mapper import EthTokenTransferMapper
 from ethereumetl.mappers.wallet_mapper import get_wallet_dict
 from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.token_transfer_extractor import EthTokenTransferExtractor, TRANSFER_EVENT_TOPIC
-from utils.utils import validate_range
 from services.wallet_services import get_balance_at_block_smart_contract, update_balance_to_cache
+from utils.boolean_utils import to_bool
+from utils.utils import validate_range
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +84,12 @@ class ExportTokenTransfersJob(BaseJob):
         if latest_block:
             self.block_thread_hole = int(latest_block * 0.8)
 
+        self.local_storage = MemoryStorage.getInstance()
+        self.filter_for_lending = to_bool(FilterConfig.FILTER_FOR_LENDING)
+
     def _start(self):
         self.wallet_storage = WalletMemoryStorage.getInstance()
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
         self.item_exporter.open()
 
     def _export(self):
@@ -93,6 +101,7 @@ class ExportTokenTransfersJob(BaseJob):
 
     def _export_batch(self, block_number_batch):
         # self.token_dict_cache = []
+        start = time.time()
         assert len(block_number_batch) > 0
         # https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_getfilterlogs
         filter_params = {
@@ -106,6 +115,9 @@ class ExportTokenTransfersJob(BaseJob):
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
 
+        total_time = self.local_storage.get(TestPerformanceConstant.get_transfer_filter_time)
+
+        self.local_storage.set(TestPerformanceConstant.get_transfer_filter_time, total_time + time.time() - start)
         for event in events:
             self._handler_event(event)
         self.web3.eth.uninstallFilter(event_filter.filter_id)
@@ -114,7 +126,7 @@ class ExportTokenTransfersJob(BaseJob):
         log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)
         start_time1 = start_time = time.time()
         token_transfer = self.token_transfer_extractor.extract_transfer_from_log(log)
-        logger.info(f"time to extract token transfer is {time.time() - start_time}")
+        # logger.info(f"time to extract token transfer is {time.time() - start_time}")
         if token_transfer is not None:
             token_transfer_dict = self.token_transfer_mapper.token_transfer_to_dict(token_transfer)
             # start_time = time()
@@ -122,7 +134,7 @@ class ExportTokenTransfersJob(BaseJob):
             if not self.latest_block or block_number > self.block_thread_hole:
                 start_time = time.time()
                 self._update_balance(token_transfer_dict)
-                logger.info(f"time to update balance is {time.time() - start_time}")
+                # logger.info(f"time to update balance is {time.time() - start_time}")
             # end_time = time()
             # print("run time to update balance:" + str(end_time - start_time))
             # print(token_transfer_dict)
@@ -130,7 +142,7 @@ class ExportTokenTransfersJob(BaseJob):
             # start_time = time.time()
             self.item_exporter.export_item(token_transfer_dict)
 
-            logger.info(f"Time to export item {time.time() - start_time1}")
+            # logger.info(f"Time to export item {time.time() - start_time1}")
 
     def _end(self):
         self.batch_work_executor.shutdown()
@@ -141,6 +153,11 @@ class ExportTokenTransfersJob(BaseJob):
         token_address = token_transfer_dict.get(TokenConstant.contract_address)
         from_address = token_transfer_dict.get(TransactionConstant.from_address)
         to_address = token_transfer_dict.get(TransactionConstant.to_address)
+
+        if self.filter_for_lending and not self.wallet_filter.get(from_address) \
+                and not self.wallet_filter.get(to_address):
+            return
+
         wallets = []
         start_time = time.time()
         pre_from_balance, _wallet = get_balance_at_block_smart_contract(wallet_storage=self.wallet_storage,

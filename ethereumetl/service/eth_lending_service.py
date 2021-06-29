@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import logging
+import time
 
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
@@ -27,7 +28,8 @@ from web3.exceptions import BadFunctionCallOutput
 from artifacts.abi_pi.erc20_abi import ERC20_ABI
 from artifacts.abi_pi.lending_pool_abi import LENDING_POOL_ABI
 from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
-from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, VTokenConstant
+from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, VTokenConstant, TestPerformanceConstant
+from data_storage.memory_storage import MemoryStorage
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
@@ -53,6 +55,9 @@ class EthLendingService(object):
             LendingTypeConstant.VTOKEN: self.get_lending_info_v_token,
             LendingTypeConstant.LENDING_POOL: self.get_lending_info_pool
         }
+        self.local_storage = MemoryStorage.getInstance()
+        self.local_storage.set(TestPerformanceConstant.get_lending_info_trava_time, 0)
+        self.local_storage.set(TestPerformanceConstant.get_lending_info_vtoken_time, 0)
 
     def get_lending_info(self, contract_address, address, block_identifier="latest",
                          token_type=LendingTypeConstant.VTOKEN, asset_address=None):
@@ -71,11 +76,11 @@ class EthLendingService(object):
 
         :rtype: balance, pre_balance, supply, borrow, unit_token
         """
-        # start_time = time()
 
         if address == WalletConstant.address_nowhere:
             return
         # w3 = random.choice(self.web3s)
+        start_time = time.time()
         checksum_address = self._web3.toChecksumAddress(address)
         checksum_token_address = self._web3.toChecksumAddress(contract_address)
         contract_address = str(checksum_token_address).lower()
@@ -105,6 +110,10 @@ class EthLendingService(object):
             supply = round(supply / exchange_rate)
             borrow = round(borrow / exchange_rate)
             unit_token = contract_address
+
+            total_time = self.local_storage.get(TestPerformanceConstant.get_lending_info_vtoken_time)
+            self.local_storage.set(TestPerformanceConstant.get_lending_info_vtoken_time,
+                                   total_time + (time.time() - start_time))
             return balance, pre_balance, supply, borrow, unit_token
 
         except Exception as e:
@@ -121,6 +130,7 @@ class EthLendingService(object):
         if address == WalletConstant.address_nowhere:
             return
             # w3 = random.choice(self.web3s)
+        start = time.time()
         checksum_address = self._web3.toChecksumAddress(address)
         checksum_token_address = self._web3.toChecksumAddress(contract_address)
         contract_address = str(checksum_token_address).lower()
@@ -158,6 +168,10 @@ class EthLendingService(object):
             balance = 0
             pre_balance = 0
             unit_token = str(asset_address).lower()
+
+            total_time = self.local_storage.get(TestPerformanceConstant.get_lending_info_trava_time)
+            self.local_storage.set(TestPerformanceConstant.get_lending_info_trava_time,
+                                   total_time + (time.time() - start))
             return balance, pre_balance, supply, borrow, unit_token
 
         except Exception as e:

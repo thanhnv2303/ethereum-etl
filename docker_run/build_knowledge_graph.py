@@ -61,8 +61,7 @@ if __name__ == '__main__':
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=False)),
         item_exporter=create_item_exporter(output),
         batch_size=batch_size,
-        max_workers=max_workers,
-        first_time=True
+        max_workers=max_workers
     )
     streamer = Streamer(
         blockchain_streamer_adapter=streamer_adapter,

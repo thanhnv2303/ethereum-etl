@@ -1,8 +1,11 @@
 import time
 
-from config.constant import WalletConstant, TokenConstant
+from config.constant import WalletConstant, TokenConstant, TestPerformanceConstant
+from data_storage.memory_storage import MemoryStorage
 from ethereumetl.service.eth_service import EthService
 from ethereumetl.service.eth_token_service import EthTokenService
+
+local_storage = MemoryStorage.getInstance()
 
 
 def get_balance_at_block(wallet_storage, ethService: EthService, address, block_number):
@@ -13,9 +16,16 @@ def get_balance_at_block(wallet_storage, ethService: EthService, address, block_
         _wallet = {}
     if _wallet.get(WalletConstant.balance) and _wallet.get(WalletConstant.balance).get(token_address) and _wallet.get(
             WalletConstant.update_checkpoint) > timestamp:
+
         balance = _wallet.get(token_address)
+
     else:
+        start = time.time()
+
         balance = ethService.get_balance(address, block_number)
+
+        get_balance_time = local_storage.get(TestPerformanceConstant.get_balance_time)
+        local_storage.set(TestPerformanceConstant.get_balance_time, get_balance_time + (time.time() - start))
         _wallet[WalletConstant.update_checkpoint] = timestamp + WalletConstant.update_checkpoint_next_time
 
     return balance, _wallet
@@ -31,7 +41,12 @@ def get_balance_at_block_smart_contract(wallet_storage, ethService: EthTokenServ
             WalletConstant.update_checkpoint) > timestamp:
         balance = _wallet.get(token_address)
     else:
+        start = time.time()
         balance = ethService.get_balance(token_address, address, block_number)
+
+        get_balance_smart_contract_time = local_storage.get(TestPerformanceConstant.get_balance_smart_contract_time)
+        local_storage.set(TestPerformanceConstant.get_balance_smart_contract_time,
+                          get_balance_smart_contract_time + (time.time() - start))
         _wallet[WalletConstant.update_checkpoint] = timestamp + WalletConstant.update_checkpoint_next_time
 
     return balance, _wallet

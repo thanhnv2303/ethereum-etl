@@ -126,3 +126,13 @@ class LendingPoolConstant:
 
 class VTokenConstant:
     EXCHANGE_RATE_DECIMALS = 18
+
+
+class TestPerformanceConstant:
+    get_lending_info_vtoken_time = "get_lending_info_vtoken_time"
+    get_lending_info_trava_time = "get_lending_info_trava_time"
+    get_block_by_number_json = "get_block_by_number_json"
+    get_balance_time = "get_balance_time"
+    get_balance_smart_contract_time = "get_balance_smart_contract_time"
+    get_event_filter_time = "get_event_filter_time"
+    get_transfer_filter_time = "get_transfer_filter_time"

@@ -7,7 +7,6 @@ from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExport
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant, WalletConstant
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
-
 from ethereumetl.jobs.export_knowledge_graph_needed_common import export_klg_with_item_exporter
 from ethereumetl.service.eth_lending_service import EthLendingService
 from ethereumetl.service.eth_token_service import EthTokenService
@@ -26,8 +25,7 @@ class EthKnowledgeGraphStreamerAdapter:
             tokens=None,
             batch_size=EthKnowledgeGraphStreamerAdapterConstant.batch_size_default,
             max_workers=EthKnowledgeGraphStreamerAdapterConstant.max_workers_default,
-            provider_uris=None,
-            first_time=True
+            provider_uris=None
     ):
 
         self.provider_uri = provider_uri
@@ -44,7 +42,6 @@ class EthKnowledgeGraphStreamerAdapter:
         self.tokens = tokens
         self.provider_uris = provider_uris
         self.event_abi_dir = event_abi_dir
-        self.first_time = first_time
         self.ethTokenService = EthTokenService(self.w3, clean_user_provided_content)
         self.ethLendingService = EthLendingService(self.w3, clean_user_provided_content)
 
@@ -53,7 +50,8 @@ class EthKnowledgeGraphStreamerAdapter:
 
     def get_wallet_filter(self):
         self.database = Database()
-        self.wallet_filter = WalletFilterMemoryStorage()
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
+
         wallets = self.database.get_all_wallet()
         for wallet in wallets:
             address = wallet.get(WalletConstant.address)
@@ -77,7 +75,6 @@ class EthKnowledgeGraphStreamerAdapter:
                                           event_abi_dir=self.event_abi_dir,
                                           tokens=tokens,
                                           provider_uris=self.provider_uris,
-                                          first_time=self.first_time,
                                           w3=self.w3,
                                           ethTokenService=self.ethTokenService,
                                           ethLendingService=self.ethLendingService
