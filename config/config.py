@@ -13,7 +13,6 @@ class MongoDBConfig:
     NAME = os.environ.get("MONGO_USERNAME") or "just_for_dev"
     PASSWORD = os.environ.get("MONGO_PASSWORD") or "password_for_dev"
     HOST = os.environ.get("MONGO_HOST") or "localhost"
-    # HOST = "25.19.185.225"
     PORT = os.environ.get("MONGO_PORT") or "27027"
     DATABASE = "extract_data_knowledge_graph"
     TRANSACTIONS = "transactions"
