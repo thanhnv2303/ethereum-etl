@@ -2,7 +2,7 @@ import logging
 
 from ethereumetl.service.eth_event_service import EthEvent
 from ethereumetl.service.token_transfer_extractor import split_to_words, word_to_address
-from ethereumetl.utils import to_normalized_address, hex_to_dec
+from utils.utils import to_normalized_address, hex_to_dec
 
 logger = logging.getLogger(__name__)
 

@@ -34,7 +34,7 @@ from ethereumetl.mappers.token_transfer_mapper import EthTokenTransferMapper
 from ethereumetl.mappers.wallet_mapper import get_wallet_dict
 from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.token_transfer_extractor import EthTokenTransferExtractor, TRANSFER_EVENT_TOPIC
-from ethereumetl.utils import validate_range
+from utils.utils import validate_range
 from services.wallet_services import get_balance_at_block_smart_contract, update_balance_to_cache
 
 logger = logging.getLogger(__name__)

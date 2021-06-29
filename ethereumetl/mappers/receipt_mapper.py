@@ -23,7 +23,7 @@
 
 from ethereumetl.domain.receipt import EthReceipt
 from ethereumetl.mappers.receipt_log_mapper import EthReceiptLogMapper
-from ethereumetl.utils import hex_to_dec, to_normalized_address
+from utils.utils import hex_to_dec, to_normalized_address
 
 
 class EthReceiptMapper(object):

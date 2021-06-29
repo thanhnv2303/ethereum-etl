@@ -42,33 +42,14 @@ class Neo4jConfig:
 
 class BuildKnowledgeGraphConfig:
     LOG_FILE = os.environ.get("KNOWLEDGE_GRAPH_LOG_FILE")
-    PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_PROVIDER_URI")
+    PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_PROVIDER_URI") or "https://bsc-dataseed.binance.org/"
     LAG = os.environ.get("KNOWLEDGE_GRAPH_LAG") or 0
     BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BATCH_SIZE") or 64
     MAX_WORKERS = os.environ.get("KNOWLEDGE_GRAPH_MAX_WORKERS") or 8
-    START_BLOCK = os.environ.get("KNOWLEDGE_GRAPH_START_BLOCK")
+    START_BLOCK = os.environ.get("KNOWLEDGE_GRAPH_START_BLOCK") or 0
     PERIOD_SECONDS = os.environ.get("KNOWLEDGE_GRAPH_PERIOD_SECONDS") or 10
     PID_FILE = os.environ.get("KNOWLEDGE_GRAPH_PID_FILE") or None
     BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BLOCK_BATCH_SIZE") or 24
-    TOKENS_FILTER_FILE = os.environ.get("KNOWLEDGE_GRAPH_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/token_filter"
-    EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_EVENT_ABI_DIR") or "artifacts/event-abi"
-
-
-class KLGLendingStreamerAdapterConfig:
-    LOG_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_LOG_FILE")
-    PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PROVIDER_URI")
-    LAG = os.environ.get("KNOWLEDGE_GRAPH_LENDING_LAG") or 0
-    BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_BATCH_SIZE") or 64
-    MAX_WORKERS = os.environ.get("KNOWLEDGE_GRAPH_LENDING_MAX_WORKERS") or 8
-    START_BLOCK = os.environ.get("KNOWLEDGE_GRAPH_LENDING_START_BLOCK")
-    PERIOD_SECONDS = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PERIOD_SECONDS") or 10
-    PID_FILE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_PID_FILE") or None
-    BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_LENDING_BLOCK_BATCH_SIZE") or 24
     TOKENS_FILTER_FILE = os.environ.get(
-        "KNOWLEDGE_GRAPH_LENDING_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/token_filter"
-    V_TOKENS_FILTER_FILE = os.environ.get(
-        "KNOWLEDGE_GRAPH_LENDING_V_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/vToken_filter"
-    EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_LENDING_EVENT_ABI_DIR") or "artifacts/event-abi"
-    LIST_TOKEN_FILTER = os.environ.get(
-        "KNOWLEDGE_GRAPH_LENDING_LIST_TOKEN_FILTER") or "artifacts/token_credit_info/listToken.txt"
-    TOKEN_INFO = os.environ.get("KNOWLEDGE_GRAPH_LENDING_TOKEN_INFO") or "artifacts/token_credit_info/infoToken.json"
+        "KNOWLEDGE_GRAPH_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/token_filter"
+    EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_EVENT_ABI_DIR") or "artifacts/event-abi"

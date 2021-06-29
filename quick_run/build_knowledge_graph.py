@@ -11,8 +11,6 @@ import logging
 from os import path
 
 from blockchainetl.streaming.streaming_utils import configure_signals
-from ethereumetl.cli.stream import parse_entity_types, validate_entity_types, pick_random_provider_uri
-from ethereumetl.enumeration.entity_type import EntityType
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -22,7 +20,6 @@ if __name__ == '__main__':
     last_synced_block_file = "./data/last_synced_block.txt"
     lag = 0
     # log_file = "./data_stream/logs.txt"
-    entity_types = ','.join(EntityType.ALL_TOKEN)
     output = "knowledge_graph"
     from os.path import expanduser
 
@@ -30,8 +27,8 @@ if __name__ == '__main__':
     geth_ipc_file = home + "/bsc-full-sync/node/geth.ipc"
 
     if not os.path.exists(geth_ipc_file):
-        provider_uri = "http://25.19.185.225:8545"
-        # provider_uri = "https://bsc-dataseed.binance.org/"
+        # provider_uri = "http://25.19.185.225:8545"
+        provider_uri = "https://bsc-dataseed.binance.org/"
         # provider_uri = "https://bsc-dataseed1.ninicoin.io/"
         # provider_uri =  "https://data-seed-prebsc-1-s1.binance.org:8545/"
     else:
@@ -52,17 +49,13 @@ if __name__ == '__main__':
 
     # configure_logging(log_file)
     configure_signals()
-    entity_types = parse_entity_types(entity_types)
-    validate_entity_types(entity_types, output)
 
     from ethereumetl.streaming.item_exporter_creator import create_item_exporter
     from blockchainetl.streaming.streamer import Streamer
 
     # TODO: Implement fallback mechanism for provider uris instead of picking randomly
     provider_uris = [uri.strip() for uri in provider_uri.split(',')]
-
-    provider_uri = pick_random_provider_uri(provider_uri)
-
+    config_log()
     logging.info('Using ' + provider_uri)
     tokens_filter_file = "artifacts/smart_contract_filter/token_filter"
     streamer_adapter = EthKnowledgeGraphStreamerAdapter(
@@ -71,11 +64,10 @@ if __name__ == '__main__':
         item_exporter=create_item_exporter(output),
         batch_size=batch_size,
         max_workers=max_workers,
-        entity_types=entity_types,
         tokens_filter_file=tokens_filter_file,
         provider_uris=provider_uris
     )
-    config_log(level=logging.DEBUG)
+
     streamer = Streamer(
         blockchain_streamer_adapter=streamer_adapter,
         last_synced_block_file=last_synced_block_file,

@@ -23,7 +23,7 @@
 
 from ethereumetl.domain.trace import EthTrace
 from ethereumetl.mainnet_daofork_state_changes import DAOFORK_BLOCK_NUMBER
-from ethereumetl.utils import hex_to_dec, to_normalized_address
+from utils.utils import hex_to_dec, to_normalized_address
 
 
 class EthTraceMapper(object):

@@ -23,10 +23,10 @@
 import logging
 from datetime import datetime
 
-from ethereumetl.atomic_counter import AtomicCounter
-
-
 # Thread safe progress logger.
+from utils.atomic_counter import AtomicCounter
+
+
 class ProgressLogger:
     def __init__(self, name='work', logger=None, log_percentage_step=10, log_item_step=5000):
         self.name = name

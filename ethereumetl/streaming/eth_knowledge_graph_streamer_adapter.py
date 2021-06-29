@@ -7,12 +7,11 @@ from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExport
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant, WalletConstant
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
-from ethereumetl.cli.export_knowledge_graph_needed import get_partitions
+
 from ethereumetl.jobs.export_knowledge_graph_needed_common import export_klg_with_item_exporter
 from ethereumetl.service.eth_lending_service import EthLendingService
 from ethereumetl.service.eth_token_service import EthTokenService
-from ethereumetl.streaming.eth_item_id_calculator import EthItemIdCalculator
-from ethereumetl.streaming.eth_item_timestamp_calculator import EthItemTimestampCalculator
+from services.partition_service import get_partitions
 
 
 class EthKnowledgeGraphStreamerAdapter:
@@ -25,13 +24,12 @@ class EthKnowledgeGraphStreamerAdapter:
             tokens_filter_file=EthKnowledgeGraphStreamerAdapterConstant.tokens_filter_file_default,
             event_abi_dir=EthKnowledgeGraphStreamerAdapterConstant.event_abi_dir_default,
             tokens=None,
-            entity_types=None,
             batch_size=EthKnowledgeGraphStreamerAdapterConstant.batch_size_default,
             max_workers=EthKnowledgeGraphStreamerAdapterConstant.max_workers_default,
             provider_uris=None,
             first_time=True
     ):
-        # self.batch_web3_provider = batch_web3_provider
+
         self.provider_uri = provider_uri
         self.batch_web3_provider = batch_web3_provider
         self.w3 = Web3(batch_web3_provider)
@@ -39,8 +37,6 @@ class EthKnowledgeGraphStreamerAdapter:
         self.item_exporter = item_exporter
         self.batch_size = batch_size
         self.max_workers = max_workers
-        self.item_id_calculator = EthItemIdCalculator()
-        self.item_timestamp_calculator = EthItemTimestampCalculator()
 
         # change all path from this project root
         cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"

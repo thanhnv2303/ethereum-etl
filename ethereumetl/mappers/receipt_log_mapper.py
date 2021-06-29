@@ -22,7 +22,7 @@
 
 
 from ethereumetl.domain.receipt_log import EthReceiptLog
-from ethereumetl.utils import hex_to_dec
+from utils.utils import hex_to_dec
 
 
 class EthReceiptLogMapper(object):

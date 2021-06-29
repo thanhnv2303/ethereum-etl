@@ -24,10 +24,10 @@ import logging
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
+from artifacts.abi_pi.erc20_abi import ERC20_ABI
 from artifacts.abi_pi.lending_pool_abi import LENDING_POOL_ABI
 from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
 from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, VTokenConstant
-from ethereumetl.erc20_abi import ERC20_ABI
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 

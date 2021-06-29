@@ -1,7 +1,6 @@
 import os
 import sys
 
-
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
@@ -12,7 +11,6 @@ from os import path
 from config.config import BuildKnowledgeGraphConfig
 from ethereumetl.service.eth_service import get_latest_block
 from blockchainetl.streaming.streaming_utils import configure_signals, configure_logging
-from ethereumetl.cli.stream import pick_random_provider_uri
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
@@ -36,18 +34,15 @@ if __name__ == '__main__':
 
     # configure_logging(log_file)
     # logging_debug_config()
-    configure_signals()
-    if log_file and log_file != "None":
-        configure_logging(log_file)
+    # configure_signals()
+    # if log_file and log_file != "None":
+    #     configure_logging(log_file)
 
     cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../"
 
     # TODO: Implement fallback mechanism for provider uris instead of picking randomly
-    provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     # check provider is can connect
     output = "knowledge_graph"
-
-    provider_uri = pick_random_provider_uri(provider_uri)
 
     last_synced_block_file = cur_path + "data/last_synced_block.txt"
     if path.exists(last_synced_block_file):
@@ -55,10 +50,9 @@ if __name__ == '__main__':
     elif not start_block:
         start_block = get_latest_block(provider_uri)
 
+    config_log(level=logging.INFO)
     logging.info('Using ' + provider_uri)
-    first_time = True
 
-    config_log(level=logging.DEBUG)
     streamer_adapter = EthKnowledgeGraphStreamerAdapter(
         provider_uri=provider_uri,
         tokens_filter_file=tokens_filter_file,
@@ -68,7 +62,6 @@ if __name__ == '__main__':
         item_exporter=create_item_exporter(output),
         batch_size=batch_size,
         max_workers=max_workers,
-        provider_uris=provider_uris,
         first_time=True
     )
     streamer = Streamer(

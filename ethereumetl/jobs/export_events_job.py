@@ -34,7 +34,7 @@ from ethereumetl.service.eth_event_service import get_topic_filter, get_list_par
 from ethereumetl.service.eth_lending_service import EthLendingService
 from ethereumetl.service.eth_token_service import EthTokenService
 from ethereumetl.service.event_extractor import EthEventExtractor
-from ethereumetl.utils import validate_range
+from utils.utils import validate_range
 
 logger = logging.getLogger(__name__)
 

@@ -24,9 +24,9 @@ import logging
 from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
+from artifacts.abi_pi.erc20_abi import ERC20_ABI
 from config.constant import WalletConstant
 from ethereumetl.domain.token import EthToken
-from ethereumetl.erc20_abi import ERC20_ABI
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 

@@ -16,22 +16,6 @@ services:
     volumes:
       - ./data/mongodb/data/:/data/db/
 
-#  neo4j-klg:
-#    image: neo4j:4.0.3
-#    hostname: neo4j
-#    container_name: neo4j-klg
-#    ports:
-#      - ${NEO4J_HTTP_PORT}:7474
-#      - ${NEO4J_HTTPS_PORT}:7473
-#      - ${NEO4J_BOTH_PORT}:7687
-#    volumes:
-#      - ./neo4j/plugins:/plugins
-#    env_file:
-#      - ./.env
-#    environment:
-#      NEO4J_AUTH: ${NEO4J_USERNAME}/${NEO4J_PASSWORD}
-#      NEO4J_dbms_logs_debug_level: DEBUG
-
   build-knowledge-graph-testnet:
     build:
       context: .

@@ -30,13 +30,13 @@ from blockchainetl.jobs.base_job import BaseJob
 from config.constant import LoggerConstant, TransactionConstant, TokenConstant
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
-from ethereumetl.json_rpc_requests import generate_get_block_by_number_json_rpc
 from ethereumetl.mappers.block_mapper import EthBlockMapper
 from ethereumetl.mappers.transaction_mapper import EthTransactionMapper
 from ethereumetl.mappers.wallet_mapper import get_wallet_dict
 from ethereumetl.service.eth_service import EthService
-from ethereumetl.utils import rpc_response_batch_to_results, validate_range
+from services.json_rpc_requests import generate_get_block_by_number_json_rpc
 from services.wallet_services import get_balance_at_block, update_balance_to_cache
+from utils.utils import rpc_response_batch_to_results, validate_range
 
 logger = logging.getLogger(LoggerConstant.ExportBlocksJob)
 

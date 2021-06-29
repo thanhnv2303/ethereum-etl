@@ -26,8 +26,8 @@ from web3 import Web3
 
 from config.constant import LoggerConstant
 from ethereumetl.providers.auto import get_provider_from_uri
-from ethereumetl.service.graph_operations import GraphOperations, OutOfBoundsError, Point
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
+from services.graph_operations import GraphOperations, OutOfBoundsError, Point
 
 
 class EthService(object):
