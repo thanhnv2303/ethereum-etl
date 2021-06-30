@@ -22,12 +22,16 @@
 
 1. Install dependencies
    > pip3 install -r requirements.txt
-2. Create mongodb
+   > 
+2. Create file .env
+
    > cp example.env .env
+   >
+3. Create mongodb
 
    > docker-compose up mongo-export
 
-3. Quick run for dev
+4. Quick run for dev
 
    > python3 ./quick_run/build_knowledge_graph.py
 
@@ -36,7 +40,10 @@
 1. Connect hamachi network
     
    > Network id: connect_db
+   > 
    > Password : bkc@123
+   > 
+
 2. Connect mongodb (Read Only)
    
 
