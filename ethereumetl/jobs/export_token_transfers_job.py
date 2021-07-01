@@ -27,7 +27,7 @@ from blockchainetl.jobs.base_job import BaseJob
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
 from config.config import FilterConfig
 from config.constant import EventFilterConstant, TokenConstant, TransactionConstant, TestPerformanceConstant
-from data_storage.memory_storage import MemoryStorage
+from data_storage.memory_storage_test_performance import MemoryStoragePerformance
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
@@ -84,7 +84,7 @@ class ExportTokenTransfersJob(BaseJob):
         if latest_block:
             self.block_thread_hole = int(latest_block * 0.8)
 
-        self.local_storage = MemoryStorage.getInstance()
+        self.local_storage = MemoryStoragePerformance.getInstance()
         self.filter_for_lending = to_bool(FilterConfig.FILTER_FOR_LENDING)
 
     def _start(self):
@@ -165,7 +165,7 @@ class ExportTokenTransfersJob(BaseJob):
                                                                         address=from_address,
                                                                         token_address=token_address,
                                                                         block_number=block_number)
-        logger.info(f"time to get balance of {from_address} at block num {block_number} is {time.time() - start_time}")
+        # logger.info(f"time to get balance of {from_address} at block num {block_number} is {time.time() - start_time}")
         if pre_from_balance == None:
             from_balance = 0
         else:
@@ -188,7 +188,7 @@ class ExportTokenTransfersJob(BaseJob):
                                                                       token_address=token_address,
                                                                       block_number=block_number)
 
-        logger.info(f"time to get balance of {from_address} at block num {block_number} is {time.time() - start_time}")
+        # logger.info(f"time to get balance of {from_address} at block num {block_number} is {time.time() - start_time}")
         if pre_to_balance == None:
             to_balance = 0
         else:

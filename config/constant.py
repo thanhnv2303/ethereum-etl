@@ -136,3 +136,7 @@ class TestPerformanceConstant:
     get_balance_smart_contract_time = "get_balance_smart_contract_time"
     get_event_filter_time = "get_event_filter_time"
     get_transfer_filter_time = "get_transfer_filter_time"
+    read_mongo_time = "read_mongo_time"
+    write_mongo_time = "write_mongo_time"
+    transaction_number = "transaction_number"
+    transaction_handler_time = "transaction_handler_time"

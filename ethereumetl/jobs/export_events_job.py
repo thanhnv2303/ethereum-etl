@@ -26,7 +26,7 @@ from blockchainetl.jobs.base_job import BaseJob
 from config.constant import EventConstant, EventFilterConstant, TokenConstant, TransactionConstant, LendingTypeConstant, \
     TestPerformanceConstant
 from config.event_lending_constant import EventLendingConstant
-from data_storage.memory_storage import MemoryStorage
+from data_storage.memory_storage_test_performance import MemoryStoragePerformance
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.jobs.export_tokens_job import clean_user_provided_content
@@ -94,7 +94,7 @@ class ExportEventsJob(BaseJob):
         else:
             self.token_type = LendingTypeConstant.ERC20
 
-        self.local_storage = MemoryStorage.getInstance()
+        self.local_storage = MemoryStoragePerformance.getInstance()
 
     def _init_events_subscription(self):
         event_abi = self.subscriber_event
@@ -146,7 +146,12 @@ class ExportEventsJob(BaseJob):
                 # logger.info(eth_event_dict)
                 self._update_wallet(eth_event_dict)
                 self.item_exporter.export_item(eth_event_dict)
-
+        num_tx = len(events)
+        end_time = time.time() - start
+        number = self.local_storage.get(TestPerformanceConstant.transaction_number)
+        self.local_storage.set(TestPerformanceConstant.transaction_number, number + num_tx)
+        tx_handler_time = self.local_storage.get(TestPerformanceConstant.transaction_handler_time)
+        self.local_storage.set(TestPerformanceConstant.transaction_handler_time, tx_handler_time + end_time)
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _end(self):

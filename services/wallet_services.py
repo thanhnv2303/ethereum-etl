@@ -1,11 +1,11 @@
 import time
 
 from config.constant import WalletConstant, TokenConstant, TestPerformanceConstant
-from data_storage.memory_storage import MemoryStorage
+from data_storage.memory_storage_test_performance import MemoryStoragePerformance
 from ethereumetl.service.eth_service import EthService
 from ethereumetl.service.eth_token_service import EthTokenService
 
-local_storage = MemoryStorage.getInstance()
+local_storage = MemoryStoragePerformance.getInstance()
 
 
 def get_balance_at_block(wallet_storage, ethService: EthService, address, block_number):

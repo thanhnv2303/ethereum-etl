@@ -31,6 +31,7 @@ from web3 import Web3
 
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant, TimeUpdateConstant, TestPerformanceConstant
 from data_storage.memory_storage import MemoryStorage
+from data_storage.memory_storage_test_performance import MemoryStoragePerformance
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
 from ethereumetl.jobs.export_subscriber_events_job import ExportSubscriberEventsJob
 from ethereumetl.jobs.export_token_transfers_job import ExportTokenTransfersJob
@@ -68,7 +69,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         """
         init local storage to calculate time test performance
         """
-        local_storage = MemoryStorage.getInstance()
+        local_storage = MemoryStoragePerformance.getInstance()
         local_storage.set(TestPerformanceConstant.get_transfer_filter_time, 0)
         local_storage.set(TestPerformanceConstant.get_event_filter_time, 0)
         local_storage.set(TestPerformanceConstant.get_balance_smart_contract_time, 0)
@@ -76,6 +77,10 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         local_storage.set(TestPerformanceConstant.get_block_by_number_json, 0)
         local_storage.set(TestPerformanceConstant.get_lending_info_trava_time, 0)
         local_storage.set(TestPerformanceConstant.get_lending_info_vtoken_time, 0)
+        local_storage.set(TestPerformanceConstant.read_mongo_time, 0)
+        local_storage.set(TestPerformanceConstant.write_mongo_time, 0)
+        local_storage.set(TestPerformanceConstant.transaction_number, 0)
+        local_storage.set(TestPerformanceConstant.transaction_handler_time, 0)
 
         block_range = '{padded_batch_start_block}-{padded_batch_end_block}'.format(
             padded_batch_start_block=padded_batch_start_block,
@@ -189,30 +194,41 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         """
         Show total time to call from provider
         """
-        get_transfer_filter_time = local_storage.get(TestPerformanceConstant.get_transfer_filter_time)
-        get_event_filter_time = local_storage.get(TestPerformanceConstant.get_event_filter_time)
-        get_balance_smart_contract_time = local_storage.get(TestPerformanceConstant.get_balance_smart_contract_time)
-        get_balance_time = local_storage.get(TestPerformanceConstant.get_balance_time)
-        get_block_by_number_json = local_storage.get(TestPerformanceConstant.get_block_by_number_json)
-        get_lending_info_trava_time = local_storage.get(TestPerformanceConstant.get_lending_info_trava_time)
-        get_lending_info_vtoken_time = local_storage.get(TestPerformanceConstant.get_lending_info_vtoken_time)
-        total_time = get_transfer_filter_time + \
-                     get_event_filter_time + \
-                     get_balance_smart_contract_time + \
-                     get_balance_time + get_block_by_number_json + \
-                     get_lending_info_trava_time + \
-                     get_lending_info_vtoken_time
-
-        logger.info(f"Exporting blocks {block_range} get_transfer_filter_time take {get_transfer_filter_time}")
-        logger.info(f"Exporting blocks {block_range} get_event_filter_time take {get_event_filter_time}")
-        logger.info(
-            f"Exporting blocks {block_range} get_balance_smart_contract_time take {get_balance_smart_contract_time}")
-        logger.info(f"Exporting blocks {block_range} get_balance_time take {get_balance_time}")
-        logger.info(f"Exporting blocks {block_range} get_block_by_number_json take {get_block_by_number_json}")
-        logger.info(f"Exporting blocks {block_range} get_lending_info_trava_time take {get_lending_info_trava_time}")
-        logger.info(f"Exporting blocks {block_range} get_lending_info_vtoken_time take {get_lending_info_vtoken_time}")
-        logger.info(f"Exporting blocks {block_range} get_lending_info_vtoken_time take {get_lending_info_vtoken_time}")
-        logger.info(f"Exporting blocks {block_range} total time call provider take {total_time}")
+        if local_storage.get_calculate_performance():
+            get_transfer_filter_time = local_storage.get(TestPerformanceConstant.get_transfer_filter_time)
+            get_event_filter_time = local_storage.get(TestPerformanceConstant.get_event_filter_time)
+            get_balance_smart_contract_time = local_storage.get(TestPerformanceConstant.get_balance_smart_contract_time)
+            get_balance_time = local_storage.get(TestPerformanceConstant.get_balance_time)
+            get_block_by_number_json = local_storage.get(TestPerformanceConstant.get_block_by_number_json)
+            get_lending_info_trava_time = local_storage.get(TestPerformanceConstant.get_lending_info_trava_time)
+            get_lending_info_vtoken_time = local_storage.get(TestPerformanceConstant.get_lending_info_vtoken_time)
+            read_mongo_time = local_storage.get(TestPerformanceConstant.read_mongo_time)
+            write_mongo_time = local_storage.get(TestPerformanceConstant.write_mongo_time)
+            transaction_handler_time = local_storage.get(TestPerformanceConstant.transaction_handler_time)
+            transaction_number = local_storage.get(TestPerformanceConstant.transaction_number)
+            total_time_call_provider = get_transfer_filter_time + \
+                                       get_event_filter_time + \
+                                       get_balance_smart_contract_time + \
+                                       get_balance_time + get_block_by_number_json + \
+                                       get_lending_info_trava_time + \
+                                       get_lending_info_vtoken_time
+            total_time = total_time_call_provider + read_mongo_time + write_mongo_time + transaction_handler_time
+            logger.info(f"Exporting blocks {block_range} get_transfer_filter_time take {get_transfer_filter_time}")
+            logger.info(f"Exporting blocks {block_range} get_event_filter_time take {get_event_filter_time}")
+            logger.info(
+                f"Exporting blocks {block_range} get_balance_smart_contract_time take {get_balance_smart_contract_time}")
+            logger.info(f"Exporting blocks {block_range} get_balance_time take {get_balance_time}")
+            logger.info(f"Exporting blocks {block_range} get_block_by_number_json take {get_block_by_number_json}")
+            logger.info(
+                f"Exporting blocks {block_range} get_lending_info_trava_time take {get_lending_info_trava_time}")
+            logger.info(
+                f"Exporting blocks {block_range} get_lending_info_vtoken_time take {get_lending_info_vtoken_time}")
+            logger.info(f"Exporting blocks {block_range} total time call provider take {total_time_call_provider}")
+            logger.info(f"Exporting blocks {block_range} read_mongo_time take {read_mongo_time}")
+            logger.info(f"Exporting blocks {block_range} write_mongo_time take {write_mongo_time}")
+            logger.info(f"Exporting blocks {block_range} transaction_handler_time take {transaction_handler_time}")
+            logger.info(f"Exporting blocks {block_range} transaction_number take {transaction_number}")
+            logger.info(f"Exporting blocks {block_range} total time to process {total_time}")
 
         # # # finish # # #
         # shutil.rmtree(os.path.dirname(cache_output_dir))

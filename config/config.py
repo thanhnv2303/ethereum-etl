@@ -50,3 +50,7 @@ class BuildKnowledgeGraphConfig:
 
 class FilterConfig:
     FILTER_FOR_LENDING = os.environ.get("FILTER_FOR_LENDING") or False
+
+
+class TestPerformanceConfig:
+    CALCULATE_PERFORMANCE = os.environ.get("CALCULATE_PERFORMANCE") or True

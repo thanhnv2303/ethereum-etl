@@ -29,7 +29,7 @@ from web3 import Web3
 from blockchainetl.jobs.base_job import BaseJob
 from config.config import FilterConfig
 from config.constant import LoggerConstant, TransactionConstant, TokenConstant, TestPerformanceConstant
-from data_storage.memory_storage import MemoryStorage
+from data_storage.memory_storage_test_performance import MemoryStoragePerformance
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from data_storage.wallet_storage import WalletMemoryStorage
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
@@ -89,7 +89,7 @@ class ExportBlocksJob(BaseJob):
             self.w3 = Web3(batch_web3_provider)
         self.ethService = EthService(self.w3, provider_uris)
         # self.ethService = EthService(batch_web3_provider)
-        self.local_storage = MemoryStorage.getInstance()
+        self.local_storage = MemoryStoragePerformance.getInstance()
 
         self.filter_for_lending = to_bool(FilterConfig.FILTER_FOR_LENDING)
 
@@ -133,8 +133,13 @@ class ExportBlocksJob(BaseJob):
             for tx in block.transactions:
                 transaction_dict = self.transaction_mapper.transaction_to_dict(tx)
                 self._handler_transaction(transaction_dict)
-
-            logger.info(f"total processed transaction {len(block.transactions)} take : {time.time() - start_time}s")
+            num_tx = len(block.transactions)
+            end_time = time.time() - start_time
+            number = self.local_storage.get(TestPerformanceConstant.transaction_number)
+            self.local_storage.set(TestPerformanceConstant.transaction_number, number + num_tx)
+            tx_handler_time = self.local_storage.get(TestPerformanceConstant.transaction_handler_time)
+            self.local_storage.set(TestPerformanceConstant.transaction_handler_time, tx_handler_time + end_time)
+            logger.info(f"total processed transaction {num_tx} take : {end_time}s")
 
     def _handler_transaction(self, transaction_dict):
         block_number = int(transaction_dict.get(TransactionConstant.block_number))
@@ -172,8 +177,8 @@ class ExportBlocksJob(BaseJob):
                                                              ethService=self.ethService,
                                                              address=from_address, block_number=block_number - 1)
             end_time = time.time()
-            logger.info(f"time to call get balance native token of {from_address} is" + str(
-                end_time - start_time))
+            # logger.info(f"time to call get balance native token of {from_address} is" + str(
+            #     end_time - start_time))
             if pre_from_balance == None:
                 # pre_from_balance = 0
                 from_balance = 0
@@ -190,8 +195,8 @@ class ExportBlocksJob(BaseJob):
                                                            ethService=self.ethService,
                                                            address=to_address, block_number=block_number - 1)
             end_time = time.time()
-            logger.info(f"time to call get balance native token of " + from_address + "  is" + str(
-                end_time - start_time))
+            # logger.info(f"time to call get balance native token of " + from_address + "  is" + str(
+            #     end_time - start_time))
             if pre_to_balance == None:
                 # pre_to_balance = 0
                 to_balance = 0
