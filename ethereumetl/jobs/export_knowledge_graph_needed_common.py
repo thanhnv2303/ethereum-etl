@@ -181,7 +181,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         start_time = time()
         local_storage = MemoryStorage.getInstance()
 
-        checkpoint = local_storage.get_element(MemoryStorageKeyConstant.checkpoint)
+        checkpoint = local_storage.get(MemoryStorageKeyConstant.checkpoint)
         timestamp = round(start_time)
         timestamp_day = round_timestamp_to_date(timestamp)
         if not checkpoint or checkpoint != timestamp_day:
@@ -194,6 +194,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
             )
             job.run()
             memomory_storage.set("first_time", True)
+            local_storage.set(MemoryStorageKeyConstant.checkpoint, timestamp_day)
         # print("token exported")
         # print(job.get_cache())
         job.clean_cache()
