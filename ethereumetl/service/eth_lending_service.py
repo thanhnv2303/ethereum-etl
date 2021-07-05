@@ -158,15 +158,20 @@ class EthLendingService(object):
                 checksum_token_address = self._web3.toChecksumAddress(variableDebtTokenAddress)
                 self.token_contract[variableDebtTokenAddress] = self._web3.eth.contract(address=checksum_token_address,
                                                                                         abi=ERC20_ABI)
-
+            if not self.token_contract.get(asset_address):
+                checksum_token_address = self._web3.toChecksumAddress(asset_address)
+                self.token_contract[asset_address] = self._web3.eth.contract(address=checksum_token_address,
+                                                                             abi=ERC20_ABI)
             contract_tToken = self.token_contract.get(tTokenAddress)
             contract_dToken = self.token_contract.get(variableDebtTokenAddress)
             supply = self._get_first_result(contract_tToken.functions.balanceOf(checksum_address),
                                             block_identifier=block_identifier)
             borrow = self._get_first_result(contract_dToken.functions.balanceOf(checksum_address),
                                             block_identifier=block_identifier)
-            balance = 0
-            pre_balance = 0
+            balance = self._get_first_result(contract_dToken.functions.balanceOf(checksum_address),
+                                             block_identifier=block_identifier)
+            pre_balance = self._get_first_result(contract_dToken.functions.balanceOf(checksum_address),
+                                                 block_identifier=block_identifier - 1)
             unit_token = str(asset_address).lower()
 
             total_time = self.local_storage.get(TestPerformanceConstant.get_lending_info_trava_time)
