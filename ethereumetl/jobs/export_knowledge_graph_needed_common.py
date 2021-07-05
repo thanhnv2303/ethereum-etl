@@ -177,11 +177,11 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         logger.info(f"time to extract all events {time() - start_export_event}s")
         # # # # tokens # # #
         now = datetime.datetime.now()
-        memomory_storage = MemoryStorage.getInstance()
-        start_time = time()
-        local_storage = MemoryStorage.getInstance()
 
-        checkpoint = local_storage.get(MemoryStorageKeyConstant.checkpoint)
+        start_time = time()
+        checkpoint_storage = MemoryStorage.getInstance()
+
+        checkpoint = checkpoint_storage.get(MemoryStorageKeyConstant.checkpoint)
         timestamp = round(start_time)
         timestamp_day = round_timestamp_to_date(timestamp)
         if not checkpoint or checkpoint != timestamp_day:
@@ -193,8 +193,8 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                 ethTokenService=ethTokenService
             )
             job.run()
-            memomory_storage.set("first_time", True)
-            local_storage.set(MemoryStorageKeyConstant.checkpoint, timestamp_day)
+
+            checkpoint_storage.set(MemoryStorageKeyConstant.checkpoint, timestamp_day)
         # print("token exported")
         # print(job.get_cache())
         job.clean_cache()
