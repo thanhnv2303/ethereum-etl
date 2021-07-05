@@ -140,3 +140,7 @@ class TestPerformanceConstant:
     write_mongo_time = "write_mongo_time"
     transaction_number = "transaction_number"
     transaction_handler_time = "transaction_handler_time"
+
+
+class MemoryStorageKeyConstant:
+    checkpoint = "checkpoint"

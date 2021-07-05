@@ -48,19 +48,26 @@ class EthTokenService(object):
     def get_token(self, token_address):
         checksum_address = self._web3.toChecksumAddress(token_address)
         contract = self._web3.eth.contract(address=checksum_address, abi=ERC20_ABI)
-
-        symbol = self._get_first_result(contract.functions.symbol(), contract.functions.SYMBOL())
-        name = self._get_first_result(contract.functions.name(), contract.functions.NAME())
-        decimals = self._get_first_result(contract.functions.decimals(), contract.functions.DECIMALS())
-        total_supply = self._get_first_result(contract.functions.totalSupply())
-
         token = EthToken()
         token.address = token_address.lower()
-        token.symbol = symbol
-        token.name = name
-        token.decimals = decimals
-        token.total_supply = total_supply
+        try:
+            symbol = self._get_first_result(contract.functions.symbol(), contract.functions.SYMBOL())
+            name = self._get_first_result(contract.functions.name(), contract.functions.NAME())
+            decimals = self._get_first_result(contract.functions.decimals(), contract.functions.DECIMALS())
+            total_supply = self._get_first_result(contract.functions.totalSupply())
 
+
+
+            token.symbol = symbol
+            token.name = name
+            token.decimals = decimals
+            token.total_supply = total_supply
+        except Exception as e:
+            logger.error(e)
+            token.symbol = None
+            token.name = None
+            token.decimals = None
+            token.total_supply = None
         return token
 
     def get_balance(self, token_address, address, block_identifier="latest", abi=ERC20_ABI):

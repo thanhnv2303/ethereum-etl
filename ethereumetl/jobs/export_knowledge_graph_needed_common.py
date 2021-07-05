@@ -29,7 +29,8 @@ from time import time
 
 from web3 import Web3
 
-from config.constant import EthKnowledgeGraphStreamerAdapterConstant, TimeUpdateConstant, TestPerformanceConstant
+from config.constant import EthKnowledgeGraphStreamerAdapterConstant, TestPerformanceConstant, \
+    MemoryStorageKeyConstant
 from data_storage.memory_storage import MemoryStorage
 from data_storage.memory_storage_test_performance import MemoryStoragePerformance
 from ethereumetl.jobs.export_blocks_job import ExportBlocksJob
@@ -38,6 +39,7 @@ from ethereumetl.jobs.export_token_transfers_job import ExportTokenTransfersJob
 from ethereumetl.jobs.export_tokens_job import ExportTokensJob
 from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
+from services.time_service import round_timestamp_to_date
 
 logger = logging.getLogger('export_knowledge_graph_needed')
 
@@ -176,8 +178,13 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         # # # # tokens # # #
         now = datetime.datetime.now()
         memomory_storage = MemoryStorage.getInstance()
-        if (now.hour == TimeUpdateConstant.token_update_hour and now.minute < TimeUpdateConstant.token_update_minute) \
-                or not memomory_storage.get("first_time"):
+        start_time = time()
+        local_storage = MemoryStorage.getInstance()
+
+        checkpoint = local_storage.get_element(MemoryStorageKeyConstant.checkpoint)
+        timestamp = round(start_time)
+        timestamp_day = round_timestamp_to_date(timestamp)
+        if not checkpoint or checkpoint != timestamp_day:
             job = ExportTokensJob(
                 token_addresses_iterable=tokens,
                 web3=thread_local_proxy,
