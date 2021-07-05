@@ -148,6 +148,7 @@ class EthLendingService(object):
                                                  block_identifier=block_identifier)
             tTokenAddress = str(ReserveData[6]).lower()
             variableDebtTokenAddress = str(ReserveData[7]).lower()
+            unit_token = str(asset_address).lower()
 
             if not self.token_contract.get(tTokenAddress):
                 checksum_token_address = self._web3.toChecksumAddress(tTokenAddress)
@@ -158,21 +159,22 @@ class EthLendingService(object):
                 checksum_token_address = self._web3.toChecksumAddress(variableDebtTokenAddress)
                 self.token_contract[variableDebtTokenAddress] = self._web3.eth.contract(address=checksum_token_address,
                                                                                         abi=ERC20_ABI)
-            if not self.token_contract.get(asset_address):
-                checksum_token_address = self._web3.toChecksumAddress(asset_address)
-                self.token_contract[asset_address] = self._web3.eth.contract(address=checksum_token_address,
-                                                                             abi=ERC20_ABI)
+            if not self.token_contract.get(unit_token):
+                checksum_token_address = self._web3.toChecksumAddress(unit_token)
+                self.token_contract[unit_token] = self._web3.eth.contract(address=checksum_token_address,
+                                                                          abi=ERC20_ABI)
             contract_tToken = self.token_contract.get(tTokenAddress)
             contract_dToken = self.token_contract.get(variableDebtTokenAddress)
+
+            contract_Token = self.token_contract.get(unit_token)
             supply = self._get_first_result(contract_tToken.functions.balanceOf(checksum_address),
                                             block_identifier=block_identifier)
             borrow = self._get_first_result(contract_dToken.functions.balanceOf(checksum_address),
                                             block_identifier=block_identifier)
-            balance = self._get_first_result(contract_dToken.functions.balanceOf(checksum_address),
+            balance = self._get_first_result(contract_Token.functions.balanceOf(checksum_address),
                                              block_identifier=block_identifier)
-            pre_balance = self._get_first_result(contract_dToken.functions.balanceOf(checksum_address),
+            pre_balance = self._get_first_result(contract_Token.functions.balanceOf(checksum_address),
                                                  block_identifier=block_identifier - 1)
-            unit_token = str(asset_address).lower()
 
             total_time = self.local_storage.get(TestPerformanceConstant.get_lending_info_trava_time)
             self.local_storage.set(TestPerformanceConstant.get_lending_info_trava_time,
