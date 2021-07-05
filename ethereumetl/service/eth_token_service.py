@@ -98,12 +98,15 @@ class EthTokenService(object):
             return None
 
     def _get_first_result(self, *funcs, block_identifier="latest"):
-        for func in funcs:
+        try:
+            for func in funcs:
 
-            result = self._call_contract_function(func, block_identifier=block_identifier)
-            if result is not None:
-                return result
-        return None
+                result = self._call_contract_function(func, block_identifier=block_identifier)
+                if result is not None:
+                    return result
+            return None
+        except Exception as e:
+            logger.error(e)
 
     def _call_contract_function(self, func, block_identifier="latest"):
         # BadFunctionCallOutput exception happens if the token doesn't implement a particular function
