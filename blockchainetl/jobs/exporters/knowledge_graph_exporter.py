@@ -121,7 +121,7 @@ class KnowledgeGraphExporter:
             wallet[WalletConstant.balance] = str(wallet.get(WalletConstant.balance))
             wallet[WalletConstant.pre_balance] = str(wallet.get(WalletConstant.pre_balance))
 
-            balances[balance_address] = wallet.get(WalletConstant.balance)
+            balances[unit_token] = wallet.get(WalletConstant.balance)
             if wallet.get(WalletConstant.supply):
                 supply[unit_token] = wallet.get(WalletConstant.supply)
             if wallet.get(WalletConstant.borrow):
