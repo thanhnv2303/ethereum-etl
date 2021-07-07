@@ -5,12 +5,14 @@ from web3.middleware import geth_poa_middleware
 
 from blockchainetl.jobs.exporters.console_item_exporter import ConsoleItemExporter
 from blockchainetl.jobs.exporters.databasse.mongo_db import Database
+from config.config import FilterConfig
 from config.constant import EthKnowledgeGraphStreamerAdapterConstant, WalletConstant
 from data_storage.wallet_filter_storage import WalletFilterMemoryStorage
 from ethereumetl.jobs.export_knowledge_graph_needed_common import export_klg_with_item_exporter
 from ethereumetl.service.eth_lending_service import EthLendingService
 from ethereumetl.service.eth_token_service import EthTokenService
 from services.partition_service import get_partitions
+from utils.boolean_utils import to_bool
 
 
 class EthKnowledgeGraphStreamerAdapter:
@@ -44,6 +46,9 @@ class EthKnowledgeGraphStreamerAdapter:
         self.event_abi_dir = event_abi_dir
         self.ethTokenService = EthTokenService(self.w3, clean_user_provided_content)
         self.ethLendingService = EthLendingService(self.w3, clean_user_provided_content)
+        self.filter_for_lending = to_bool(FilterConfig.FILTER_FOR_LENDING)
+        if self.filter_for_lending:
+            self.get_wallet_filter()
 
     def open(self):
         self.item_exporter.open()
