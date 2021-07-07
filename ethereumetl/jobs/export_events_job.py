@@ -66,7 +66,7 @@ class ExportEventsJob(BaseJob):
         self.web3 = web3
         self.tokens = tokens
         self.item_exporter = item_exporter
-        self.max_workers = int(max_workers/2)
+        self.max_workers = int(max_workers/4)
         self.batch_work_executor = BatchWorkExecutor(batch_size, self.max_workers)
 
         self.receipt_log_mapper = EthReceiptLogMapper()
