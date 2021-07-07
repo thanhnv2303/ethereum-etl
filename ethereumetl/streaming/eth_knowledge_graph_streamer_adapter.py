@@ -1,4 +1,5 @@
 import os
+from csv import reader
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
@@ -44,19 +45,29 @@ class EthKnowledgeGraphStreamerAdapter:
         self.event_abi_dir = event_abi_dir
         self.ethTokenService = EthTokenService(self.w3, clean_user_provided_content)
         self.ethLendingService = EthLendingService(self.w3, clean_user_provided_content)
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
+
+        self.get_wallet_filter()
+        self.init_wallet_filter_from_file()
+
 
     def open(self):
         self.item_exporter.open()
 
     def get_wallet_filter(self):
         self.database = Database()
-        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
-
         wallets = self.database.get_all_wallet()
         for wallet in wallets:
             address = wallet.get(WalletConstant.address)
             self.wallet_filter.set(address, wallet)
-
+    def init_wallet_filter_from_file(self):
+        with open('students.csv', 'r') as read_obj:
+            # pass the file object to reader() to get the reader object
+            csv_reader = reader(read_obj)
+            # Iterate over each row in the csv using reader object
+            for row in csv_reader:
+                # row variable is a list that represents a row in csv
+                print(row)
     def get_current_block_number(self):
         return int(self.w3.eth.blockNumber)
 
