@@ -1,11 +1,11 @@
 import os
 import sys
 
-from services.log_services import config_log
 
 TOP_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(TOP_DIR, './'))
 
+from services.log_services import config_log
 from ethereumetl.service.eth_service import get_latest_block
 import logging
 from os import path
