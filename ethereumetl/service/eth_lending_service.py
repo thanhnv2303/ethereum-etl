@@ -166,8 +166,8 @@ class EthLendingService(object):
                 ReserveData = self._get_first_result(contract.functions.getReserveData(asset_address),
                                                      block_identifier=block_identifier)
                 if ReserveData:
-                    tTokenAddress = str(ReserveData[6]).lower()
-                    variableDebtTokenAddress = str(ReserveData[8]).lower()
+                    tTokenAddress = str(ReserveData[7]).lower()
+                    variableDebtTokenAddress = str(ReserveData[9]).lower()
 
             unit_token = str(asset_address).lower()
 

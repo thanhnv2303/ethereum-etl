@@ -33,8 +33,9 @@ if __name__ == '__main__':
         # provider_uri = "https://bsc-dataseed1.ninicoin.io/"
         # provider_uri = "https://bsc-dataseed2.defibit.io/"
         # provider_uri = "https://bsc-dataseed4.binance.org/"
-        provider_uri = "https://speedy-nodes-nyc.moralis.io/cd00f2fddfd96dc8ed17bf2a/eth/mainnet"
-        # provider_uri = "wss://speedy-nodes-nyc.moralis.io/cd00f2fddfd96dc8ed17bf2a/eth/mainnet/ws"
+        # provider_uri = "https://speedy-nodes-nyc.moralis.io/cd00f2fddfd96dc8ed17bf2a/eth/mainnet"
+        provider_uri = "https://hopeful-dijkstra:data-common-clump-alibi-resume-penny@nd-342-105-984.p2pify.com"
+        # provider_uri = "https://mainnet.infura.io/v3/2daa3165cf034303b2d5197b0520240d"
         # provider_uri =  "https://data-seed-prebsc-1-s1.binance.org:8545/"
     else:
         provider_uri = "file:///" + geth_ipc_file + ",http://35.240.140.92:8545"
