@@ -38,7 +38,7 @@ class EthKnowledgeGraphStreamerAdapter:
         self.max_workers = max_workers
 
         # change all path from this project root
-        self.cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"
+        self.cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../"
         self.tokens_filter_file = self.cur_path + tokens_filter_file
         self.tokens = tokens
         self.provider_uris = provider_uris
