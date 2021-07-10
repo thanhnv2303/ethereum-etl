@@ -67,7 +67,7 @@ class ExportEventsJob(BaseJob):
         self.tokens = tokens
         self.item_exporter = item_exporter
 
-        self.batch_work_executor = BatchWorkExecutor(batch_size, max_workers)
+        self.batch_work_executor = BatchWorkExecutor(batch_size, int(max_workers / 2))
 
         self.receipt_log_mapper = EthReceiptLogMapper()
         self.event_mapper = EthEventMapper()
