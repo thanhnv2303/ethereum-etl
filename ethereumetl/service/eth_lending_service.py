@@ -226,11 +226,11 @@ class EthLendingService(object):
             default_value=None,
             block_identifier=block_identifier
         )
-
-        if self._function_call_result_transformer is not None:
-            return self._function_call_result_transformer(result)
-        else:
-            return result
+        return result
+        # if self._function_call_result_transformer is not None:
+        #     return self._function_call_result_transformer(result)
+        # else:
+        #     return result
 
 
 def call_contract_function(func, ignore_errors, default_value=None, block_identifier="latest"):
