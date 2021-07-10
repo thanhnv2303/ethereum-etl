@@ -47,7 +47,7 @@ class EthKnowledgeGraphStreamerAdapter:
         self.ethLendingService = EthLendingService(self.w3, clean_user_provided_content)
         self.wallet_filter = WalletFilterMemoryStorage.getInstance()
 
-        # self.get_wallet_filter()
+        self.get_wallet_filter()
         self.init_wallet_filter_from_file()
 
     def open(self):
