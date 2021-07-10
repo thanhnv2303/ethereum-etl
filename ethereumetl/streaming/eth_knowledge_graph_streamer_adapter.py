@@ -62,9 +62,9 @@ class EthKnowledgeGraphStreamerAdapter:
 
     def init_wallet_filter_from_file(self):
 
-        file_csv_1 = self.cur_path + "artifacts/wallet_filter/Orai-holder-eth.csv"
+        file_csv_ether = self.cur_path + "artifacts/wallet_filter/Orai-holder-eth.csv"
         file_csv_bsc = self.cur_path + "artifacts/wallet_filter/Orai-holder-bsc.csv"
-        with open(file_csv_bsc, 'r') as read_obj:
+        with open(file_csv_ether, 'r') as read_obj:
             # pass the file object to reader() to get the reader object
             csv_reader = reader(read_obj)
             # Iterate over each row in the csv using reader object
