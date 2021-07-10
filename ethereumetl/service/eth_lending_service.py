@@ -149,8 +149,9 @@ class EthLendingService(object):
 
             ReserveData = self._get_first_result(contract.functions.getReserveData(asset_address),
                                                  block_identifier=block_identifier)
-            tTokenAddress = str(ReserveData[6]).lower()
-            variableDebtTokenAddress = str(ReserveData[7]).lower()
+            if ReserveData:
+                tTokenAddress = str(ReserveData[6]).lower()
+                variableDebtTokenAddress = str(ReserveData[7]).lower()
             # if not ReserveData:
             #     self.token_contract[contract_address] = self._web3.eth.contract(address=checksum_token_address,
             #                                                                     abi=LENDING_POOL_AAVE_V1_ABI)

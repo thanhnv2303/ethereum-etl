@@ -44,6 +44,10 @@ def get_provider_from_uri(uri_string, timeout=DEFAULT_TIMEOUT, batch=False):
             return BatchHTTPProvider(uri_string, request_kwargs=request_kwargs)
         else:
             return Web3.HTTPProvider(uri_string, request_kwargs=request_kwargs)
+    elif uri.scheme == 'wss' :
+        request_kwargs = {'timeout': timeout}
+
+        return Web3.WebsocketProvider(uri_string, request_kwargs=request_kwargs)
     else:
         raise ValueError('Unknown uri scheme {}'.format(uri_string))
 
