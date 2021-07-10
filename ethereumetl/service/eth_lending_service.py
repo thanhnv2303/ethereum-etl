@@ -26,6 +26,8 @@ from web3 import Web3
 from web3.exceptions import BadFunctionCallOutput
 
 from artifacts.abi_pi.erc20_abi import ERC20_ABI
+from artifacts.abi_pi.lending_pool_aave_v1_abi import LENDING_POOL_AAVE_V1_ABI
+from artifacts.abi_pi.lending_pool_aave_v2_abi import LENDING_POOL_AAVE_V2_ABI
 from artifacts.abi_pi.lending_pool_abi import LENDING_POOL_ABI
 from artifacts.abi_pi.vToken_abi import VTOKEN_ABI
 from config.constant import WalletConstant, LendingTypeConstant, LoggerConstant, VTokenConstant, TestPerformanceConstant
@@ -144,10 +146,28 @@ class EthLendingService(object):
             #     contract.functions.getUserAccountData(checksum_address),
             #     block_identifier=block_identifier)
             asset_address = self._web3.toChecksumAddress(asset_address)
+
             ReserveData = self._get_first_result(contract.functions.getReserveData(asset_address),
                                                  block_identifier=block_identifier)
             tTokenAddress = str(ReserveData[6]).lower()
             variableDebtTokenAddress = str(ReserveData[7]).lower()
+            # if not ReserveData:
+            #     self.token_contract[contract_address] = self._web3.eth.contract(address=checksum_token_address,
+            #                                                                     abi=LENDING_POOL_AAVE_V1_ABI)
+            #     contract = self.token_contract.get(contract_address)
+            #     ReserveData = self._get_first_result(contract.functions.getReserveData(asset_address),
+            #                                          block_identifier=block_identifier)
+
+            if not ReserveData:
+                self.token_contract[contract_address] = self._web3.eth.contract(address=checksum_token_address,
+                                                                                abi=LENDING_POOL_AAVE_V2_ABI)
+                contract = self.token_contract.get(contract_address)
+                ReserveData = self._get_first_result(contract.functions.getReserveData(asset_address),
+                                                     block_identifier=block_identifier)
+                if ReserveData:
+                    tTokenAddress = str(ReserveData[6]).lower()
+                    variableDebtTokenAddress = str(ReserveData[8]).lower()
+
             unit_token = str(asset_address).lower()
 
             if not self.token_contract.get(tTokenAddress):

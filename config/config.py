@@ -35,7 +35,7 @@ class Neo4jConfig:
 
 class BuildKnowledgeGraphConfig:
     LOG_FILE = os.environ.get("KNOWLEDGE_GRAPH_LOG_FILE")
-    PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_PROVIDER_URI") or "https://bsc-dataseed.binance.org/"
+    PROVIDER_URI = os.environ.get("KNOWLEDGE_GRAPH_PROVIDER_URI") or "https://mainnet.infura.io/v3/2daa3165cf034303b2d5197b0520240d"
     LAG = os.environ.get("KNOWLEDGE_GRAPH_LAG") or 0
     BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BATCH_SIZE") or 4
     MAX_WORKERS = os.environ.get("KNOWLEDGE_GRAPH_MAX_WORKERS") or 8
@@ -44,7 +44,7 @@ class BuildKnowledgeGraphConfig:
     PID_FILE = os.environ.get("KNOWLEDGE_GRAPH_PID_FILE") or None
     BLOCK_BATCH_SIZE = os.environ.get("KNOWLEDGE_GRAPH_BLOCK_BATCH_SIZE") or 32
     TOKENS_FILTER_FILE = os.environ.get(
-        "KNOWLEDGE_GRAPH_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/token_filter"
+        "KNOWLEDGE_GRAPH_TOKENS_FILTER_FILE") or "artifacts/smart_contract_filter/token_filter_ether"
     EVENT_ABI_DIR = os.environ.get("KNOWLEDGE_GRAPH_EVENT_ABI_DIR") or "artifacts/event-abi"
 
 

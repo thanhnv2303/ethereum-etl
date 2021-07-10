@@ -32,7 +32,8 @@ if __name__ == '__main__':
         # provider_uri = "https://bsc-dataseed1.defibit.io/"
         # provider_uri = "https://bsc-dataseed1.ninicoin.io/"
         # provider_uri = "https://bsc-dataseed2.defibit.io/"
-        provider_uri = "https://bsc-dataseed4.binance.org/"
+        # provider_uri = "https://bsc-dataseed4.binance.org/"
+        provider_uri = "https://speedy-nodes-nyc.moralis.io/cd00f2fddfd96dc8ed17bf2a/eth/mainnet"
         # provider_uri =  "https://data-seed-prebsc-1-s1.binance.org:8545/"
     else:
         provider_uri = "file:///" + geth_ipc_file + ",http://35.240.140.92:8545"
@@ -60,7 +61,7 @@ if __name__ == '__main__':
     provider_uris = [uri.strip() for uri in provider_uri.split(',')]
     config_log()
     logging.info('Using ' + provider_uri)
-    tokens_filter_file = "artifacts/smart_contract_filter/token_filter"
+    tokens_filter_file = "artifacts/smart_contract_filter/token_filter_ether"
     streamer_adapter = EthKnowledgeGraphStreamerAdapter(
         provider_uri=provider_uri,
         batch_web3_provider=ThreadLocalProxy(lambda: get_provider_from_uri(provider_uri, batch=True)),

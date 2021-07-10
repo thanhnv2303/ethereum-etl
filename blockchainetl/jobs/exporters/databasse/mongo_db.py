@@ -46,6 +46,11 @@ class Database(object):
     def update_block(self, block):
         c_time = self.local_storage.get(TestPerformanceConstant.write_mongo_time)
         start = time.time()
+        if block.get('difficulty'):
+            block["difficulty"]= str(block.get('difficulty'))
+        if block.get('total_difficulty'):
+            block["total_difficulty"]= str(block.get('total_difficulty'))
+        logger.info(f" update block info {block}")
         self.mongo_blocks.insert_one(block)
         self.local_storage.set(TestPerformanceConstant.write_mongo_time, c_time + time.time() - start)
 
