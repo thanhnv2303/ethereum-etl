@@ -61,7 +61,7 @@ class ExportSubscriberEventsJob(BaseJob):
         self.item_exporter = item_exporter
         self.batch_size = batch_size
         self.thread_local_proxy = web3
-        self.max_workers = int(max_workers/2)
+        self.max_workers = int(max_workers/4)
         self.batch_work_executor = BatchWorkExecutor(batch_size, self.max_workers)
 
         self.receipt_log_mapper = EthReceiptLogMapper()
