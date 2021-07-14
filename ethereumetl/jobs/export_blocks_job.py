@@ -114,13 +114,17 @@ class ExportBlocksJob(BaseJob):
         get_block_by_number_time = self.local_storage.get(TestPerformanceConstant.get_block_by_number_json)
         self.local_storage.set(TestPerformanceConstant.get_block_by_number_json,
                                get_block_by_number_time + (time.time() - start_time))
-        logger.info(
-            f"time to get info blocks {block_number_batch[0]} - {block_number_batch[-1]} is {end_time - start_time}")
+        # logger.info(
+        #     f"time to get info blocks {block_number_batch[0]} - {block_number_batch[-1]} is {end_time - start_time}")
         blocks = [self.block_mapper.json_dict_to_block(result) for result in results]
         for block in blocks:
             self._export_block(block)
-        logger.info(
-            f"total time to process {block_number_batch[0]} - {block_number_batch[-1]} blocks  is {time.time() - start_time}")
+
+        run_time = time.time() - start_time
+        total_time = self.local_storage.get(TestPerformanceConstant.total_time)
+        self.local_storage.set(TestPerformanceConstant.total_time, total_time + run_time)
+        # logger.info(
+        #     f"total time to process {block_number_batch[0]} - {block_number_batch[-1]} blocks  is {run_time}")
 
     def _export_block(self, block):
         if self.export_blocks:
@@ -139,14 +143,14 @@ class ExportBlocksJob(BaseJob):
             self.local_storage.set(TestPerformanceConstant.transaction_number, number + num_tx)
             tx_handler_time = self.local_storage.get(TestPerformanceConstant.transaction_handler_time)
             self.local_storage.set(TestPerformanceConstant.transaction_handler_time, tx_handler_time + end_time)
-            logger.info(f"total processed transaction {num_tx} take : {end_time}s")
+            # logger.info(f"total processed transaction {num_tx} take : {end_time}s")
 
     def _handler_transaction(self, transaction_dict):
         block_number = int(transaction_dict.get(TransactionConstant.block_number))
-        start_time = time.time()
+        # start_time = time.time()
         if True or not self.latest_block or block_number > self.block_thread_hole:
             self._update_balance(transaction_dict)
-            logger.debug(f"time to update balance " + str(time.time() - start_time))
+            # logger.debug(f"time to update balance " + str(time.time() - start_time))
         self.item_exporter.export_item(transaction_dict)
 
     def _end(self):
@@ -170,13 +174,13 @@ class ExportBlocksJob(BaseJob):
                 value = int(value)
             else:
                 value = 0
-            start_time = time.time()
+            # start_time = time.time()
 
             token_address = TokenConstant.native_token
             pre_from_balance, _wallet = get_balance_at_block(wallet_storage=self.wallet_storage,
                                                              ethService=self.ethService,
                                                              address=from_address, block_number=block_number - 1)
-            end_time = time.time()
+            # end_time = time.time()
             # logger.info(f"time to call get balance native token of {from_address} is" + str(
             #     end_time - start_time))
             if pre_from_balance == None:
@@ -189,12 +193,12 @@ class ExportBlocksJob(BaseJob):
                                         token_address=token_address,
                                         balance=from_balance)
 
-            start_time = time.time()
+            # start_time = time.time()
 
             pre_to_balance, _wallet = get_balance_at_block(wallet_storage=self.wallet_storage,
                                                            ethService=self.ethService,
                                                            address=to_address, block_number=block_number - 1)
-            end_time = time.time()
+            # end_time = time.time()
             # logger.info(f"time to call get balance native token of " + from_address + "  is" + str(
             #     end_time - start_time))
             if pre_to_balance == None:
@@ -215,7 +219,7 @@ class ExportBlocksJob(BaseJob):
                 wallets.append(wallet)
 
             transaction_dict[TransactionConstant.wallets] = wallets
-            logger.debug(f" Time to process transaction {time.time() - start_time_0}")
+            # logger.debug(f" Time to process transaction {time.time() - start_time_0}")
 
     def get_cache(self):
         return self.blocks_cache + self.transactions_cache

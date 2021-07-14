@@ -114,13 +114,17 @@ class ExportTokenTransfersJob(BaseJob):
             filter_params[TokenConstant.address] = self.tokens
         event_filter = self.web3.eth.filter(filter_params)
         events = event_filter.get_all_entries()
+        self.web3.eth.uninstallFilter(event_filter.filter_id)
 
         total_time = self.local_storage.get(TestPerformanceConstant.get_transfer_filter_time)
 
         self.local_storage.set(TestPerformanceConstant.get_transfer_filter_time, total_time + time.time() - start)
         for event in events:
             self._handler_event(event)
-        self.web3.eth.uninstallFilter(event_filter.filter_id)
+
+        run_time = time.time() - start
+        total_time = self.local_storage.get(TestPerformanceConstant.total_time)
+        self.local_storage.set(TestPerformanceConstant.total_time, total_time + run_time)
 
     def _handler_event(self, event):
         log = self.receipt_log_mapper.web3_dict_to_receipt_log(event)

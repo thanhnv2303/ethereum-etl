@@ -5,7 +5,7 @@ from ethereumetl.providers.auto import get_provider_from_uri
 from ethereumetl.streaming.eth_knowledge_graph_streamer_adapter import EthKnowledgeGraphStreamerAdapter
 from ethereumetl.thread_local_proxy import ThreadLocalProxy
 
-last_synced_block_file = "./data_test_stream/last_synced_block.txt"
+last_synced_block_file = "../data/last_synced_block.txt"
 lag = 0
 # log_file = "./data_test_stream/logs.txt"
 

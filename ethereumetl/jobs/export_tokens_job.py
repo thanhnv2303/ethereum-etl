@@ -19,9 +19,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import time
 
 from blockchainetl.jobs.base_job import BaseJob
+from config.constant import TestPerformanceConstant
+from data_storage.memory_storage_test_performance import MemoryStoragePerformance
 from ethereumetl.executors.batch_work_executor import BatchWorkExecutor
 from ethereumetl.mappers.token_mapper import EthTokenMapper
 from ethereumetl.service.eth_token_service import EthTokenService
@@ -40,6 +42,7 @@ class ExportTokensJob(BaseJob):
 
         self.token_mapper = EthTokenMapper()
         self.tokens_cache = []
+        self.local_storage = MemoryStoragePerformance.getInstance()
 
     def _start(self):
         self.item_exporter.open()
@@ -52,11 +55,16 @@ class ExportTokensJob(BaseJob):
             self._export_token(token_address)
 
     def _export_token(self, token_address, block_number=None):
+        start_time = time.time()
         token = self.token_service.get_token(token_address)
         token.block_number = block_number
         token_dict = self.token_mapper.token_to_dict(token)
         self.tokens_cache.append(token_dict)
         self.item_exporter.export_item(token_dict)
+
+        run_time = time.time() - start_time
+        total_time = self.local_storage.get(TestPerformanceConstant.total_time)
+        self.local_storage.set(TestPerformanceConstant.total_time, total_time + run_time)
 
     def _end(self):
         self.batch_work_executor.shutdown()

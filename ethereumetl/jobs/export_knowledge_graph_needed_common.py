@@ -83,6 +83,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
         local_storage.set(TestPerformanceConstant.write_mongo_time, 0)
         local_storage.set(TestPerformanceConstant.transaction_number, 0)
         local_storage.set(TestPerformanceConstant.transaction_handler_time, 0)
+        local_storage.set(TestPerformanceConstant.total_time, 0)
 
         block_range = '{padded_batch_start_block}-{padded_batch_end_block}'.format(
             padded_batch_start_block=padded_batch_start_block,
@@ -220,7 +221,7 @@ def export_klg_with_item_exporter(partitions, provider_uri, max_workers, batch_s
                                        get_balance_time + get_block_by_number_json + \
                                        get_lending_info_trava_time + \
                                        get_lending_info_vtoken_time
-            total_time = total_time_call_provider + read_mongo_time + write_mongo_time + transaction_handler_time
+            total_time = local_storage.get(TestPerformanceConstant.total_time)
             logger.info(f"Exporting blocks {block_range} get_transfer_filter_time take {get_transfer_filter_time}")
             logger.info(f"Exporting blocks {block_range} get_event_filter_time take {get_event_filter_time}")
             logger.info(

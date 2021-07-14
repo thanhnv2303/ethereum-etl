@@ -152,6 +152,10 @@ class ExportEventsJob(BaseJob):
         self.local_storage.set(TestPerformanceConstant.transaction_number, number + num_tx)
         tx_handler_time = self.local_storage.get(TestPerformanceConstant.transaction_handler_time)
         self.local_storage.set(TestPerformanceConstant.transaction_handler_time, tx_handler_time + end_time)
+
+        run_time = time.time() - start
+        total_time = self.local_storage.get(TestPerformanceConstant.total_time)
+        self.local_storage.set(TestPerformanceConstant.total_time, total_time + run_time)
         self.web3.eth.uninstallFilter(event_filter.filter_id)
 
     def _end(self):
