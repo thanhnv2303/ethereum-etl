@@ -1,4 +1,5 @@
 import os
+from csv import reader
 
 from web3 import Web3
 from web3.middleware import geth_poa_middleware
@@ -39,8 +40,8 @@ class EthKnowledgeGraphStreamerAdapter:
         self.max_workers = max_workers
 
         # change all path from this project root
-        cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"
-        self.tokens_filter_file = cur_path + tokens_filter_file
+        self.cur_path = os.path.dirname(os.path.realpath(__file__)) + "/../../"
+        self.tokens_filter_file = self.cur_path + tokens_filter_file
         self.tokens = tokens
         self.provider_uris = provider_uris
         self.event_abi_dir = event_abi_dir
@@ -49,18 +50,33 @@ class EthKnowledgeGraphStreamerAdapter:
         self.filter_for_lending = to_bool(FilterConfig.FILTER_FOR_LENDING)
         if self.filter_for_lending:
             self.get_wallet_filter()
+        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
+
+        # self.get_wallet_filter()
+        self.init_wallet_filter_from_file()
 
     def open(self):
         self.item_exporter.open()
 
     def get_wallet_filter(self):
         self.database = Database()
-        self.wallet_filter = WalletFilterMemoryStorage.getInstance()
-
         wallets = self.database.get_all_wallet()
         for wallet in wallets:
             address = wallet.get(WalletConstant.address)
             self.wallet_filter.set(address, wallet)
+
+    def init_wallet_filter_from_file(self):
+
+        file_csv_1 = self.cur_path + "artifacts/wallet_filter/Orai-holder-eth.csv"
+        file_csv_bsc = self.cur_path + "artifacts/wallet_filter/Orai-holder-bsc.csv"
+        with open(file_csv_bsc, 'r') as read_obj:
+            # pass the file object to reader() to get the reader object
+            csv_reader = reader(read_obj)
+            # Iterate over each row in the csv using reader object
+            for row in csv_reader:
+                address = str(row[0]).lower()
+                print(address)
+                self.wallet_filter.set(address, {})
 
     def get_current_block_number(self):
         return int(self.w3.eth.blockNumber)
@@ -88,9 +104,7 @@ class EthKnowledgeGraphStreamerAdapter:
     def close(self):
         self.item_exporter.close()
 
-
 ASCII_0 = 0
-
 
 def clean_user_provided_content(content):
     if isinstance(content, str):
