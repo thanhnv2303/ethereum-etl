@@ -119,6 +119,6 @@ class Database(object):
     def get_all_wallet(self):
         # c_time = self.local_storage.get(TestPerformanceConstant.read_mongo_time)
         # start = time.time()
-        result = self.mongo_wallet.find({})
+        result = self.mongo_wallet.find({}).limit(100000)
         # self.local_storage.set(TestPerformanceConstant.read_mongo_time, c_time + time.time() - start)
         return result
