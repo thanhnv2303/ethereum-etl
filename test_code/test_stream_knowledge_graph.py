@@ -12,10 +12,11 @@ lag = 0
 output = None
 provider_uri = "https://bsc-dataseed.binance.org/"
 provider_uri = "http://25.19.185.225:8545"
+provider_uri = "https://speedy-nodes-nyc.moralis.io/cd00f2fddfd96dc8ed17bf2a/bsc/mainnet/archive"
 batch_size = 128
 max_workers = 8
 
-start_block = 4378378
+start_block = 9099895
 # start_block = None
 period_seconds = 10
 pid_file = None

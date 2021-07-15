@@ -41,7 +41,7 @@ if __name__ == '__main__':
     batch_size = 4
     max_workers = 8
 
-    start_block = 5448378
+    start_block = 9099895
     # if path.exists(last_synced_block_file):
     #     start_block = None
     # else:
